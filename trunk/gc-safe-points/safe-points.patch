@@ -2,11 +2,10 @@ Index: mono/metadata/sgen-gc.c
 ===================================================================
 --- mono/metadata/sgen-gc.c	(revision 157988)
 +++ mono/metadata/sgen-gc.c	(working copy)
-@@ -199,19 +199,15 @@
+@@ -199,7 +199,12 @@
  #include "utils/mono-time.h"
  #include "utils/mono-semaphore.h"
  #include "utils/mono-counters.h"
-+#include "mini/mini.h"
 +#include "io-layer/wapi.h"
  
 +#if defined(MONO_GC_SAFE_POINTS) && !defined(WAPI_ATOMIC_ASM)
@@ -15,27 +14,14 @@ Index: mono/metadata/sgen-gc.c
 +
  #include <mono/utils/memcheck.h>
  
--#define OPDEF(a,b,c,d,e,f,g,h,i,j) \
--	a = i,
--
--enum {
--#include "mono/cil/opcode.def"
--	CEE_LAST
--};
--
--#undef OPDEF
--
- /*
-  * ######################################################################
-  * ########  Types and constants used by the GC.
-@@ -398,6 +394,18 @@
+ #define OPDEF(a,b,c,d,e,f,g,h,i,j) \
+@@ -398,6 +403,17 @@
  
  #define SIZEOF_GC_MEM_SECTION	((sizeof (GCMemSection) + 7) & ~7)
  
 +#ifdef MONO_GC_SAFE_POINTS
 +
 +void *gc_safe_point_map = NULL;
-+
 +GPtrArray *bl_methods = NULL;
 +
 +static void gc_safe_points_trigger_request (void);
@@ -47,23 +33,20 @@ Index: mono/metadata/sgen-gc.c
  /* large object space struct: 64+ KB */
  /* we could make this limit much smaller to avoid memcpy copy
   * and potentially have more room in the GC descriptor: need to measure
-@@ -877,8 +885,28 @@
+@@ -877,8 +893,25 @@
  	gpointer *store_remset_buffer;
  	long store_remset_buffer_index;
  #endif
 +#ifdef MONO_GC_SAFE_POINTS
-+	volatile int safe_point_info; /* TODO Is volatile required? */
++	int safe_point_info;
 +#endif
  };
  
 +#ifdef MONO_GC_SAFE_POINTS
 +enum {
-+	SAFE_POINT_THREAD_RUNNING = 0,
-+	SAFE_POINT_THREAD_PARKED = 1,
-+	SAFE_POINT_THREAD_MANAGED = 2,
-+	SAFE_POINT_THREAD_MANAGED_PARKED = 3,
-+	SAFE_POINT_THREAD_UNMANAGED = 4,
-+	SAFE_POINT_THREAD_UNMANAGED_PARKED = 5
++	THREAD_RUNNING = 0,
++	THREAD_PARKED_AT_SAFE_POINT = 1,
++	THREAD_PARKED_FORCED = 2
 +};
 +
 +#ifdef MONO_GC_SAFE_POINTS_STATS
@@ -76,7 +59,7 @@ Index: mono/metadata/sgen-gc.c
  #ifdef HAVE_KW_THREAD
  #define TLAB_ACCESS_INIT
  #define TLAB_START	tlab_start
-@@ -5420,19 +5448,17 @@
+@@ -5420,25 +5454,30 @@
  
  /* LOCKING: assumes the GC lock is held (by the stopping thread) */
  static void
@@ -98,9 +81,24 @@ Index: mono/metadata/sgen-gc.c
 +	info->stopped_domain = domain;
 +	info->stopped_ip = ip;
  	stop_count = global_stop_count;
- 	/* duplicate signal */
- 	if (0 && info->stop_count == stop_count) {
-@@ -5477,7 +5503,28 @@
+-	/* duplicate signal */
+-	if (0 && info->stop_count == stop_count) {
++#ifdef MONO_GC_SAFE_POINTS
++	/**
++	 * A thread which has been parked via a safe point hit may receive the
++	 * suspend signal sent to it during the stop-world routine after the
++	 * collection is over. Practically, this sometimes happens if the number
++	 * of threads is high (> 100).
++	 */
++	if (info->stop_count == stop_count) {
+ 		errno = old_errno;
+ 		return;
+ 	}
++#endif
+ #ifdef HAVE_KW_THREAD
+ 	/* update the remset info in the thread data structure */
+ 	info->remset = remembered_set;
+@@ -5477,7 +5516,27 @@
  	errno = old_errno;
  }
  
@@ -112,8 +110,7 @@ Index: mono/metadata/sgen-gc.c
 +	gpointer ip = (gpointer) ARCH_SIGCTX_IP (context);
 +#ifdef MONO_GC_SAFE_POINTS
 +	SgenThreadInfo *info = thread_info_lookup (ARCH_GET_THREAD ());
-+	InterlockedCompareExchange (&info->safe_point_info, SAFE_POINT_THREAD_UNMANAGED_PARKED, SAFE_POINT_THREAD_RUNNING);
-+	if (info->safe_point_info != SAFE_POINT_THREAD_UNMANAGED_PARKED) {
++	if (InterlockedCompareExchange (&info->safe_point_info, THREAD_PARKED_FORCED, THREAD_RUNNING)) {
 +		DEBUG (4, fprintf (gc_debug_file, "Not suspending %p, %p from a suspend handler hit.\n", info, info->id));
 +		return;
 +	}
@@ -129,7 +126,7 @@ Index: mono/metadata/sgen-gc.c
  restart_handler (int sig)
  {
  	SgenThreadInfo *info;
-@@ -5488,6 +5535,10 @@
+@@ -5488,6 +5547,10 @@
  	DEBUG (4, fprintf (gc_debug_file, "Restart handler in %p %p\n", info, (gpointer)ARCH_GET_THREAD ()));
  
  	errno = old_errno;
@@ -140,7 +137,7 @@ Index: mono/metadata/sgen-gc.c
  }
  
  static void
-@@ -5505,6 +5556,24 @@
+@@ -5505,6 +5568,31 @@
  static TV_DECLARE (stop_world_time);
  static unsigned long max_pause_usec = 0;
  
@@ -152,20 +149,27 @@ Index: mono/metadata/sgen-gc.c
 +	SgenThreadInfo *info;
 +	for (i = 0; i < THREAD_HASH_SIZE; ++i)
 +		for (info = thread_table [i]; info; info = info->next)
-+			info->safe_point_info = 0;
++			info->safe_point_info = THREAD_RUNNING;
 +}
 +#endif
 +
 +#ifdef MONO_GC_SAFE_POINTS
 +/* Number of micro-seconds the world-stopping threads waits for the other
-+ * threads reach a GC safe point. This may not actually be required. */
-+#define SLEEP_TIME_THREADS 20
++ * threads reach a GC safe point.
++ * Increasing this increases the number of threads parked at a safe point 
++ * after a stop-world (since the collector thread halts for the mentioned amount
++ * of time, giving other (managed) threads more time to roll-over to the next safe point).
++ * A value which provides a good trade-off between the number of threads in safe
++ * points to the amount of time the collector thread has to halt needs to be
++ * figured out.
++ */
++#define SLEEP_TIME_THREADS 100
 +#endif
 +
  /* LOCKING: assumes the GC lock is held */
  static int
  stop_world (void)
-@@ -5515,10 +5584,25 @@
+@@ -5515,10 +5603,25 @@
  
  	update_current_thread_stack (&count);
  
@@ -191,7 +195,7 @@ Index: mono/metadata/sgen-gc.c
  	count -= restart_threads_until_none_in_managed_allocator ();
  	g_assert (count >= 0);
  	DEBUG (3, fprintf (gc_debug_file, "world stopped %d thread(s)\n", count));
-@@ -7195,6 +7279,10 @@
+@@ -7195,6 +7298,10 @@
  	suspend_ack_semaphore_ptr = &suspend_ack_semaphore;
  	MONO_SEM_INIT (&suspend_ack_semaphore, 0);
  
@@ -202,7 +206,7 @@ Index: mono/metadata/sgen-gc.c
  	sigfillset (&sinfo.sa_mask);
  	sinfo.sa_flags = SA_RESTART | SA_SIGINFO;
  	sinfo.sa_sigaction = suspend_handler;
-@@ -7601,8 +7689,12 @@
+@@ -7601,8 +7708,12 @@
  
  	mono_loader_lock ();
  	res = alloc_method_cache [atype];
@@ -217,7 +221,7 @@ Index: mono/metadata/sgen-gc.c
  	mono_loader_unlock ();
  	return res;
  #else
-@@ -7806,11 +7898,90 @@
+@@ -7806,11 +7917,89 @@
  		/* double-checked locking */
  		mono_memory_barrier ();
  		write_barrier_method = res;
@@ -239,30 +243,17 @@ Index: mono/metadata/sgen-gc.c
 +#ifdef MONO_GC_SAFE_POINTS_METHOD_DEBUG
 +	gchar *list_track = getenv ("MONO_GC_SAFE_POINT_TRACK_METHOD");
 +#endif
-+	if (gc_safe_point_map) {
-+		return;
-+	}
++	g_assert (!gc_safe_point_map);
 +
-+	tmp_map = mono_valloc (NULL, mono_pagesize (), MONO_MMAP_READ);
-+	g_assert (tmp_map);
++	gc_safe_point_map = mono_valloc (NULL, mono_pagesize (), MONO_MMAP_READ);
++	g_assert (gc_safe_point_map);
 +
 +#ifdef MONO_GC_SAFE_POINTS_METHOD_DEBUG
 +	if (list_track)
 +		track_methods = g_strsplit (list_track, ",", -1);
 +#endif
 +
-+	mono_loader_lock ();
-+
-+	if (!bl_methods)
-+		bl_methods = g_ptr_array_new ();
-+
-+	if (gc_safe_point_map) {
-+		mono_vfree (tmp_map, mono_pagesize ());
-+	} else {
-+		gc_safe_point_map = tmp_map;
-+	}
-+
-+	mono_loader_unlock ();
++	bl_methods = g_ptr_array_new ();
 +}
 +
 +static void
@@ -291,8 +282,7 @@ Index: mono/metadata/sgen-gc.c
 +mono_gc_hit_safe_point (void *context, MonoDomain *domain, gpointer ip)
 +{
 +	SgenThreadInfo *info = thread_info_lookup (ARCH_GET_THREAD ());
-+	InterlockedCompareExchange (&info->safe_point_info, SAFE_POINT_THREAD_MANAGED_PARKED, SAFE_POINT_THREAD_RUNNING);
-+	if (info->safe_point_info == SAFE_POINT_THREAD_MANAGED_PARKED) {
++	if (InterlockedCompareExchange (&info->safe_point_info, THREAD_PARKED_AT_SAFE_POINT, THREAD_RUNNING)) {
 +#ifdef MONO_GC_SAFE_POINTS_STATS
 +		safe_points_encountered++;
 +		total_threads_stopped++;
@@ -304,6 +294,19 @@ Index: mono/metadata/sgen-gc.c
 +	}
 +}
 +
++gboolean
++mono_gc_method_blacklisted_for_safe_pts (MonoMethod *method)
++{
++	int i;
++	if (!bl_methods)
++		return FALSE;
++	for (i = 0; i < bl_methods -> len; i++) {
++		if (g_ptr_array_index (bl_methods, i) == method)
++			return TRUE;
++	}
++	return FALSE;
++}
++
 +#endif // MONO_GC_SAFE_POINTS
 +
  #endif /* HAVE_SGEN_GC */
@@ -312,12 +315,12 @@ Index: mono/metadata/sgen-gc.h
 ===================================================================
 --- mono/metadata/sgen-gc.h	(revision 157988)
 +++ mono/metadata/sgen-gc.h	(working copy)
-@@ -46,5 +46,39 @@
+@@ -46,5 +46,41 @@
  /* we intercept pthread_create calls to know which threads exist */
  #define USE_PTHREAD_INTERCEPT 1
  
 +/* Define this to use GC safe points. */
-+#define MONO_GC_SAFE_POINTS 1
++//#define MONO_GC_SAFE_POINTS 1
 +
 +/* Define this to maintain and print stats about the safe points. */
 +//#define MONO_GC_SAFE_POINTS_STATS 1
@@ -334,19 +337,19 @@ Index: mono/metadata/sgen-gc.h
 + * This is used in mini/mini.c to check if the SIGSEGV was (intentionally) caused
 + * by a safe point.
 + */
-+extern void *gc_safe_point_map;
++void *mono_gc_get_safe_point_map ();
 +
 +/**
 + * Called to blacklist methods which must not have gc-safe points inside them,
-+ * either for correctness (viz. wbarrier) or efficiency (small methods which
-+ * return quickly).
++ * either for correctness (viz. wbarrier, managed allocators) or efficiency
++ * (small methods which return quickly).
 + * 
-+ * Defined in sgen-gc.c (otherwise libmonoruntime does not build).
-+ *
 + * TODO Register the 'small methods which return quickly' from various places 
 + * in codebase.
 + */
 +void mono_gc_blacklist_method_for_safe_pts (MonoMethod *method);
++
++gboolean mono_gc_method_blacklisted_for_safe_pts (MonoMethod *method)
 +
 +#endif // MONO_GC_SAFE_POINTS
 +
@@ -401,53 +404,18 @@ Index: mono/mini/method-to-ir.c
  static int ldind_to_load_membase (int opcode);
  static int stind_to_store_membase (int opcode);
  
-@@ -5091,6 +5122,25 @@
- 	return FALSE;
- }
- 
-+#ifdef MONO_GC_SAFE_POINTS
-+
-+extern GPtrArray *bl_methods;
-+
-+static gboolean
-+method_blacklisted_for_gc_safe_pts (MonoMethod *method)
-+{
-+	int i;
-+	if (!bl_methods)
-+		return FALSE;
-+	for (i = 0; i < bl_methods -> len; i++) {
-+		if (g_ptr_array_index (bl_methods, i) == method)
-+			return TRUE;
-+	}
-+	return FALSE;
-+}
-+
-+#endif
-+
- /*
-  * mono_method_to_ir:
-  *
-@@ -5130,6 +5180,10 @@
+@@ -5130,6 +5161,10 @@
  	int context_used;
  	gboolean init_locals, seq_points, skip_dead_blocks;
  
 +#ifdef MONO_GC_SAFE_POINTS
-+	gboolean insert_safe_points = !method_blacklisted_for_gc_safe_pts(method);
++	gboolean insert_safe_points = !mono_gc_method_blacklisted_for_safe_pts (method);
 +#endif
 +
  	/* serialization and xdomain stuff may need access to private fields and methods */
  	dont_verify = method->klass->image->assembly->corlib_internal? TRUE: FALSE;
  	dont_verify |= method->wrapper_type == MONO_WRAPPER_XDOMAIN_INVOKE;
-@@ -5998,6 +6052,8 @@
- 				if (method->dynamic && fsig->pinvoke) {
- 					MonoInst *args [3];
- 
-+					INSERT_GC_SAFE_POINT;
-+
- 					/*
- 					 * This is a call through a function pointer using a pinvoke
- 					 * signature. Have to create a wrapper and call that instead.
-@@ -6603,6 +6659,7 @@
+@@ -6603,6 +6638,7 @@
  			break;
  		}
  		case CEE_RET:
@@ -455,40 +423,40 @@ Index: mono/mini/method-to-ir.c
  			if (cfg->method != method) {
  				/* return from inlined method */
  				/* 
-@@ -6680,6 +6737,7 @@
+@@ -6680,6 +6716,7 @@
  			break;
  		case CEE_BR_S:
  			CHECK_OPSIZE (2);
-+			INSERT_GC_SAFE_POINT_COND((signed char) (*(ip + 1)) < 0);
++			INSERT_GC_SAFE_POINT_COND ((signed char) (*(ip + 1)) < 0);
  			MONO_INST_NEW (cfg, ins, OP_BR);
  			ip++;
  			target = ip + 1 + (signed char)(*ip);
-@@ -6708,6 +6766,7 @@
+@@ -6708,6 +6745,7 @@
  		case CEE_BLT_UN_S:
  			CHECK_OPSIZE (2);
  			CHECK_STACK (2);
-+			INSERT_GC_SAFE_POINT_COND(*(signed char*) (ip + 1) < 0);
++			INSERT_GC_SAFE_POINT_COND (*(signed char*) (ip + 1) < 0);
  			MONO_INST_NEW (cfg, ins, *ip + BIG_BRANCH_OFFSET);
  			ip++;
  			target = ip + 1 + *(signed char*)ip;
-@@ -6734,6 +6793,7 @@
+@@ -6734,6 +6772,7 @@
  				CHECK_UNVERIFIABLE (cfg);
  			}
  
-+			INSERT_GC_SAFE_POINT_COND(target < ip);
++			INSERT_GC_SAFE_POINT_COND (target < ip);
  			MONO_ADD_INS (bblock, ins);
  
  			start_new_bblock = 1;
-@@ -6756,6 +6816,8 @@
+@@ -6756,6 +6795,8 @@
  			target = ip + opsize + (is_short ? *(signed char*)ip : (gint32)read32(ip));
  			ip += opsize;
  
-+			INSERT_GC_SAFE_POINT_COND(target < ip);
++			INSERT_GC_SAFE_POINT_COND (target < ip);
 +
  			sp--;
  
  			GET_BBLOCK (cfg, tblock, target);
-@@ -6810,12 +6872,15 @@
+@@ -6810,12 +6851,15 @@
  		case CEE_BGE_UN:
  		case CEE_BGT_UN:
  		case CEE_BLE_UN:
@@ -498,7 +466,7 @@ Index: mono/mini/method-to-ir.c
  			CHECK_OPSIZE (5);
  			CHECK_STACK (2);
 +			delta = (gint32) read32 (ip + 1);
-+			INSERT_GC_SAFE_POINT_COND(delta < 0);
++			INSERT_GC_SAFE_POINT_COND (delta < 0);
  			MONO_INST_NEW (cfg, ins, *ip);
  			ip++;
 -			target = ip + 4 + (gint32)read32(ip);
@@ -506,7 +474,7 @@ Index: mono/mini/method-to-ir.c
  			ip += 4;
  
  			ADD_BINCOND (NULL);
-@@ -6823,6 +6888,7 @@
+@@ -6823,6 +6867,7 @@
  			sp = stack_start;
  			inline_costs += BRANCH_COST;
  			break;
@@ -534,7 +502,7 @@ Index: mono/mini/mini.c
  	GET_CONTEXT;
  
 +#ifdef MONO_GC_SAFE_POINTS
-+	if (info->si_addr == gc_safe_point_map) {
++	if (info->si_addr == mono_gc_get_safe_point_map ()) {
 +		mono_gc_hit_safe_point (context, mono_domain_get (),
 +				mono_arch_ip_from_context (ctx));
 +		return;
@@ -544,12 +512,3 @@ Index: mono/mini/mini.c
  #if defined(MONO_ARCH_SOFT_DEBUG_SUPPORTED) && defined(HAVE_SIG_INFO)
  	if (mono_arch_is_single_step_event (info, ctx)) {
  		mono_debugger_agent_single_step_event (ctx);
-@@ -5476,7 +5488,7 @@
- {
- 	char *options = getenv ("MONO_DEBUG");
- 	gchar **args, **ptr;
--	
-+
- 	if (!options)
- 		return;
- 
