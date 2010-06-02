@@ -1,3 +1,11 @@
+2010-06-02  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Makefile.am:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore/GtkDesignInfo.cs:
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderService.cs: 
+		Move generated partial class for components from gtk-gui.
+
 2010-04-29  Michael Hutchinson  <mhutchinson@novell.com>
 
 	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderService.cs: Track

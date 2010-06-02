@@ -1,3 +1,8 @@
+2010-06-02  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Makefile.am:
+	* libsteticui2.csproj: 
+
 2010-04-16  Lluis Sanchez Gual  <lluis@novell.com>
 
 	* CecilSignalDescriptor.cs: Cecil uses '/' as separator for
