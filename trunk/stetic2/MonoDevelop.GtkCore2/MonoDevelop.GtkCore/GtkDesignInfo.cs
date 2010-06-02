@@ -329,12 +329,13 @@ namespace MonoDevelop.GtkCore
 			List<string> folders = new List<string> ();
 			ProjectDom ctx = GuiBuilderProject.GetParserContext ();
 			
-			foreach (IType type in ctx.Types) {
-				FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
-				string folderName = folder.FullPath.ToString ();
+			foreach (IType type in ctx.Types)
+				foreach (IType part in type.Parts) {
+					FilePath folder = part.CompilationUnit.FileName.ParentDirectory;
+					string folderName = folder.FullPath.ToString ();
 				
-				if (!folders.Contains (folderName))
-					folders.Add (folder);
+					if (!folders.Contains (folderName))
+						folders.Add (folder);
 			}
 			
 			return folders.ToArray ();

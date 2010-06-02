@@ -34,6 +34,7 @@ using System.CodeDom.Compiler;
 
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Projects;
+using MonoDevelop.Projects.Dom;
 using MonoDevelop.Projects.Dom.Parser;
 using MonoDevelop.Projects.Text;
 using MonoDevelop.Core;
@@ -258,11 +259,12 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		public static string GetBuildCodeFileName (Project project, string componentName)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
-//			var type=info.GuiBuilderProject.FindClass(componentName);
-			var folder = info.GtkGuiFolder;
-			
-//			folder=type.CompilationUnit.FileName.ParentDirectory;
-			return Path.Combine (folder, componentName + Path.GetExtension (info.SteticGeneratedFile));
+			IType type=info.GuiBuilderProject.FindClass(componentName);
+//			FilePath folder = info.GtkGuiFolder;			
+			FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
+			string filename = componentName + ".generated" + Path.GetExtension (info.SteticGeneratedFile);
+
+			return Path.Combine (folder, filename );
 		}
 		
 		public static string GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, bool saveToFile, bool overwrite)
@@ -467,7 +469,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				if (unit.Name.Length == 0)
 					fname = info.SteticGeneratedFile;
 				else
-					fname = Path.Combine (basePath, unit.Name) + ext;
+//					fname = Path.Combine (basePath, unit.Name) + ext;
+					fname = GetBuildCodeFileName (project, unit.Name);
 				StringWriter sw = new StringWriter ();
 				try {
 					foreach (CodeNamespace ns in unit.Namespaces)

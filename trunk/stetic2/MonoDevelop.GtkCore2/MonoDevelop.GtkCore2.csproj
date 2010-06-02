@@ -76,11 +76,6 @@
       <Name>MonoDevelop.DesignerSupport</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\contrib\Mono.Cecil\Mono.Cecil.csproj">
-      <Project>{3EC06433-F168-4C5B-A885-99CE4AB617E1}</Project>
-      <Name>Mono.Cecil</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\Deployment\MonoDevelop.Deployment\MonoDevelop.Deployment.csproj">
       <Project>{9BC670A8-1851-40EC-9685-279F4C98433D}</Project>
       <Name>MonoDevelop.Deployment</Name>
@@ -97,6 +92,11 @@
     <ProjectReference Include="libstetic\libstetic2.csproj">
       <Project>{90CBA7FD-CB46-4711-97BB-2420DC01F016}</Project>
       <Name>libstetic2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\contrib\Mono.Cecil\Mono.Cecil\Mono.Cecil.csproj">
+      <Project>{D8F63DFF-5230-43E4-9AB2-DA6E721A1FAE}</Project>
+      <Name>Mono.Cecil</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
