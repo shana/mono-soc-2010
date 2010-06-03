@@ -12,7 +12,7 @@ namespace Contracts_Ref_Test {
 
         static void Main (string [] args)
         {
-            var i = Contract.OldValue(args);
+            
         }
 
     }
