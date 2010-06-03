@@ -28,6 +28,10 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Marks this type as having another class that contains its code contracts.
+    /// </summary>
     [Conditional ("CONTRACTS_FULL")]
     [Conditional ("DEBUG")]
     [AttributeUsage (AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Delegate, Inherited = false)]

@@ -28,6 +28,14 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Specifies that this method contains Contract invariant conditions for this class.
+    /// </summary>
+    /// <remarks>
+    /// There may be multiple methods with this attribute in one class, their effect is accumulated.
+    /// The method must take no parameters and return void, and may be any visibility.
+    /// </remarks>
     [Conditional ("CONTRACTS_FULL")]
     [AttributeUsage (AttributeTargets.Method, Inherited = false)]
     public sealed class ContractInvariantMethodAttribute : Attribute {

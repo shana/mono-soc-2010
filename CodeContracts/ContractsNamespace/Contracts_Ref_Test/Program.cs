@@ -4,22 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics.Contracts;
 using System.Diagnostics.Contracts.Internal;
+using System.Diagnostics;
 
-namespace Contracts_Ref_Test
-{
-    class Program
-    {
-        static void Main(string[] args)
+namespace Contracts_Ref_Test {
+
+    class Program {
+
+        static void Main (string [] args)
         {
-            Contract.Requires(false, "Message");
-
-            //Contract.ContractFailed += (sender, e) =>
-            //{
-            //    e.SetHandled();
-            //};
-
-            //ContractHelper.TriggerFailure(ContractFailureKind.Assert,"Display",
-            //    "usermessage","Cond", new InvalidOperationException());
+            var i = Contract.OldValue(args);
         }
+
     }
+
 }

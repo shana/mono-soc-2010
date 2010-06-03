@@ -6,6 +6,7 @@ using NUnit.Framework;
 using System.Diagnostics.Contracts.Internal;
 using System.Diagnostics.Contracts;
 using ContractsTests.Helpers;
+using NUnit.Framework.Constraints;
 
 namespace ContractsTests {
 
@@ -106,15 +107,10 @@ namespace ContractsTests {
             };
 
             this.CheckAllKinds ((expected, ex, fnTest) => {
-                if (ex == null) {
-                    Assert.That (() => fnTest (),
-                        Throws.InstanceOf (base.ContractExceptionType)
-                        .With.InnerException.Null);
-                } else {
-                    Assert.That (() => fnTest (),
-                        Throws.InstanceOf (base.ContractExceptionType)
-                        .With.InnerException.TypeOf (ex.GetType ()));
-                }
+                IResolveConstraint constraint = (ex == null) ?
+                    (IResolveConstraint)Throws.InstanceOf (base.ContractExceptionType).With.InnerException.Null :
+                    (IResolveConstraint)Throws.InstanceOf (base.ContractExceptionType).With.InnerException.TypeOf (ex.GetType ());
+                Assert.That(()=>fnTest(), constraint);
             });
         }
 
@@ -139,7 +135,7 @@ namespace ContractsTests {
         }
 
         /// <summary>
-        /// Both event handlers should be called.
+        /// Both event handlers should be called, constraint is not handled.
         /// </summary>
         [Test, RunAgainstReference]
         public void TestRaiseContractMultipleHandlers1 ()
@@ -179,15 +175,10 @@ namespace ContractsTests {
 
             this.CheckAllKinds ((expected, ex, fnTest) => {
                 visited1 = visited2 = false;
-                if (ex == null) {
-                    Assert.That (() => fnTest (),
-                        Throws.InstanceOf (base.ContractExceptionType)
-                        .With.InnerException.Null);
-                } else {
-                    Assert.That (() => fnTest (),
-                        Throws.InstanceOf (base.ContractExceptionType)
-                        .With.InnerException.TypeOf (ex.GetType ()));
-                }
+                IResolveConstraint constraint = (ex == null) ?
+                    (IResolveConstraint) Throws.InstanceOf (base.ContractExceptionType).With.InnerException.Null :
+                    (IResolveConstraint) Throws.InstanceOf (base.ContractExceptionType).With.InnerException.TypeOf (ex.GetType ());
+                Assert.That (() => fnTest (), constraint);
                 Assert.That (visited1, Is.True);
                 Assert.That (visited2, Is.True);
             });
@@ -221,6 +212,9 @@ namespace ContractsTests {
             });
         }
 
+        /// <summary>
+        /// Contract.TriggerFailure() triggers the assert. Check that the assert is triggered, with the correct text.
+        /// </summary>
         [Test]
         public void TestTriggerFailure ()
         {

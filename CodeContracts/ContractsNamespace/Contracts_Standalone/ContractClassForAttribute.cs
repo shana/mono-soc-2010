@@ -28,8 +28,12 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Marks a class as containing contracts for the type specified.
+    /// </summary>
     [Conditional ("CONTRACTS_FULL")]
-    [AttributeUsage (AttributeTargets.Delegate | AttributeTargets.Interface | AttributeTargets.Class, Inherited = false)]
+    [AttributeUsage (AttributeTargets.Class, Inherited = false)]
     public sealed class ContractClassForAttribute : Attribute {
         Type type;
 

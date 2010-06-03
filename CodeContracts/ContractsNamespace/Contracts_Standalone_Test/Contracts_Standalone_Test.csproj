@@ -51,8 +51,10 @@
     <Compile Include="TestContractAssert.cs" />
     <Compile Include="TestContractAssume.cs" />
     <Compile Include="Helpers\TestContractBase.cs" />
+    <Compile Include="TestContractCollectionMethods.cs" />
     <Compile Include="TestContractHelper.cs" />
-    <Compile Include="TestContractRequires.cs" />
+    <Compile Include="TestContractMustUseRewriter.cs" />
+    <Compile Include="TestContractMarkerMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Contracts_Standalone\Contracts_Standalone.csproj">

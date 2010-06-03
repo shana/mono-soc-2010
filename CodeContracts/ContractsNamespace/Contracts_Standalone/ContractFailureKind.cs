@@ -30,12 +30,14 @@ using System;
 
 namespace System.Diagnostics.Contracts {
 
+    /// <summary>
+    /// The different kinds of contracts that can fail.
+    /// </summary>
 #if NET_2_1 || NET_4_0
     public
 #else
 	internal
 #endif
-
     enum ContractFailureKind {
         Precondition,
         Postcondition,

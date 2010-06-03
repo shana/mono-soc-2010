@@ -31,6 +31,10 @@
 using System;
 
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Marks a method or type to indicate that it has no side effects.
+    /// </summary>
     [ConditionalAttribute ("CONTRACTS_FULL")]
     [AttributeUsageAttribute (AttributeTargets.Class | AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Parameter | AttributeTargets.Delegate)]
     public sealed class PureAttribute : Attribute {
