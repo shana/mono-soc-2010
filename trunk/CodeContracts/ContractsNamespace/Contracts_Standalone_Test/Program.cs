@@ -28,8 +28,6 @@ namespace ContractsTests {
         private void SimulateTest ()
         {
 
-            Contract.Requires (false);
-
         }
 
     }

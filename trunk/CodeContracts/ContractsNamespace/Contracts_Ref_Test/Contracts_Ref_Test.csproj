@@ -60,11 +60,17 @@
     <Compile Include="..\Contracts_Standalone_Test\TestContractAssume.cs">
       <Link>TestContractAssume.cs</Link>
     </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\TestContractCollectionMethods.cs">
+      <Link>TestContractCollectionMethods.cs</Link>
+    </Compile>
     <Compile Include="..\Contracts_Standalone_Test\TestContractHelper.cs">
       <Link>TestContractHelper.cs</Link>
     </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractRequires.cs">
-      <Link>TestContractRequires.cs</Link>
+    <Compile Include="..\Contracts_Standalone_Test\TestContractMarkerMethods.cs">
+      <Link>TestContractMarkerMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\TestContractMustUseRewriter.cs">
+      <Link>TestContractMustUseRewriter.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

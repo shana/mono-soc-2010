@@ -30,6 +30,9 @@ using System;
 
 namespace System.Diagnostics.Contracts {
 
+    /// <summary>
+    /// Contains event data for the Contract.ContractFailed event.
+    /// </summary>
 #if NET_2_1 || NET_4_0
     public
 #else
@@ -47,21 +50,50 @@ namespace System.Diagnostics.Contracts {
             OriginalException = originalException;
         }
 
+        /// <summary>
+        /// Mark this contract failure as having been handled.
+        /// </summary>
         public void SetHandled ()
         {
             Handled = true;
         }
 
+        /// <summary>
+        /// Request that this contract failure unwind the stack by throwing an exception.
+        /// </summary>
         public void SetUnwind ()
         {
             Unwind = true;
         }
 
+        /// <summary>
+        /// Gets the condition that caused the contract failure.
+        /// </summary>
         public string Condition { get; private set; }
+
+        /// <summary>
+        /// Gets the kind of contract failure.
+        /// </summary>
         public ContractFailureKind FailureKind { get; private set; }
+
+        /// <summary>
+        /// Gets whether the contract failure has been handled.
+        /// </summary>
         public bool Handled { get; private set; }
+
+        /// <summary>
+        /// Gets whether the contract failure should unwind the stack.
+        /// </summary>
         public bool Unwind { get; private set; }
+
+        /// <summary>
+        /// Gets the message associated with this contract failure.
+        /// </summary>
         public string Message { get; private set; }
+
+        /// <summary>
+        /// Gets the original exception that caused this contract failure, if any.
+        /// </summary>
         public Exception OriginalException { get; private set; }
     }
 }

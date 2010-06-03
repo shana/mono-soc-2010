@@ -5,16 +5,20 @@ using System.Text;
 
 namespace System.Diagnostics.Contracts.Internal {
 
+    /// <summary>
+    /// Implements methods required by the contract rewriter to handle contract failures.
+    /// </summary>
 	public static class ContractHelper {
 
 		/// <summary>
 		/// Behaviour defined in section 7.3 of UserDoc.pdf from Microsoft.
-		/// Handlers called in turn, thrown exceptions acts as if SetUnwind() has been called.
+        /// Determines the default contract failure behaviour, which is that
+		/// event handlers are called in turn, thrown exceptions acts as if SetUnwind() has been called.
 		/// </summary>
-		/// <param name="failureKind"></param>
-		/// <param name="userMessage"></param>
-		/// <param name="conditionText"></param>
-		/// <param name="innerException"></param>
+		/// <param name="failureKind">The kind of contract failure.</param>
+		/// <param name="userMessage">The user message describing this contract failure.</param>
+		/// <param name="conditionText">The condition that caused this contract failure.</param>
+		/// <param name="innerException">The exception that caused this contract filure, if any.</param>
 		/// <returns></returns>
 		public static string RaiseContractFailedEvent(ContractFailureKind failureKind, string userMessage, string conditionText, Exception innerException) {
 
@@ -83,6 +87,14 @@ namespace System.Diagnostics.Contracts.Internal {
 			return handled ? null : msgString;
 		}
 
+        /// <summary>
+        /// Implements the default failure behaviour.
+        /// </summary>
+        /// <param name="kind">The kind of contract failure.</param>
+        /// <param name="displayMessage">The message to display describing this contract failure.</param>
+        /// <param name="userMessage">The user message describing this contract failure.</param>
+        /// <param name="conditionText">The condition that caused this contract failure.</param>
+        /// <param name="innerException">The exception that caused this contract filure, if any.</param>
         public static void TriggerFailure (ContractFailureKind kind, string displayMessage, string userMessage, string conditionText, Exception innerException)
         {
             StringBuilder msg = new StringBuilder (50);

@@ -28,6 +28,11 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Marks a method or property as having no runtime behaviour when called
+    /// in methods in System.Diagnostics.Contracts.Contract.
+    /// </summary>
     [Conditional ("CONTRACTS_FULL")]
     [AttributeUsage (AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class ContractRuntimeIgnoredAttribute : Attribute {

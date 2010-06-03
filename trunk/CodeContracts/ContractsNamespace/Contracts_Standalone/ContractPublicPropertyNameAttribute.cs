@@ -28,6 +28,11 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Specifies a public property name associated with a field, allowing a less-visible field to be used
+    /// in contracts within a method.
+    /// </summary>
     [Conditional ("CONTRACTS_FULL")]
     [AttributeUsage (AttributeTargets.Field)]
     public sealed class ContractPublicPropertyNameAttribute : Attribute {

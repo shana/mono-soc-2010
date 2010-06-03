@@ -28,6 +28,11 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Indicates whether the code contract verification tools should verify this item.
+    /// If not, the item is assumed to be correct.
+    /// </summary>
     [Conditional ("CONTRACTS_FULL")]
     [AttributeUsageAttribute (AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property)]
     public sealed class ContractVerificationAttribute : Attribute {
@@ -38,6 +43,9 @@ namespace System.Diagnostics.Contracts {
             val = value;
         }
 
+        /// <summary>
+        /// Gets whether to include this item in verification.
+        /// </summary>
         public bool Value
         {
             get { return val; }

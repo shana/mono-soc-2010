@@ -19,11 +19,11 @@ namespace ContractsTests {
         public void TestAssertTrue ()
         {
             Contract.Assert (true);
-            Assert.That (this.asserts.Asserts, Is.Empty);
+            Assert.That (base.asserts.Asserts, Is.Empty);
         }
 
         /// <summary>
-        /// Contract.Assert(false) will cause an assert to be triggered.
+        /// Contract.Assert(false) will cause an assert to be triggered with the correct message.
         /// </summary>
         [Test]
         public void TestAssertNoEventHandler ()
@@ -31,9 +31,9 @@ namespace ContractsTests {
             Contract.Assert (false);
             Contract.Assert (false, "Message");
 
-            Assert.That (this.asserts.Asserts.Count, Is.EqualTo (2));
-            Assert.That (this.asserts.Asserts [0].Message, Is.EqualTo ("Description: Assertion failed."));
-            Assert.That (this.asserts.Asserts [1].Message, Is.EqualTo ("Description: Assertion failed.  Message"));
+            Assert.That (base.asserts.Asserts.Count, Is.EqualTo (2));
+            Assert.That (base.asserts.Asserts [0].Message, Is.EqualTo ("Description: Assertion failed."));
+            Assert.That (base.asserts.Asserts [1].Message, Is.EqualTo ("Description: Assertion failed.  Message"));
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace ContractsTests {
 
             Contract.Assert (false);
             Assert.That (visitedEventHandler, Is.True);
-            Assert.That (this.asserts.Asserts.Count, Is.EqualTo (1));
+            Assert.That (base.asserts.Asserts.Count, Is.EqualTo (1));
         }
 
         /// <summary>
@@ -68,12 +68,11 @@ namespace ContractsTests {
             };
 
             Contract.Assert (false);
-            Assert.That (this.asserts.Asserts, Is.Empty);
+            Assert.That (base.asserts.Asserts, Is.Empty);
         }
 
         /// <summary>
         /// Event handler calls SetUnwind(), so exception of type ContractException should be thrown.
-        /// ContractException is a private type, so cannot be directly tested.
         /// </summary>
         [Test, RunAgainstReference]
         public void TestAssertEventHandlerSetUnwind ()
@@ -85,13 +84,13 @@ namespace ContractsTests {
             Assert.That (() => {
                 Contract.Assert (false);
             },
-            Throws.InstanceOf (this.ContractExceptionType)
+            Throws.InstanceOf (base.ContractExceptionType)
             .With.InnerException.Null);
         }
 
         /// <summary>
-        /// Event handler calls SetHandled() and SetUnwind(), so exception of type ContractException should be thrown.
-        /// ContractException is a private type, so cannot be directly tested.
+        /// Event handler calls SetHandled() and SetUnwind(), so exception of type ContractException should be thrown,
+        /// as SetUnwind overrides SetHandled.
         /// </summary>
         [Test, RunAgainstReference]
         public void TestAssertEventHandlerSetUnwindHandled ()
@@ -126,6 +125,10 @@ namespace ContractsTests {
             .With.InnerException.TypeOf<ArgumentNullException> ());
         }
 
+        /// <summary>
+        /// Multiple event handlers are registered. Check that both are called, and that the SetHandled()
+        /// call in one of them is handled correctly.
+        /// </summary>
         [Test, RunAgainstReference]
         public void TestAssertMultipleHandlers ()
         {

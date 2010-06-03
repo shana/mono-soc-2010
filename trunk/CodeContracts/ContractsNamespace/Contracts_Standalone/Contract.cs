@@ -26,47 +26,30 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-//
-// Things left to do:
-// 
-//   * This is a blind implementation from specs, without any testing, so the escalation
-//     is probably broken, and so are the messages and arguments to the eventargs properties
-//
-//   * How to plug the original condition into the Escalate method?   Perhaps we need
-//     some injection for it?
-//
-//   * The "originalException" in Escalate is nowhere used
-//
-//   * We do not Escalate everything that needs to be, perhaps that is the role of the
-//     rewriter to call Escalate with the proper values?
-//
-//   * I added a "new()" constraint to methods that took a TException because I needed
-//     to new the exception, but this is perhaps wrong.
-//
-//   * Result and ValueAtReturn, I need to check what these do in .NET 4, but have not
-//     installed it yet ;-)
-//
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts.Internal;
 
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Contains methods that allow various contracts to be specified in code.
+    /// </summary>
 #if NET_2_1 || NET_4_0
     public
 #else
 	internal
 #endif
-
  static class Contract {
 
+        /// <summary>
+        /// Called on any contract failure.
+        /// </summary>
         public static event EventHandler<ContractFailedEventArgs> ContractFailed;
 
         internal static EventHandler<ContractFailedEventArgs> InternalContractFailedEvent
         {
-            get
-            {
-                return ContractFailed;
-            }
+            get { return ContractFailed; }
         }
 
         internal static Type GetContractExceptionType ()
@@ -88,6 +71,10 @@ namespace System.Diagnostics.Contracts {
             Debug.Fail ("Description: Must use the rewriter when using " + message);
         }
 
+        /// <summary>
+        /// Trigger a contract failure if condition is false.
+        /// </summary>
+        /// <param name="condition">The condition to verify.</param>
         [ConditionalAttribute ("DEBUG")]
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Assert (bool condition)
@@ -98,6 +85,11 @@ namespace System.Diagnostics.Contracts {
             ReportFailure (ContractFailureKind.Assert, null, null, null);
         }
 
+        /// <summary>
+        /// Trigger a contract failure if condition is false.
+        /// </summary>
+        /// <param name="condition">The condition to verify.</param>
+        /// <param name="userMessage">Message to display if condition is false.</param>
         [ConditionalAttribute ("DEBUG")]
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Assert (bool condition, string userMessage)
@@ -108,6 +100,13 @@ namespace System.Diagnostics.Contracts {
             ReportFailure (ContractFailureKind.Assert, userMessage, null, null);
         }
 
+        /// <summary>
+        /// Forces the condition specified to be considered true by the code contract tools.
+        /// </summary>
+        /// <param name="condition">The condition that is assumed to be true.</param>
+        /// <remarks>
+        /// If the code contracts are included at runtime, this acts like a Contract.Assert().
+        /// </remarks>
         [ConditionalAttribute ("DEBUG")]
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Assume (bool condition)
@@ -119,46 +118,108 @@ namespace System.Diagnostics.Contracts {
             ReportFailure (ContractFailureKind.Assume, null, null, null);
         }
 
+        /// <summary>
+        /// Forces the condition specified to be considered true by the code contract tools.
+        /// </summary>
+        /// <param name="condition">The condition that is assumed to be true.</param>
+        /// <param name="userMessage">Message to display if condition is false.</param>
+        /// <remarks>
+        /// If the code contracts are included at runtime, this acts like a Contract.Assert().
+        /// </remarks>
         [ConditionalAttribute ("DEBUG")]
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Assume (bool condition, string userMessage)
         {
+            // At runtime, this behaves like assert
             if (condition)
                 return;
 
             ReportFailure (ContractFailureKind.Assume, userMessage, null, null);
         }
 
+        /// <summary>
+        /// Marker method to mark the end of the legacy requires code block.
+        /// </summary>
+        /// <remarks>
+        /// Legacy requires are preconditions that perform tests and throw exceptions.
+        /// This is the only form of legacy require allowed.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void EndContractBlock ()
         {
-            // seems to be some kind of flag, no code generated
+            // Marker method, no code required.
         }
 
+        /// <summary>
+        /// Specifies a postconditon contract for normal return.
+        /// </summary>
+        /// <param name="condition">The postcondition to verify.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Ensures (bool condition)
         {
-            // Requires binary rewriter to work
+            AssertMustUseRewriter (ContractFailureKind.Postcondition, "Contract.Ensures");
         }
 
+        /// <summary>
+        /// Specifies a postconditon contract for normal return.
+        /// </summary>
+        /// <param name="condition">The postcondition to verify.</param>
+        /// <param name="userMessage">Message to display on contract failure.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Ensures (bool condition, string userMessage)
         {
-            // Requires binary rewriter to work
+            AssertMustUseRewriter (ContractFailureKind.Postcondition, "Contract.Ensures");
         }
 
+        /// <summary>
+        /// Specifies a postcondition contract for when an exception is thrown.
+        /// </summary>
+        /// <typeparam name="TException">The exception type that causes this postcondition to be verified.</typeparam>
+        /// <param name="condition">The postcondition to verify.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void EnsuresOnThrow<TException> (bool condition) where TException : Exception
         {
-            // Requires binary rewriter to work
+            AssertMustUseRewriter (ContractFailureKind.Postcondition, "Contract.EnsuresOnThrow");
         }
 
+        /// <summary>
+        /// Specifies a postcondition contract for when an exception is thrown.
+        /// </summary>
+        /// <typeparam name="TException">The exception type that causes this postcondition to be verified.</typeparam>
+        /// <param name="condition">The postcondition to verify.</param>
+        /// <param name="userMessage">Message to display on contract failure.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void EnsuresOnThrow<TException> (bool condition, string userMessage) where TException : Exception
         {
-            // Requires binary rewriter to work
+            AssertMustUseRewriter (ContractFailureKind.Postcondition, "Contract.EnsuresOnThrow");
         }
 
+        /// <summary>
+        /// Determines that at least one element in the collection satisfies the predicate.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the collection.</typeparam>
+        /// <param name="collection">The collection to check.</param>
+        /// <param name="predicate">The predicate to apply to each element of the collection.</param>
+        /// <returns>Whether at least one element in the collection satisfies the predicate.</returns>
+        /// <remarks>
+        /// This method can be used within a contract condition to allow contracts to be applied to collections.
+        /// </remarks>
         public static bool Exists<T> (IEnumerable<T> collection, Predicate<T> predicate)
         {
             if (predicate == null)
@@ -172,6 +233,16 @@ namespace System.Diagnostics.Contracts {
             return false;
         }
 
+        /// <summary>
+        /// Determines that at least one value in the range satisfies the predicate.
+        /// </summary>
+        /// <param name="fromInclusive">The inclusive start of the range.</param>
+        /// <param name="toExclusive">The exclusive end of the range.</param>
+        /// <param name="predicate">The predicate to apply to each value within the range.</param>
+        /// <returns>Whether at least one value in the range satisfies the predicate.</returns>
+        /// <remarks>
+        /// This method can be used within a contract condition to allow contracts to be applied to integer ranges.
+        /// </remarks>
         public static bool Exists (int fromInclusive, int toExclusive, Predicate<int> predicate)
         {
             if (predicate == null)
@@ -186,6 +257,16 @@ namespace System.Diagnostics.Contracts {
             return false;
         }
 
+        /// <summary>
+        /// Determines that all elements in the collection satisfy the predicate.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the collection.</typeparam>
+        /// <param name="collection">The collection to check.</param>
+        /// <param name="predicate">The predicate to apply to each element of the collection.</param>
+        /// <returns>Whether all elements in the collection satisfy the predicate.</returns>
+        /// <remarks>
+        /// This method can be used within a contract condition to allow contracts to be applied to collections.
+        /// </remarks>
         public static bool ForAll<T> (IEnumerable<T> collection, Predicate<T> predicate)
         {
             if (predicate == null)
@@ -200,6 +281,16 @@ namespace System.Diagnostics.Contracts {
             return true;
         }
 
+        /// <summary>
+        /// Determines that all values in the range satisfy the predicate.
+        /// </summary>
+        /// <param name="fromInclusive">The inclusive start of the range.</param>
+        /// <param name="toExclusive">The exclusive end of the range.</param>
+        /// <param name="predicate">The predicate to apply to each value within the range.</param>
+        /// <returns>Whether all values in the range satisfy the predicate.</returns>
+        /// <remarks>
+        /// This method can be used within a contract condition to allow contracts to be applied to integer ranges.
+        /// </remarks>
         public static bool ForAll (int fromInclusive, int toExclusive, Predicate<int> predicate)
         {
             if (predicate == null)
@@ -214,57 +305,137 @@ namespace System.Diagnostics.Contracts {
             return true;
         }
 
+        /// <summary>
+        /// Specifies an invariant class-level condition.
+        /// </summary>
+        /// <param name="condition">The invariant condition to verify.</param>
+        /// <remarks>
+        /// Invariant conditions can only be used in a method marked with the ContractInvariantMethod attribute.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Invariant (bool condition)
         {
-            // Binary rewriter required
+            AssertMustUseRewriter (ContractFailureKind.Invariant, "Contract.Invariant");
         }
 
+        /// <summary>
+        /// Specifies an invariant class-level condition.
+        /// </summary>
+        /// <param name="condition">The invariant condition to verify.</param>
+        /// <param name="userMessage">Message to display on contract failure.</param>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Invariant (bool condition, string userMessage)
         {
-            // Binary rewriter required
+            AssertMustUseRewriter (ContractFailureKind.Invariant, "Contract.Invariant");
         }
 
+        /// <summary>
+        /// Used within a postcondition to represent an initial value.
+        /// </summary>
+        /// <typeparam name="T">The type of the value.</typeparam>
+        /// <param name="value">The field or parameter of which to represent the initial value.</param>
+        /// <returns>The initial value.</returns>
+        /// <remarks>
+        /// The code contract rewriter tool must be used for this method to be effective.
+        /// Otherwise the default value for the type is returned.
+        /// </remarks>
         public static T OldValue<T> (T value)
         {
-            // This is really the binary rewriter that should kick-in
-            //throw RewriterRequired ();
-            throw new NotImplementedException ();
+            // Marker method, no code required.
+            return default (T);
         }
 
+        /// <summary>
+        /// Specifies a precondition contract for normal return.
+        /// </summary>
+        /// <param name="condition">The precondition to verify.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Requires (bool condition)
         {
             AssertMustUseRewriter (ContractFailureKind.Precondition, "Contract.Requires");
         }
 
+        /// <summary>
+        /// Specifies a precondition contract for normal return.
+        /// </summary>
+        /// <param name="condition">The precondition to verify.</param>
+        /// <param name="userMessage">Message to display on contract failure.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         [ConditionalAttribute ("CONTRACTS_FULL")]
         public static void Requires (bool condition, string userMessage)
         {
             AssertMustUseRewriter (ContractFailureKind.Precondition, "Contract.Requires");
         }
 
+        /// <summary>
+        /// Specifies a precondition contract for when an exception is thrown.
+        /// </summary>
+        /// <typeparam name="TException">The exception type that causes this precondition to be verified.</typeparam>
+        /// <param name="condition">The precondition to verify.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         public static void Requires<TException> (bool condition) where TException : Exception
         {
             AssertMustUseRewriter (ContractFailureKind.Precondition, "Contract.Requires<TException>");
         }
 
+        /// <summary>
+        /// Specifies a precondition contract for when an exception is thrown.
+        /// </summary>
+        /// <typeparam name="TException">The exception type that causes this precondition to be verified.</typeparam>
+        /// <param name="condition">The precondition to verify.</param>
+        /// <param name="userMessage">Message to display on contract failure.</param>
+        /// <remarks>
+        /// All code contract method calls must be at the beginning of the method or property.
+        /// The code contract rewriter tool must be used to enable contracts to be verified at runtime.
+        /// </remarks>
         public static void Requires<TException> (bool condition, string userMessage) where TException : Exception
         {
             AssertMustUseRewriter (ContractFailureKind.Precondition, "Contract.Requires<TException>");
         }
 
+        /// <summary>
+        /// Used within a postcondition to represent the return value.
+        /// </summary>
+        /// <typeparam name="T">The type of the return value.</typeparam>
+        /// <returns>The return value.</returns>
+        /// <remarks>
+        /// The code contract rewriter tool must be used for this method to be effective.
+        /// Otherwise the default value for the type is returned.
+        /// </remarks>
         public static T Result<T> ()
         {
-            //throw RewriterRequired ();
-            throw new NotImplementedException ();
+            // Marker method, no code required.
+            return default (T);
         }
 
+        /// <summary>
+        /// Used within a postcondition to represent the final value of an out parameter.
+        /// </summary>
+        /// <typeparam name="T">The type of the out parameter.</typeparam>
+        /// <param name="value">The out parameter.</param>
+        /// <returns>The final value of the out parameter.</returns>
+        /// <remarks>
+        /// The code contract rewriter tool must be used for this method to be effective.
+        /// Otherwise the default value for the type is returned in the out parameter and the return value.
+        /// </remarks>
         public static T ValueAtReturn<T> (out T value)
         {
-            //throw RewriterRequired ();
-            throw new NotImplementedException ();
+            // Marker method, no code required.
+            value = default (T);
+            return default (T);
         }
+
     }
+
 }

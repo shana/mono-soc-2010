@@ -5,5 +5,8 @@ Tests marked in category RunAgainstReference can be run against MS.NET 4.0 succe
 Tests that trigger assertions cannot be run against MS.NET 4.0 because it is not possible
 to intercept these assertions.
 
-Implementation not yet completed.
-Everything currently implemented passes all tests.
+Implementation is complete.
+All tests pass.
+All classes, methods have documentation, although this may need expanding later.
+
+

@@ -28,6 +28,11 @@
 #if NET_2_1 || NET_4_0
 using System;
 namespace System.Diagnostics.Contracts {
+
+    /// <summary>
+    /// Marks an assembly as being a contarct reference assembly.
+    /// This assembly will contain no code except as required by the contracts.
+    /// </summary>
     [AttributeUsage (AttributeTargets.Assembly)]
     public sealed class ContractReferenceAssemblyAttribute : Attribute {
         public ContractReferenceAssemblyAttribute () { }
