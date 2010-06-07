@@ -1,5 +1,13 @@
 2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* Project.cs: Transition from project file name to project folder.
+	* Makefile.am:
+	* Application.cs:
+	* ProjectBackend.cs:
+	* WidgetEditSession.cs: 
+
+2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* Project.cs:
 	* Makefile.am:
 	* ProjectBackend.cs: 

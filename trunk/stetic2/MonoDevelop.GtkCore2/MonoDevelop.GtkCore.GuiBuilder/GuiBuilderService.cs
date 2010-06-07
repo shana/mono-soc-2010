@@ -262,8 +262,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			IType type=info.GuiBuilderProject.FindClass(componentName);
 			
 			if (type == null)
-				throw new UserException ("Cannot find type for " + componentName);
-//			FilePath folder = info.GtkGuiFolder;			
+				throw new UserException ("Cannot find type for " + componentName);			
 			FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
 			string filename = componentName + ".generated" + Path.GetExtension (info.SteticGeneratedFile);
 
@@ -407,8 +406,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			info.GuiBuilderProject.UpdateLibraries ();
 			
-			ArrayList projects = new ArrayList ();
-			projects.Add (info.GuiBuilderProject.File);
+			ArrayList projectFolders = new ArrayList ();
+			projectFolders.Add (info.GtkGuiFolder.FullPath);
 			
 			generating = true;
 			Stetic.CodeGenerationResult generationResult = null;
@@ -423,7 +422,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 						// Generate the code in another process if stetic is not isolated
 						CodeGeneratorProcess cob = (CodeGeneratorProcess) Runtime.ProcessService.CreateExternalProcessObject (typeof (CodeGeneratorProcess), false);
 						using (cob) {
-							generationResult = cob.GenerateCode (projects, info.GenerateGettext, info.GettextClass, project.UsePartialTypes, info);
+							generationResult = cob.GenerateCode (projectFolders, info.GenerateGettext, info.GettextClass, project.UsePartialTypes, info);
 						}
 					} catch (Exception ex) {
 						generatedException = ex;
@@ -586,16 +585,16 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 	 
 	public class CodeGeneratorProcess: RemoteProcessObject
 	{
-		public Stetic.CodeGenerationResult GenerateCode (ArrayList projectFiles, bool useGettext, string gettextClass, bool usePartialClasses, GtkDesignInfo info)
+		public Stetic.CodeGenerationResult GenerateCode (ArrayList projectFolders, bool useGettext, string gettextClass, bool usePartialClasses, GtkDesignInfo info)
 		{
 			Gtk.Application.Init ();
 			
 			Stetic.Application app = Stetic.ApplicationFactory.CreateApplication (Stetic.IsolationMode.None);
 			
-			Stetic.Project[] projects = new Stetic.Project [projectFiles.Count];
-			for (int n=0; n < projectFiles.Count; n++) {
+			Stetic.Project[] projects = new Stetic.Project [projectFolders.Count];
+			for (int n=0; n < projectFolders.Count; n++) {
 				projects [n] = app.CreateProject (info);
-				projects [n].Load ((string) projectFiles [n]);
+				projects [n].Load ((string) projectFolders [n]);
 			}
 			
 			Stetic.GenerationOptions options = new Stetic.GenerationOptions ();

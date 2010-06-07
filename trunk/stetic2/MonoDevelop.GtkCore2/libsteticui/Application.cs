@@ -308,14 +308,14 @@ namespace Stetic
 				UpdateWidgetLibraries (false, false);
 		}
 		
-		public Project LoadProject (string path, IProjectDesignInfo info)
-		{
-			Project p = new Project (this, info);
-			p.Load (path);
-			projects.Add (p);
-			p.Disposed += ProjectDisposed;
-			return p;
-		}
+//		public Project LoadProject (string path, IProjectDesignInfo info)
+//		{
+//			Project p = new Project (this, info);
+//			p.Load (path);
+//			projects.Add (p);
+//			p.Disposed += ProjectDisposed;
+//			return p;
+//		}
 		
 		public Project CreateProject (IProjectDesignInfo info)
 		{

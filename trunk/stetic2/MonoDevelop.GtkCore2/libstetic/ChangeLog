@@ -1,3 +1,8 @@
+2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* IProject.cs:
+	* ErrorWidget.cs: 
+
 2010-04-30  Lluis Sanchez Gual  <lluis@novell.com>
 
 	* editor/ActionMenu.cs: Explicit destroy of children should

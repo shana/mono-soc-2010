@@ -49,7 +49,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		List<GuiBuilderWindow> formInfos;
 		Stetic.Project gproject;
 		DotNetProject project;
-		string fileName;
+		string folderName;
 		bool hasError;
 		bool needsUpdate = true;
 		
@@ -65,16 +65,16 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		public event EventHandler Unloaded;
 		public event EventHandler Changed;
 
-		public GuiBuilderProject (DotNetProject project, string fileName)
+		public GuiBuilderProject (DotNetProject project, string folderName)
 		{
-			this.fileName = fileName;
+			this.folderName = folderName;
 			this.project = project;
 			Counters.GuiProjectsLoaded++;
 		}
 		
 		void Load ()
 		{
-			if (gproject != null || disposed || fileName == null)
+			if (gproject != null || disposed || folderName == null)
 				return;
 			
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project); 
@@ -93,9 +93,9 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 //			}
 
 			try {
-				gproject.Load (fileName);
+				gproject.Load (folderName);
 			} catch (Exception ex) {
-				MessageService.ShowException (ex, GettextCatalog.GetString ("The GUI designer project file '{0}' could not be loaded.", fileName));
+				MessageService.ShowException (ex, GettextCatalog.GetString ("The GUI designer project folder '{0}' could not be loaded.", folderName));
 				hasError = true;
 			}
 
@@ -114,14 +114,14 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				RegisterWindow (ob, false);
 				
 			// Monitor changes in the file
-			lastSaveTime = System.IO.File.GetLastWriteTime (fileName);
-			watcher = new FileSystemWatcher ();
-			if (System.IO.File.Exists (fileName)) {
-				watcher.Path = Path.GetDirectoryName (fileName);
-				watcher.Filter = Path.GetFileName (fileName);
-				watcher.Changed += (FileSystemEventHandler) DispatchService.GuiDispatch (new FileSystemEventHandler (OnSteticFileChanged));
-				watcher.EnableRaisingEvents = true;
-			}
+//			lastSaveTime = System.IO.File.GetLastWriteTime (fileName);
+//			watcher = new FileSystemWatcher ();
+//			if (System.IO.File.Exists (fileName)) {
+//				watcher.Path = Path.GetDirectoryName (fileName);
+//				watcher.Filter = Path.GetFileName (fileName);
+//				watcher.Changed += (FileSystemEventHandler) DispatchService.GuiDispatch (new FileSystemEventHandler (OnSteticFileChanged));
+//				watcher.EnableRaisingEvents = true;
+//			}
 		}	
 	
 		void Unload ()
@@ -164,7 +164,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		void OnSteticFileChanged (object s, FileSystemEventArgs args)
 		{
 			lock (fileSaveLock) {
-				if (lastSaveTime == System.IO.File.GetLastWriteTime (fileName))
+				if (lastSaveTime == System.IO.File.GetLastWriteTime (folderName))
 					return;
 			}
 			
@@ -204,8 +204,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 
 			if (gproject != null && !hasError) {
 				lock (fileSaveLock) {
-					gproject.Save (fileName);
-					lastSaveTime = System.IO.File.GetLastWriteTime (fileName);
+					gproject.Save (folderName);
+					lastSaveTime = System.IO.File.GetLastWriteTime (folderName);
 				}
 			}
 				
@@ -213,9 +213,9 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				IdeApp.ProjectOperations.Save (project);
 		}
 		
-		public string File {
-			get { return fileName; }
-		}
+//		public string File {
+//			get { return fileName; }
+//		}
 		
 		public Stetic.Project SteticProject {
 			get {
