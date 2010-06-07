@@ -58,6 +58,9 @@ namespace MonoDevelop.GtkCore
 		[ItemProperty (DefaultValue="Mono.Unix.Catalog")]
 		string gettextClass = "Mono.Unix.Catalog";
 		
+		[ItemProperty (DefaultValue="Gui")]
+		string gtkguiFolderName = "Gui";
+		
 		GtkDesignInfo ()
 		{
 		}
@@ -185,6 +188,11 @@ namespace MonoDevelop.GtkCore
 		public string GettextClass {
 			get { return gettextClass; }
 			set { gettextClass = value; }
+		}
+		
+		public string GtkGuiFolderName {
+			get { return gtkguiFolderName; }
+			set { gtkguiFolderName = value; }
 		}
 		
 		public static bool HasDesignedObjects (Project project)
