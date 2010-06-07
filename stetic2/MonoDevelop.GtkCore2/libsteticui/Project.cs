@@ -12,7 +12,8 @@ namespace Stetic
 	{
 		Application app;
 		ProjectBackend backend;
-		string fileName;
+		//string fileName;
+		string folderName;
 		IResourceProvider resourceProvider;
 		Component selection;
 		string tmpProjectFile;
@@ -72,8 +73,8 @@ namespace Stetic
 					backend.SetFrontend (this);
 					if (resourceProvider != null)
 						backend.ResourceProvider = resourceProvider;
-					if (fileName != null)
-						backend.Load (fileName);
+					if (folderName != null)
+						backend.Load (folderName);
 				}
 				return backend; 
 			}
@@ -114,9 +115,9 @@ namespace Stetic
 			return null;
 		}
 
-		public string FileName {
-			get { return fileName; }
-		}
+//		public string FileName {
+//			get { return fileName; }
+//		}
 		
 		public IResourceProvider ResourceProvider { 
 			get { return resourceProvider; }
@@ -161,50 +162,12 @@ namespace Stetic
 				backend.Close ();
 		}
 		
-		public void Load (string fileName)
+		public void Load (string folderName)
 		{
-			this.fileName = fileName;
+			this.folderName = folderName;
 			if (backend != null)
-				backend.Load (fileName);
+				backend.Load (folderName);
 			
-			LoadFromSteticFile (fileName);
-			LoadFromComponentFolders ();
-		}
-		
-		void LoadFromSteticFile (string fileName)
-		{
-			if (!File.Exists (fileName))
-				return;
-			
-			using (StreamReader sr = new StreamReader (fileName)) {
-				XmlTextReader reader = new XmlTextReader (sr); 
-				
-				reader.MoveToContent ();
-				if (reader.IsEmptyElement)
-					return;
-				
-				reader.ReadStartElement ("stetic-interface");
-				if (reader.IsEmptyElement)
-					return;
-				while (reader.NodeType != XmlNodeType.EndElement) {
-					if (reader.NodeType == XmlNodeType.Element) {
-						if (reader.LocalName == "widget")
-							ReadWidget (reader);
-						else if (reader.LocalName == "action-group")
-							ReadActionGroup (reader);
-						else
-							reader.Skip ();
-					}
-					else {
-						reader.Skip ();
-					}
-					reader.MoveToContent ();
-				}
-			}
-		}
-		
-		void LoadFromComponentFolders ()
-		{
 			foreach (string basePath in DesignInfo.GetComponentFolders ()) {
 				DirectoryInfo dir = new DirectoryInfo (basePath);
 				
@@ -273,11 +236,11 @@ namespace Stetic
 				backend.ConvertProject (fileName);
 		}
 		
-		public void Save (string fileName)
+		public void Save (string folderName)
 		{
-			this.fileName = fileName;
+			this.folderName = folderName;
 			if (backend != null)
-				backend.Save (fileName);
+				backend.Save (folderName);
 		}
 		
 		public void ImportGlade (string fileName)
@@ -752,8 +715,8 @@ namespace Stetic
 				throw new NotImplementedException ("OnBackendChanged");
 				File.Delete (tmpProjectFile);
 				tmpProjectFile = null;
-			} else if (fileName != null) {
-				backend.Load (fileName);
+			} else if (folderName != null) {
+				backend.Load (folderName);
 			}
 
 			if (resourceProvider != null)

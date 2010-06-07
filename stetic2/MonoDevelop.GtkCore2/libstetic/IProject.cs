@@ -4,7 +4,8 @@ namespace Stetic
 {
 	public interface IProject 
 	{
-		string FileName { get; }
+		//string FileName { get; }
+		string FolderName { get; }
 		Gtk.Widget[] Toplevels { get; }
 		Gtk.Widget GetTopLevel (string name);
 		Gtk.Widget Selection { get; set; }

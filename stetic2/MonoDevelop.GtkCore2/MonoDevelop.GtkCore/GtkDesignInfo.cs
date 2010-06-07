@@ -127,7 +127,7 @@ namespace MonoDevelop.GtkCore
 							UpdateGtkFolder ();
 							ProjectNodeBuilder.OnSupportChanged (project);
 						}
-						builderProject = new GuiBuilderProject (project, SteticFile);
+						builderProject = new GuiBuilderProject (project, GtkGuiFolder.FullPath.FullPath);
 					} else
 						builderProject = new GuiBuilderProject (project, null);
 				}
@@ -204,8 +204,8 @@ namespace MonoDevelop.GtkCore
 			if (project == null)
 				return false;
 
-			string stetic_file = Path.Combine (Path.Combine (project.BaseDirectory, "gtk-gui"), "gui.stetic");
-			return SupportsDesigner (project) && File.Exists (stetic_file);
+			//string stetic_file = Path.Combine (Path.Combine (project.BaseDirectory, "gtk-gui"), "gui.stetic");
+			return SupportsDesigner (project);// && File.Exists (stetic_file);
 		}
 
 		public static bool SupportsDesigner (Project project)

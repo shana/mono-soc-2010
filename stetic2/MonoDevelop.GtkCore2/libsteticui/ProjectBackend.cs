@@ -310,6 +310,8 @@ namespace Stetic {
 			this.folderName = folderName;
 			XmlDocument doc = new XmlDocument ();
 			doc.PreserveWhitespace = true;
+			XmlElement toplevel = doc.CreateElement ("stetic-interface");
+			doc.AppendChild (toplevel);
 			
 			ReadIconFactory (doc);
 			ReadSplitFiles (doc);
@@ -442,9 +444,9 @@ namespace Stetic {
 			Save (fileName);
 		}
 		
-		public void Save (string fileName)
+		public void Save (string folderName)
 		{
-			this.fileName = fileName;
+			this.folderName = folderName;
 			XmlDocument doc = Write (false);
 			
 			XmlTextWriter writer = null;
@@ -452,14 +454,14 @@ namespace Stetic {
 				WriteIconFactory (doc);
 				WriteActionGroups (doc);
 				WriteTopLevels (doc);
-				// Write to a temporary file first, just in case something fails
-				writer = new XmlTextWriter (fileName + "~", System.Text.Encoding.UTF8);
-				writer.Formatting = Formatting.Indented;
-				doc.Save (writer);
-				writer.Close ();
-				
-				File.Copy (fileName + "~", fileName, true);
-				File.Delete (fileName + "~");
+//				// Write to a temporary file first, just in case something fails
+//				writer = new XmlTextWriter (fileName + "~", System.Text.Encoding.UTF8);
+//				writer.Formatting = Formatting.Indented;
+//				doc.Save (writer);
+//				writer.Close ();
+//				
+//				File.Copy (fileName + "~", fileName, true);
+//				File.Delete (fileName + "~");
 			
 			} finally {
 				if (writer != null)
@@ -486,7 +488,7 @@ namespace Stetic {
 			XmlNode ifnode2 = doc2.ImportNode (ifnode, true);
 			node2.AppendChild (ifnode2);
 			
-			string basePath = this.fileName != null ? Path.GetDirectoryName (this.fileName) : null;
+			string basePath = this.folderName;
 			string xmlFile = Path.Combine (basePath, "IconFactory.gtkx");
 			WriteXmlFile (xmlFile, doc2);
 			
