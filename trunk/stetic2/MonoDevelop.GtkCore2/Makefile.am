@@ -10,14 +10,14 @@ DEPS =  \
 	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll \
 	$(top_builddir)/build/bin/Mono.TextEditor.dll \
 	$(top_builddir)/build/bin/MonoDevelop.Core.dll \
-	$(top_builddir)/build/bin/MonoDevelop.Ide.dll \
-	$(top_builddir)/contrib/Mono.Cecil/Mono.Cecil/bin/Debug/Mono.Cecil.dll
+	$(top_builddir)/build/bin/MonoDevelop.Ide.dll
 
 REFS =  \
 	$(GLADE_SHARP_LIBS) \
 	$(GLIB_SHARP_LIBS) \
 	$(GTK_SHARP_LIBS) \
 	$(MONO_ADDINS_LIBS) \
+	-r:../../../contrib/Mono.Cecil/Mono.Cecil/bin/Debug/Mono.Cecil.dll \
 	-r:Mono.Posix \
 	-r:System \
 	-r:System.Xml

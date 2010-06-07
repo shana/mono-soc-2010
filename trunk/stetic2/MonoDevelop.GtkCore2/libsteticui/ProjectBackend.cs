@@ -385,33 +385,33 @@ namespace Stetic {
 				
 				// Load the assembly directories
 				resolver = new AssemblyResolver (app);
-				foreach (XmlElement libElem in node.SelectNodes ("import/assembly-directory")) {
-					string dir = libElem.GetAttribute ("path");
-					if (dir.Length > 0) {
-						if (basePath != null && !Path.IsPathRooted (dir)) {
-							dir = Path.Combine (basePath, dir);
-							if (Directory.Exists (dir))
-								dir = Path.GetFullPath (dir);
-						}
-						resolver.Directories.Add (dir);
-					}
-				}
-				
-				// Import the referenced libraries
-				foreach (XmlElement libElem in node.SelectNodes ("import/widget-library")) {
-					string libname = libElem.GetAttribute ("name");
-					if (libname.EndsWith (".dll") || libname.EndsWith (".exe")) {
-						if (basePath != null && !Path.IsPathRooted (libname)) {
-							libname = Path.Combine (basePath, libname);
-							if (File.Exists (libname))
-								libname = Path.GetFullPath (libname);
-						}
-					}
-					widgetLibraries.Add (libname);
-					if (libElem.GetAttribute ("internal") == "true")
-						internalLibs.Add (libname);
-				}
-				
+//				foreach (XmlElement libElem in node.SelectNodes ("import/assembly-directory")) {
+//					string dir = libElem.GetAttribute ("path");
+//					if (dir.Length > 0) {
+//						if (basePath != null && !Path.IsPathRooted (dir)) {
+//							dir = Path.Combine (basePath, dir);
+//							if (Directory.Exists (dir))
+//								dir = Path.GetFullPath (dir);
+//						}
+//						resolver.Directories.Add (dir);
+//					}
+//				}
+//				
+//				// Import the referenced libraries
+//				foreach (XmlElement libElem in node.SelectNodes ("import/widget-library")) {
+//					string libname = libElem.GetAttribute ("name");
+//					if (libname.EndsWith (".dll") || libname.EndsWith (".exe")) {
+//						if (basePath != null && !Path.IsPathRooted (libname)) {
+//							libname = Path.Combine (basePath, libname);
+//							if (File.Exists (libname))
+//								libname = Path.GetFullPath (libname);
+//						}
+//					}
+//					widgetLibraries.Add (libname);
+//					if (libElem.GetAttribute ("internal") == "true")
+//						internalLibs.Add (libname);
+//				}
+//				
 				app.LoadLibraries (resolver, widgetLibraries);
 				
 				ObjectReader reader = new ObjectReader (this, FileFormat.Native);
@@ -589,36 +589,36 @@ namespace Stetic {
 			if (config.ChildNodes.Count > 0)
 				toplevel.AppendChild (config);
 			
-			if (widgetLibraries.Count > 0 || (resolver != null && resolver.Directories.Count > 0)) {
-				XmlElement importElem = doc.CreateElement ("import");
-				toplevel.AppendChild (importElem);
-				string basePath = Path.GetDirectoryName (fileName);
-				
-				if (resolver != null && resolver.Directories.Count > 0) {
-					foreach (string dir in resolver.Directories) {
-						XmlElement dirElem = doc.CreateElement ("assembly-directory");
-						if (basePath != null)
-							dirElem.SetAttribute ("path", AbsoluteToRelativePath (basePath, dir));
-						else
-							dirElem.SetAttribute ("path", dir);
-						toplevel.AppendChild (dirElem);
-					}
-				}
-				
-				foreach (string wlib in widgetLibraries) {
-					string libName = wlib;
-					XmlElement libElem = doc.CreateElement ("widget-library");
-					if (wlib.EndsWith (".dll") || wlib.EndsWith (".exe")) {
-						if (basePath != null)
-							libName = AbsoluteToRelativePath (basePath, wlib);
-					}
-
-					libElem.SetAttribute ("name", libName);
-					if (IsInternalLibrary (wlib))
-						libElem.SetAttribute ("internal", "true");
-					importElem.AppendChild (libElem);
-				}
-			}
+//			if (widgetLibraries.Count > 0 || (resolver != null && resolver.Directories.Count > 0)) {
+//				XmlElement importElem = doc.CreateElement ("import");
+//				toplevel.AppendChild (importElem);
+//				string basePath = Path.GetDirectoryName (fileName);
+//				
+//				if (resolver != null && resolver.Directories.Count > 0) {
+//					foreach (string dir in resolver.Directories) {
+//						XmlElement dirElem = doc.CreateElement ("assembly-directory");
+//						if (basePath != null)
+//							dirElem.SetAttribute ("path", AbsoluteToRelativePath (basePath, dir));
+//						else
+//							dirElem.SetAttribute ("path", dir);
+//						toplevel.AppendChild (dirElem);
+//					}
+//				}
+//				
+//				foreach (string wlib in widgetLibraries) {
+//					string libName = wlib;
+//					XmlElement libElem = doc.CreateElement ("widget-library");
+//					if (wlib.EndsWith (".dll") || wlib.EndsWith (".exe")) {
+//						if (basePath != null)
+//							libName = AbsoluteToRelativePath (basePath, wlib);
+//					}
+//
+//					libElem.SetAttribute ("name", libName);
+//					if (IsInternalLibrary (wlib))
+//						libElem.SetAttribute ("internal", "true");
+//					importElem.AppendChild (libElem);
+//				}
+//			}
 
 			ObjectWriter writer = new ObjectWriter (doc, FileFormat.Native);
 			writer.CreateUndoInfo = includeUndoInfo;
