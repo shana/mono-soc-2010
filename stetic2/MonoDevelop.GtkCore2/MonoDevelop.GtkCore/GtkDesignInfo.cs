@@ -159,6 +159,10 @@ namespace MonoDevelop.GtkCore
 			}
 		}
 		
+		public bool OldVersion {
+			get { return project.IsFileInProject (SteticFile); }
+		}
+		
 		FilePath ObjectsFile {
 			get { return GtkGuiFolder.Combine ("objects.xml"); }
 		}
@@ -273,55 +277,68 @@ namespace MonoDevelop.GtkCore
 			return projectModified;
 		}
 
+		public void ConvertGtkFolder ()
+		{	
+			if (project.IsFileInProject (SteticFile))
+				project.Files.Remove (SteticFile);
+			
+			if (File.Exists (SteticFile)) {
+				string backupFile = GtkGuiFolder.Combine ("old.stetic");
+				FileService.MoveFile (SteticFile, backupFile);
+			}
+		}
+		
+		
 		public bool UpdateGtkFolder ()
 		{
-			if (!SupportsDesigner (project))
-				return false;
-
-			// This method synchronizes the current gtk project configuration info
-			// with the needed support files in the gtk-gui folder.
-
-			FileService.CreateDirectory (GtkGuiFolder);
-			bool projectModified = false;
-			bool initialGeneration = false;
-			
-			if (!File.Exists (SteticFile)) {
-				initialGeneration = true;
-				StreamWriter sw = new StreamWriter (SteticFile);
-				sw.WriteLine ("<stetic-interface />");
-				sw.Close ();
-				FileService.NotifyFileChanged (SteticFile);
-			}
-				
-			if (!project.IsFileInProject (SteticFile)) {
-				ProjectFile pf = project.AddFile (SteticFile, BuildAction.EmbeddedResource);
-				pf.ResourceId = "gui.stetic";
-				projectModified = true;
-			}
-
-			StringCollection files = GuiBuilderProject.GenerateFiles (GtkGuiFolder);
-			DateTime generatedTime = File.GetLastWriteTime (SteticFile).Subtract (TimeSpan.FromSeconds (2));
-
-			foreach (string filename in files) {
-				if (initialGeneration) {
-					// Ensure that the generation date of this file is < the date of the .stetic file
-					// In this way the code will be properly regenerated when building the project.
-					File.SetLastWriteTime (filename, generatedTime);
-				}
-				if (!project.IsFileInProject (filename)) {
-					project.AddFile (filename, BuildAction.Compile);
-					projectModified = true;
-				}
-			}
-
-			UpdateObjectsFile ();
-			files.Add (ObjectsFile);
-			files.Add (SteticFile);
-
-			if (CleanGtkFolder (files))
-				projectModified = true;
-
-			return ReferenceManager.Update () || projectModified;
+//			if (!SupportsDesigner (project))
+//				return false;
+//
+//			// This method synchronizes the current gtk project configuration info
+//			// with the needed support files in the gtk-gui folder.
+//
+//			FileService.CreateDirectory (GtkGuiFolder);
+//			bool projectModified = false;
+//			bool initialGeneration = false;
+//			
+//			if (!File.Exists (SteticFile)) {
+//				initialGeneration = true;
+//				StreamWriter sw = new StreamWriter (SteticFile);
+//				sw.WriteLine ("<stetic-interface />");
+//				sw.Close ();
+//				FileService.NotifyFileChanged (SteticFile);
+//			}
+//				
+//			if (!project.IsFileInProject (SteticFile)) {
+//				ProjectFile pf = project.AddFile (SteticFile, BuildAction.EmbeddedResource);
+//				pf.ResourceId = "gui.stetic";
+//				projectModified = true;
+//			}
+//
+//			StringCollection files = GuiBuilderProject.GenerateFiles (GtkGuiFolder);
+//			DateTime generatedTime = File.GetLastWriteTime (SteticFile).Subtract (TimeSpan.FromSeconds (2));
+//
+//			foreach (string filename in files) {
+//				if (initialGeneration) {
+//					// Ensure that the generation date of this file is < the date of the .stetic file
+//					// In this way the code will be properly regenerated when building the project.
+//					File.SetLastWriteTime (filename, generatedTime);
+//				}
+//				if (!project.IsFileInProject (filename)) {
+//					project.AddFile (filename, BuildAction.Compile);
+//					projectModified = true;
+//				}
+//			}
+//
+//			UpdateObjectsFile ();
+//			files.Add (ObjectsFile);
+//			files.Add (SteticFile);
+//
+//			if (CleanGtkFolder (files))
+//				projectModified = true;
+//
+//			return ReferenceManager.Update () || projectModified;
+			return true;
 		}
 		
 		public string GetComponentFolder (string componentName)

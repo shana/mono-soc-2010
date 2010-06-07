@@ -10,6 +10,7 @@ namespace Stetic
 		
 		//Search for all components source file folders 
 		string[] GetComponentFolders ();
+		
 	}
 }
 

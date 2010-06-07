@@ -167,6 +167,15 @@ namespace Stetic
 			if (backend != null)
 				backend.Load (fileName);
 			
+			LoadFromSteticFile (fileName);
+			LoadFromComponentFolders ();
+		}
+		
+		void LoadFromSteticFile (string fileName)
+		{
+			if (!File.Exists (fileName))
+				return;
+			
 			using (StreamReader sr = new StreamReader (fileName)) {
 				XmlTextReader reader = new XmlTextReader (sr); 
 				
@@ -192,9 +201,10 @@ namespace Stetic
 					reader.MoveToContent ();
 				}
 			}
-			
-//			string basePath = fileName != null ? Path.GetDirectoryName (fileName) : null;
-			
+		}
+		
+		void LoadFromComponentFolders ()
+		{
 			foreach (string basePath in DesignInfo.GetComponentFolders ()) {
 				DirectoryInfo dir = new DirectoryInfo (basePath);
 				
@@ -255,6 +265,12 @@ namespace Stetic
 		{
 			groups.Add (new ActionGroupInfo (this, reader.GetAttribute ("name")));
 			reader.Skip ();
+		}
+		
+		public void ConvertProject (string fileName)
+		{
+			if (backend != null)
+				backend.ConvertProject (fileName);
 		}
 		
 		public void Save (string fileName)
@@ -732,7 +748,8 @@ namespace Stetic
 			backend.SetFrontend (this);
 
 			if (tmpProjectFile != null && File.Exists (tmpProjectFile)) {
-				backend.Load (tmpProjectFile, fileName);
+//				backend.Load (tmpProjectFile, fileName);
+				throw new NotImplementedException ("OnBackendChanged");
 				File.Delete (tmpProjectFile);
 				tmpProjectFile = null;
 			} else if (fileName != null) {
