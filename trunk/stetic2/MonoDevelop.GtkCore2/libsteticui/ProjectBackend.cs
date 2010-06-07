@@ -16,7 +16,8 @@ namespace Stetic {
 		bool modified;
 		Gtk.Widget selection;
 		string id;
-		string fileName;
+		//string fileName;
+		string folderName;
 		XmlDocument tempDoc;
 		bool loading;
 		IResourceProvider resourceProvider;
@@ -95,12 +96,28 @@ namespace Stetic {
 			return null;
 		}
 		
+//		public string FileName {
+//			get { return fileName; }
+//			set {
+//				this.fileName = value;
+//				if (fileName != null)
+//					Id = System.IO.Path.GetFileName (fileName);
+//				else
+//					Id = null;
+//			}
+//		}
+		
 		public string FileName {
-			get { return fileName; }
+			get { throw new Exception("FileName is obsolete"); }
+			set { throw new Exception("FileName is obsolete"); }
+		}
+			
+		public string FolderName {
+			get { return folderName; }
 			set {
-				this.fileName = value;
-				if (fileName != null)
-					Id = System.IO.Path.GetFileName (fileName);
+				this.folderName = value;
+				if (folderName != null )
+					Id = System.IO.Path.GetFullPath (folderName);
 				else
 					Id = null;
 			}
@@ -149,16 +166,16 @@ namespace Stetic {
 		public string ImagesRootPath {
 			get {
 				if (string.IsNullOrEmpty (imagesRootPath)) {
-					if (string.IsNullOrEmpty (fileName))
+					if (string.IsNullOrEmpty (folderName))
 						return ".";
 					else
-						return Path.GetDirectoryName (fileName);
+						return Path.GetFullPath (folderName);
 				}
 				else {
 					if (Path.IsPathRooted (imagesRootPath))
 						return imagesRootPath;
-					else if (!string.IsNullOrEmpty (fileName))
-						return Path.GetFullPath (Path.Combine (Path.GetDirectoryName (fileName), imagesRootPath));
+					else if (!string.IsNullOrEmpty (folderName))
+						return Path.GetFullPath (Path.Combine (folderName, imagesRootPath));
 					else
 						return imagesRootPath;
 				}
@@ -257,9 +274,10 @@ namespace Stetic {
 			set { iconFactory = value; }
 		}
 		
+		[Obsolete]
 		internal void SetFileName (string fileName)
 		{
-			this.fileName = fileName;
+			
 		}
 		
 		internal void SetFrontend (Project project)
@@ -268,9 +286,7 @@ namespace Stetic {
 		}
 		
 		public void Close ()
-		{
-			fileName = null;
-			
+		{	
 			if (actionGroups != null && ownedGlobalActionGroups) {
 				foreach (Stetic.Wrapper.ActionGroup ag in actionGroups)
 					ag.Dispose ();
@@ -289,19 +305,25 @@ namespace Stetic {
 			iconFactory = new ProjectIconFactory ();
 		}
 		
-		public void Load (string fileName)
+		public void Load (string folderName)
 		{
-			Load (fileName, fileName);
-		}
-		
-		public void Load (string xmlFile, string fileName)
-		{
-			this.fileName = fileName;
+			this.folderName = folderName;
 			XmlDocument doc = new XmlDocument ();
 			doc.PreserveWhitespace = true;
-			doc.Load (xmlFile);
+			
 			ReadIconFactory (doc);
 			ReadSplitFiles (doc);
+			Read (doc);
+			
+			Id = System.IO.Path.GetFullPath (folderName);
+		}
+		
+		public void LoadOldVersion (string fileName)
+		{
+			XmlDocument doc = new XmlDocument ();
+			doc.PreserveWhitespace = true;
+			doc.Load (fileName);
+			
 			Read (doc);
 			
 			Id = System.IO.Path.GetFileName (fileName);
@@ -313,7 +335,7 @@ namespace Stetic {
 			if (node == null)
 				return;
 			
-			string basePath = fileName != null ? Path.GetDirectoryName (fileName) : null;
+			string basePath = folderName;
 			string xmlfile = Path.Combine(basePath, "IconFactory.gtkx");
 			
 			if (File.Exists (xmlfile)) {
@@ -361,57 +383,18 @@ namespace Stetic {
 		void Read (XmlDocument doc)
 		{
 			loading = true;
-			string basePath = fileName != null ? Path.GetDirectoryName (fileName) : null;
-			
+
 			try {
-				string fn = fileName;
+//				string fn = fileName;
 				Close ();
-				fileName = fn;
+//				fileName = fn;
 				
 				XmlNode node = doc.SelectSingleNode ("/stetic-interface");
 				if (node == null)
 					throw new ApplicationException (Catalog.GetString ("Not a Stetic file according to node name."));
 				
-				// Load configuration options
-				foreach (XmlNode configNode in node.SelectNodes ("configuration/*")) {
-					XmlElement config = configNode as XmlElement;
-					if (config == null) continue;
-					
-					if (config.LocalName == "images-root-path")
-						imagesRootPath = config.InnerText;
-					else if (config.LocalName == "target-gtk-version")
-						targetGtkVersion = config.InnerText;
-				}
-				
 				// Load the assembly directories
 				resolver = new AssemblyResolver (app);
-//				foreach (XmlElement libElem in node.SelectNodes ("import/assembly-directory")) {
-//					string dir = libElem.GetAttribute ("path");
-//					if (dir.Length > 0) {
-//						if (basePath != null && !Path.IsPathRooted (dir)) {
-//							dir = Path.Combine (basePath, dir);
-//							if (Directory.Exists (dir))
-//								dir = Path.GetFullPath (dir);
-//						}
-//						resolver.Directories.Add (dir);
-//					}
-//				}
-//				
-//				// Import the referenced libraries
-//				foreach (XmlElement libElem in node.SelectNodes ("import/widget-library")) {
-//					string libname = libElem.GetAttribute ("name");
-//					if (libname.EndsWith (".dll") || libname.EndsWith (".exe")) {
-//						if (basePath != null && !Path.IsPathRooted (libname)) {
-//							libname = Path.Combine (basePath, libname);
-//							if (File.Exists (libname))
-//								libname = Path.GetFullPath (libname);
-//						}
-//					}
-//					widgetLibraries.Add (libname);
-//					if (libElem.GetAttribute ("internal") == "true")
-//						internalLibs.Add (libname);
-//				}
-//				
 				app.LoadLibraries (resolver, widgetLibraries);
 				
 				ObjectReader reader = new ObjectReader (this, FileFormat.Native);
@@ -451,6 +434,12 @@ namespace Stetic {
 			}
 			
 			return data.Widget;
+		}
+		
+		public void ConvertProject (string fileName)
+		{
+			LoadOldVersion (fileName);
+			Save (fileName);
 		}
 		
 		public void Save (string fileName)
@@ -573,52 +562,6 @@ namespace Stetic {
 
 			XmlElement toplevel = doc.CreateElement ("stetic-interface");
 			doc.AppendChild (toplevel);
-
-			XmlElement config = doc.CreateElement ("configuration");
-			if (!string.IsNullOrEmpty (imagesRootPath)) {
-				XmlElement iroot = doc.CreateElement ("images-root-path");
-				iroot.InnerText = imagesRootPath;
-				config.AppendChild (iroot);
-			}
-			if (!string.IsNullOrEmpty (targetGtkVersion)) {
-				XmlElement iroot = doc.CreateElement ("target-gtk-version");
-				iroot.InnerText = targetGtkVersion;
-				config.AppendChild (iroot);
-			}
-			
-			if (config.ChildNodes.Count > 0)
-				toplevel.AppendChild (config);
-			
-//			if (widgetLibraries.Count > 0 || (resolver != null && resolver.Directories.Count > 0)) {
-//				XmlElement importElem = doc.CreateElement ("import");
-//				toplevel.AppendChild (importElem);
-//				string basePath = Path.GetDirectoryName (fileName);
-//				
-//				if (resolver != null && resolver.Directories.Count > 0) {
-//					foreach (string dir in resolver.Directories) {
-//						XmlElement dirElem = doc.CreateElement ("assembly-directory");
-//						if (basePath != null)
-//							dirElem.SetAttribute ("path", AbsoluteToRelativePath (basePath, dir));
-//						else
-//							dirElem.SetAttribute ("path", dir);
-//						toplevel.AppendChild (dirElem);
-//					}
-//				}
-//				
-//				foreach (string wlib in widgetLibraries) {
-//					string libName = wlib;
-//					XmlElement libElem = doc.CreateElement ("widget-library");
-//					if (wlib.EndsWith (".dll") || wlib.EndsWith (".exe")) {
-//						if (basePath != null)
-//							libName = AbsoluteToRelativePath (basePath, wlib);
-//					}
-//
-//					libElem.SetAttribute ("name", libName);
-//					if (IsInternalLibrary (wlib))
-//						libElem.SetAttribute ("internal", "true");
-//					importElem.AppendChild (libElem);
-//				}
-//			}
 
 			ObjectWriter writer = new ObjectWriter (doc, FileFormat.Native);
 			writer.CreateUndoInfo = includeUndoInfo;

@@ -80,12 +80,17 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project); 
 			gproject = GuiBuilderService.SteticApp.CreateProject (info);
 			formInfos = new List<GuiBuilderWindow> ();
-		
-			if (!System.IO.File.Exists (fileName)) {
-				// Regenerate the gtk-gui folder if the stetic project
-				// doesn't exist.
-				info.UpdateGtkFolder ();
+			
+			if (info.OldVersion) {
+				gproject.ConvertProject (info.SteticFile);
+				info.ConvertGtkFolder ();
 			}
+		
+//			if (!System.IO.File.Exists (fileName)) {
+//				// Regenerate the gtk-gui folder if the stetic project
+//				// doesn't exist.
+//				info.UpdateGtkFolder ();
+//			}
 
 			try {
 				gproject.Load (fileName);
@@ -96,6 +101,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 
 			Counters.SteticProjectsLoaded++;
 			gproject.ResourceProvider = GtkDesignInfo.FromProject (project).ResourceProvider;
+//			gproject.DesignInfo = info;
 			gproject.WidgetAdded += OnAddWidget;
 			gproject.WidgetRemoved += OnRemoveWidget;
 			gproject.ActionGroupsChanged += OnGroupsChanged;
