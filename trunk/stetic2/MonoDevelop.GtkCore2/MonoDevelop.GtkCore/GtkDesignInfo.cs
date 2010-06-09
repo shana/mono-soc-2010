@@ -123,10 +123,10 @@ namespace MonoDevelop.GtkCore
 			get {
 				if (builderProject == null) {
 					if (SupportsDesigner (project)) {
-						if (!File.Exists (SteticFile)) {
-							UpdateGtkFolder ();
-							ProjectNodeBuilder.OnSupportChanged (project);
-						}
+//						if (!File.Exists (SteticFile)) {
+//							UpdateGtkFolder ();
+//							ProjectNodeBuilder.OnSupportChanged (project);
+//						}
 						builderProject = new GuiBuilderProject (project, GtkGuiFolder.FullPath.FullPath);
 					} else
 						builderProject = new GuiBuilderProject (project, null);
@@ -288,9 +288,38 @@ namespace MonoDevelop.GtkCore
 			}
 		}
 		
-		
 		public bool UpdateGtkFolder ()
 		{
+			if (!SupportsDesigner (project))
+				return false;
+			
+			// This method synchronizes the current gtk project configuration info
+			// with the needed support files in the gtk-gui folder.
+
+			FileService.CreateDirectory (GtkGuiFolder);
+			bool projectModified = false;
+			
+			foreach (string file in GetComponentsFiles ()) {
+				ProjectFile pf = project.AddFile (file, BuildAction.EmbeddedResource);
+				pf.ResourceId = Path.GetFileName (file);
+				projectModified = true;
+			}
+			
+			StringCollection files = GuiBuilderProject.GenerateFiles (GtkGuiFolder);
+			foreach (string filename in files) {
+				if (!project.IsFileInProject (filename)) {
+					project.AddFile (filename, BuildAction.Compile);
+					projectModified = true;
+				}
+			}
+			
+			UpdateObjectsFile ();
+			
+			return ReferenceManager.Update () || projectModified;
+		}
+		
+//		public bool UpdateGtkFolder ()
+//		{
 //			if (!SupportsDesigner (project))
 //				return false;
 //
@@ -338,8 +367,8 @@ namespace MonoDevelop.GtkCore
 //				projectModified = true;
 //
 //			return ReferenceManager.Update () || projectModified;
-			return true;
-		}
+//			return true;
+//		}
 		
 		public string GetComponentFolder (string componentName)
 		{
@@ -364,6 +393,21 @@ namespace MonoDevelop.GtkCore
 			}
 			
 			return folders.ToArray ();
+		}
+		
+		public string[] GetComponentsFiles ()
+		{
+			List<string> files = new List<string> ();
+			
+			foreach (string folder in GetComponentFolders ()) {
+				DirectoryInfo dir = new DirectoryInfo (folder);
+				
+				foreach (FileInfo file in dir.GetFiles ()) 
+					if (file.Extension == ".gtkx") 
+						files.Add (file.FullName);
+			}
+			
+			return files.ToArray ();
 		}
 
 		void UpdateObjectsFile ()

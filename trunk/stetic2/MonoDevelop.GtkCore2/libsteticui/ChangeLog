@@ -1,3 +1,8 @@
+2010-06-09  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Makefile.am:
+	* libsteticui2.csproj: 
+
 2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Project.cs: Transition from project file name to project folder.

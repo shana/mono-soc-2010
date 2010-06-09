@@ -86,11 +86,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				info.ConvertGtkFolder ();
 			}
 		
-//			if (!System.IO.File.Exists (fileName)) {
-//				// Regenerate the gtk-gui folder if the stetic project
-//				// doesn't exist.
-//				info.UpdateGtkFolder ();
-//			}
+			info.UpdateGtkFolder ();
 
 			try {
 				gproject.Load (folderName);

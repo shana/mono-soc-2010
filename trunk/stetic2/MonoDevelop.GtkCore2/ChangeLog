@@ -1,3 +1,10 @@
+2010-06-09  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* gtk-gui/gui.stetic:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore/GtkDesignInfo.cs: Add gtkx files to project
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderProject.cs: 
+
 2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* gtk-gui/gui.stetic:
