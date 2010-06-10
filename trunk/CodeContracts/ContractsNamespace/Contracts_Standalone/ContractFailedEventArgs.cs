@@ -3,6 +3,7 @@
 //
 // Authors:
 //    Miguel de Icaza (miguel@gnome.org)
+//    Chris Bacon (chrisbacon76@gmail.com)
 //
 // Copyright 2009 Novell (http://www.novell.com)
 //
@@ -38,7 +39,7 @@ namespace System.Diagnostics.Contracts {
 #else
 	internal
 #endif
- sealed class ContractFailedEventArgs : EventArgs {
+    sealed class ContractFailedEventArgs : EventArgs {
 
         public ContractFailedEventArgs (ContractFailureKind failureKind, string message, string condition, Exception originalException)
         {

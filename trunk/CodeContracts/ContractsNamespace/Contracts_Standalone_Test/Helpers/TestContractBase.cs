@@ -1,4 +1,5 @@
-﻿using System;
+#if NET_4_0
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,42 +9,38 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Diagnostics.Contracts.Internal;
 
-namespace ContractsTests.Helpers {
-	public class TestContractBase {
+namespace MonoTests.System.Diagnostics.Contracts.Helpers {
 
-		protected TestContractBase() {
-			this.ContractExceptionType = Type.GetType("System.Diagnostics.Contracts.ContractException");
-			if (this.ContractExceptionType == null) {
-				// Special code for when Contracts namespace is not in CorLib
-				var m = typeof(Contract).GetMethod("GetContractExceptionType", BindingFlags.NonPublic | BindingFlags.Static);
-				this.ContractExceptionType = (Type)m.Invoke(null, null);
-			}
-		}
+    public class TestContractBase {
 
-		protected AssertListener asserts;
+        protected TestContractBase() {
+            // Get the type of System.Diagnostics.Contracts.ContractException
+            // Have to do this differently depending on how the test is being run.
+            this.ContractExceptionType = Type.GetType("System.Diagnostics.Contracts.ContractException");
+            if (this.ContractExceptionType == null) {
+                // Special code for when Contracts namespace is not in CorLib
+                var mGetContractExceptionType = typeof (Contract).GetMethod ("GetContractExceptionType", BindingFlags.NonPublic | BindingFlags.Static);
+                this.ContractExceptionType = (Type) mGetContractExceptionType.Invoke (null, null);
+            }
+        }
 
-		[SetUp]
-		public void Setup() {
-			// Remove all event handlers from Contract.ContractFailed
-			var eventField = typeof(Contract).GetField("ContractFailed", BindingFlags.Static | BindingFlags.NonPublic);
+        [SetUp]
+        public void Setup() {
+            // Remove all event handlers from Contract.ContractFailed
+            var eventField = typeof(Contract).GetField("ContractFailed", BindingFlags.Static | BindingFlags.NonPublic);
             if (eventField == null) {
-				// But in MS.NET it's done this way.
+                // But in MS.NET it's done this way.
                 eventField = typeof(ContractHelper).GetField("contractFailedEvent", BindingFlags.Static | BindingFlags.NonPublic);
             }
-			eventField.SetValue(null, null);
-			// Set up the assert listener
-			this.asserts = new AssertListener();
-			Debug.Listeners.Clear();
-			Debug.Listeners.Add(this.asserts);
-		}
+            eventField.SetValue(null, null);
+        }
 
-		[TearDown]
-		public void TearDown() {
-			Debug.Listeners.Clear();
-			this.asserts = null;
-		}
+        [TearDown]
+        public void TearDown() {
+        }
 
-		protected Type ContractExceptionType { get; private set; }
+        protected Type ContractExceptionType { get; private set; }
 
-	}
+    }
 }
+#endif

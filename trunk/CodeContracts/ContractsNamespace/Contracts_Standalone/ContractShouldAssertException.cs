@@ -1,10 +1,10 @@
-//
-// System.Diagnostics.Contracts.ContractInvariantMethodAttribute.cs
+﻿//
+// System.Diagnostics.Contracts.ContractException.cs
 //
 // Authors:
-// 	Gonzalo Paniagua Javier (gonzalo@ximian.com)
+//    Chris Bacon (chrisbacon76@gmail.com)
 //
-// Copyright (c) 2010 Novell, Inc (http://www.novell.com)
+// Copyright 2010 Novell (http://www.novell.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -25,23 +25,18 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-#if NET_2_1 || NET_4_0
+
 using System;
+
 namespace System.Diagnostics.Contracts {
 
-    /// <summary>
-    /// Specifies that this method contains Contract invariant conditions for this class.
-    /// </summary>
-    /// <remarks>
-    /// There may be multiple methods with this attribute in one class, their effect is accumulated.
-    /// The method must take no parameters and return void, and may be any visibility.
-    /// </remarks>
-    [Conditional ("CONTRACTS_FULL")]
-    [AttributeUsage (AttributeTargets.Method, Inherited = false)]
-    public sealed class ContractInvariantMethodAttribute : Attribute {
-        public ContractInvariantMethodAttribute ()
+    class ContractShouldAssertException : Exception {
+
+        public ContractShouldAssertException (string msg)
+            : base (msg)
         {
         }
+
     }
+
 }
-#endif

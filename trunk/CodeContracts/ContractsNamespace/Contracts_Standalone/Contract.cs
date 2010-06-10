@@ -3,8 +3,9 @@
 //
 // Authors:
 //    Miguel de Icaza (miguel@gnome.org)
+//    Chris Bacon (chrisbacon76@gmail.com)
 //
-// Copyright 2009 Novell (http://www.novell.com)
+// Copyright 2009, 2010 Novell (http://www.novell.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -57,6 +58,11 @@ namespace System.Diagnostics.Contracts {
             return typeof (ContractException);
         }
 
+        internal static Type GetContractShouldAssertExceptionType ()
+        {
+            return typeof (ContractShouldAssertException);
+        }
+
         static void ReportFailure (ContractFailureKind kind, string userMessage, string conditionText, Exception innerException)
         {
             string msg = ContractHelper.RaiseContractFailedEvent (kind, userMessage, conditionText, innerException);
@@ -68,7 +74,19 @@ namespace System.Diagnostics.Contracts {
 
         static void AssertMustUseRewriter (ContractFailureKind kind, string message)
         {
-            Debug.Fail ("Description: Must use the rewriter when using " + message);
+            if (Environment.UserInteractive) {
+                // FIXME: This should trigger an assertion.
+                // But code will never get here at the moment, as Environment.UserInteractive currently
+                // always returns false.
+                throw new ContractShouldAssertException (message);
+            } else {
+                // Note that FailFast() currently throws a NotImplemenetedException()
+#if NET_4_0
+                Environment.FailFast(message, new ExecutionEngineException());
+#else
+                Environment.FailFast(message);
+#endif
+            }
         }
 
         /// <summary>
