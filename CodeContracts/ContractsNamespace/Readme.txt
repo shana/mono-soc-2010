@@ -10,3 +10,5 @@ All tests pass.
 All classes, methods have documentation, although this may need expanding later.
 
 
+CodeContracts.patch can be applied to corlib and fully implements the
+System.Diagnostics.Contracts namespace and adds a set of tests.
