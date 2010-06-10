@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Diagnostics.Contracts;
+using Utils;
+
+namespace Trivial_RequiresEqualsIntConst_OK {
+    class Program {
+
+        static void Test (int i)
+        {
+            Contract.Requires (i == 10);
+        }
+
+        static void Main (string [] args)
+        {
+            TestCaseRunner.Run (() => {
+                int i = 10;
+                Test (i);
+            });
+        }
+
+    }
+}
