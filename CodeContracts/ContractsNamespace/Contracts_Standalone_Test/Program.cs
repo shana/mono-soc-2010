@@ -7,7 +7,7 @@ using System.Diagnostics.Contracts;
 using System.Diagnostics;
 using System.Reflection;
 using System.Diagnostics.Contracts.Internal;
-using ContractsTests.Helpers;
+using MonoTests.System.Diagnostics.Contracts.Helpers;
 
 namespace ContractsTests {
     class Program {
@@ -16,14 +16,9 @@ namespace ContractsTests {
         {
 
             var program = new Program ();
-            program.asserts = new AssertListener ();
-            Debug.Listeners.Clear ();
-            Debug.Listeners.Add (program.asserts);
 
             program.SimulateTest ();
         }
-
-        private AssertListener asserts;
 
         private void SimulateTest ()
         {

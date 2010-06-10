@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CONTRACTS_FULL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CONTRACTS_FULL NET_4_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;CONTRACTS_FULL</DefineConstants>
+    <DefineConstants>TRACE;CONTRACTS_FULL NET_4_0</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -45,6 +45,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Contracts_Standalone_Test\ContractAssertTest.cs">
+      <Link>ContractAssertTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\ContractAssumeTest.cs">
+      <Link>ContractAssumeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\ContractCollectionMethodsTest.cs">
+      <Link>ContractCollectionMethodsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\ContractHelperTest.cs">
+      <Link>ContractHelperTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\ContractMarkerMethodsTest.cs">
+      <Link>ContractMarkerMethodsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Contracts_Standalone_Test\ContractMustUseRewriterTest.cs">
+      <Link>ContractMustUseRewriterTest.cs</Link>
+    </Compile>
     <Compile Include="..\Contracts_Standalone_Test\Helpers\AssertListener.cs">
       <Link>Helpers\AssertListener.cs</Link>
     </Compile>
@@ -53,24 +71,6 @@
     </Compile>
     <Compile Include="..\Contracts_Standalone_Test\Helpers\TestContractBase.cs">
       <Link>Helpers\TestContractBase.cs</Link>
-    </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractAssert.cs">
-      <Link>TestContractAssert.cs</Link>
-    </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractAssume.cs">
-      <Link>TestContractAssume.cs</Link>
-    </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractCollectionMethods.cs">
-      <Link>TestContractCollectionMethods.cs</Link>
-    </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractHelper.cs">
-      <Link>TestContractHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractMarkerMethods.cs">
-      <Link>TestContractMarkerMethods.cs</Link>
-    </Compile>
-    <Compile Include="..\Contracts_Standalone_Test\TestContractMustUseRewriter.cs">
-      <Link>TestContractMustUseRewriter.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
