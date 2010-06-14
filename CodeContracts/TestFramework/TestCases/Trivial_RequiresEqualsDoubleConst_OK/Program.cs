@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define CONTRACTS_FULL
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
