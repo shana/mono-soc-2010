@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DBB159F6-EECE-4185-AF92-ADADBFECF452}</ProjectGuid>
+    <ProjectGuid>{0A6415CE-CBE5-4D47-AE73-DBBF03478995}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TestRewriter</RootNamespace>
