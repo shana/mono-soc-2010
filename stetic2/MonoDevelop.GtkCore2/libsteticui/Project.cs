@@ -232,8 +232,12 @@ namespace Stetic
 		
 		public void ConvertProject (string fileName)
 		{
-			if (backend != null)
-				backend.ConvertProject (fileName);
+			//ProjectBackend property when created invokes Load method which is not valid
+			//for old file layout
+			
+			ProjectBackend backend = app.Backend.CreateProject ();
+			backend.SetFrontend (this);
+			backend.ConvertProject (fileName);
 		}
 		
 		public void Save (string folderName)

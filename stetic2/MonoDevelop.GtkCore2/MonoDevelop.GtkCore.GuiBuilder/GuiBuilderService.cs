@@ -259,14 +259,12 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		public static string GetBuildCodeFileName (Project project, string componentName)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
-			IType type=info.GuiBuilderProject.FindClass(componentName);
-			
-			if (type == null)
+			string fileName = info.GetBuildComponentFile (componentName);
+		
+			if (fileName == null)
 				throw new UserException ("Cannot find type for " + componentName);			
-			FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
-			string filename = componentName + ".generated" + Path.GetExtension (info.SteticGeneratedFile);
-
-			return Path.Combine (folder, filename);
+			
+			return fileName;
 		}
 		
 		public static string GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, bool saveToFile, bool overwrite)

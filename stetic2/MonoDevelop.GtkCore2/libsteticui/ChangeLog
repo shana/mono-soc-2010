@@ -1,3 +1,7 @@
+2010-06-15  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Project.cs: Create backend for Convert
+
 2010-06-09  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Makefile.am:
