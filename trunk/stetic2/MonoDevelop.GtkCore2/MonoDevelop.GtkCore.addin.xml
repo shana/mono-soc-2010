@@ -49,6 +49,7 @@
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.WindowsFolderNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ActionGroupNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.StockIconsNodeBuilder"/>
+		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFileNodeBuilderExtension" />
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/Ide/FileTemplates">

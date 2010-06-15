@@ -282,10 +282,9 @@ namespace MonoDevelop.GtkCore
 			if (project.IsFileInProject (SteticFile))
 				project.Files.Remove (SteticFile);
 			
-			if (File.Exists (SteticFile)) {
-				string backupFile = GtkGuiFolder.Combine ("old.stetic");
+			string backupFile = GtkGuiFolder.Combine ("old.stetic");
+			if (File.Exists (SteticFile) && !File.Exists (backupFile))
 				FileService.MoveFile (SteticFile, backupFile);
-			}
 		}
 		
 		public bool UpdateGtkFolder ()
@@ -299,9 +298,24 @@ namespace MonoDevelop.GtkCore
 			FileService.CreateDirectory (GtkGuiFolder);
 			bool projectModified = false;
 			
-			foreach (string file in GetComponentsFiles ()) {
-				ProjectFile pf = project.AddFile (file, BuildAction.EmbeddedResource);
-				pf.ResourceId = Path.GetFileName (file);
+			foreach (string filename in GetComponentsFiles ()) {
+				ProjectFile pf = project.AddFile (filename, BuildAction.EmbeddedResource);
+				pf.ResourceId = Path.GetFileName (filename);
+				
+				string componentName = Path.GetFileNameWithoutExtension (filename);
+				string componentFile = GetComponentFile (componentName);
+				
+				if (componentFile != null) {
+					pf.DependsOn = componentFile;	
+				
+					string buildFile = GetBuildComponentFile (componentName);
+					if (buildFile != null) {
+						ProjectFile pf2 = project.AddFile (buildFile, BuildAction.Compile);
+						pf2.ResourceId = Path.GetFileName (buildFile);
+						pf2.DependsOn = componentFile;
+					}
+				}
+				
 				projectModified = true;
 			}
 			
@@ -311,6 +325,7 @@ namespace MonoDevelop.GtkCore
 					project.AddFile (filename, BuildAction.Compile);
 					projectModified = true;
 				}
+				
 			}
 			
 			UpdateObjectsFile ();
@@ -370,12 +385,46 @@ namespace MonoDevelop.GtkCore
 //			return true;
 //		}
 		
+		public string GetComponentFile (string componentName)
+		{
+			IType type = GuiBuilderProject.FindClass (componentName);
+			
+			if (type != null) {
+				
+				foreach (IType part in type.Parts) {
+					string fileName = part.CompilationUnit.FileName.FileName;
+					if (!fileName.Contains (".generated"))
+						return fileName;
+					
+				}
+			}
+				
+			return null;
+		}
+		
+		public string GetBuildComponentFile (string componentName)
+		{
+			IType type=GuiBuilderProject.FindClass(componentName);
+			
+			if (type != null) {
+				FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
+				string fileName = componentName + ".generated" + Path.GetExtension (SteticGeneratedFile);
+				return folder.Combine (fileName);
+			}
+			
+			return null;
+		}
+		
 		public string GetComponentFolder (string componentName)
 		{
 			IType type = GuiBuilderProject.FindClass (componentName);
-			FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
 			
-			return folder.FullPath.ToString ();
+			if (type != null) {
+				FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
+				return folder.FullPath.ToString ();
+			}
+			
+			return null;
 		}
 		
 		public string[] GetComponentFolders ()
@@ -404,7 +453,7 @@ namespace MonoDevelop.GtkCore
 				
 				foreach (FileInfo file in dir.GetFiles ()) 
 					if (file.Extension == ".gtkx") 
-						files.Add (file.FullName);
+						files.Add (file.ToString ());
 			}
 			
 			return files.ToArray ();

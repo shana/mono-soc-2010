@@ -49,6 +49,7 @@ FILES =  \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxLoader.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxProvider.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ActionGroupNodeBuilder.cs \
+	MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/StockIconsNodeBuilder.cs \

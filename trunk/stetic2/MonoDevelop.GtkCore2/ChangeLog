@@ -1,3 +1,15 @@
+2010-06-15  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+	 Changes in the project pad for displaying grouped component files
+
+	* Makefile.am:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore.addin.xml:
+	* MonoDevelop.GtkCore/GtkDesignInfo.cs:
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderService.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/WindowsFolderNodeBuilder.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs:
+
+
 2010-06-09  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* gtk-gui/gui.stetic:
