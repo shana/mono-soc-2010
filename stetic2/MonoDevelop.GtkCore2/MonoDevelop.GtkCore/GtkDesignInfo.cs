@@ -279,12 +279,21 @@ namespace MonoDevelop.GtkCore
 
 		public void ConvertGtkFolder ()
 		{	
-			if (project.IsFileInProject (SteticFile))
-				project.Files.Remove (SteticFile);
+			foreach (ProjectFile pf in project.Files.GetFilesInPath (GtkGuiFolder)) {
+				FilePath path = pf.FilePath;
+				
+				if (path != SteticGeneratedFile) {
+					project.Files.Remove (path);
+					
+					if (path != SteticFile)
+						FileService.DeleteFile (path.FullPath);
+				}
+			}
 			
-			string backupFile = GtkGuiFolder.Combine ("old.stetic");
-			if (File.Exists (SteticFile) && !File.Exists (backupFile))
+			if (File.Exists (SteticFile)) {
+				string backupFile = GtkGuiFolder.Combine ("old.stetic");
 				FileService.MoveFile (SteticFile, backupFile);
+			}
 		}
 		
 		public bool UpdateGtkFolder ()
