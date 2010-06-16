@@ -57,7 +57,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForFile (pf.FilePath.FullPath);
 			
 			if (win != null) {
-				label = win.Name;
 				if (win.RootWidget.IsWindow)
 					icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
 				else
@@ -83,4 +82,3 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		
 	}
 }
-
