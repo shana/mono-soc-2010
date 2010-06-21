@@ -29,6 +29,7 @@
 
 using System;
 using MonoDevelop.Projects;
+using MonoDevelop.Projects.Dom;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.GtkCore.GuiBuilder;
@@ -44,24 +45,36 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			return typeof(ProjectFile).IsAssignableFrom (dataType);
 		}
 		
-		public override void GetNodeAttributes (ITreeNavigator parentNode, object dataObject, ref NodeAttributes attributes)
+		public override void GetNodeAttributes (ITreeNavigator treeNavigator, object dataObject, ref NodeAttributes attributes)
 		{
-		
+			if (treeNavigator.Options ["ShowAllFiles"])
+				return;
+			
+			ProjectFile pf = (ProjectFile) dataObject;
+			
+			if (pf.FilePath.Extension == ".gtkx")
+				attributes |= NodeAttributes.Hidden;
 		}
 		
 		
 		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, ref string label, ref Gdk.Pixbuf icon, ref Gdk.Pixbuf closedIcon)
 		{	
 			ProjectFile pf = (ProjectFile) dataObject;
-			GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-			GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForFile (pf.FilePath.FullPath);
 			
-			if (win != null) {
-				if (win.RootWidget.IsWindow)
-					icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
-				else
-					icon = ImageService.GetPixbuf ("md-gtkcore-widget", Gtk.IconSize.Menu);
-			}
+			foreach (ProjectFile dependent in pf.DependentChildren)
+				if (dependent.FilePath.Extension == ".gtkx") {
+					
+					string className = dependent.FilePath.FileNameWithoutExtension;
+					GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
+					GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
+					
+					if (win != null) {
+						if (win.RootWidget.IsWindow)
+							icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
+						else
+							icon = ImageService.GetPixbuf ("md-gtkcore-widget", Gtk.IconSize.Menu);
+					}
+				}
 		}
 		
 		public override bool HasChildNodes (ITreeBuilder builder, object dataObject)

@@ -36,6 +36,7 @@ using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
 
 using MonoDevelop.GtkCore.GuiBuilder;
+using MonoDevelop.Ide;
 
 namespace MonoDevelop.GtkCore.NodeBuilders
 {
@@ -58,6 +59,19 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		{
 			lock (typeof (ProjectNodeBuilder))
 				instance = null;
+		}
+		
+		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, ref string label, ref Gdk.Pixbuf icon, ref Gdk.Pixbuf closedIcon)
+		{
+			Project project = dataObject as Project;
+			if (project is DotNetProject) {
+				GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+				
+				if (info.OldVersion) {
+					info.GuiBuilderProject.Convert ();
+					IdeApp.ProjectOperations.Save (project);
+				}
+			}
 		}
 		
 		public override void BuildChildNodes (ITreeBuilder builder, object dataObject)

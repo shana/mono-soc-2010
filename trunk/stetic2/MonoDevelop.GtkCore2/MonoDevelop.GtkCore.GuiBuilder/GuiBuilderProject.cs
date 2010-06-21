@@ -72,6 +72,20 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			Counters.GuiProjectsLoaded++;
 		}
 		
+		public void Convert ()
+		{
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project); 
+			Stetic.Project gproject = GuiBuilderService.SteticApp.CreateProject (info);
+			//Stetic.Project does not implement IDisposable
+			try {
+				gproject.ConvertProject (info.SteticFile);
+				info.ConvertGtkFolder ();
+				info.UpdateGtkFolder ();
+			} finally {
+				gproject.Dispose ();
+			}
+		}
+		
 		void Load ()
 		{
 			if (gproject != null || disposed || folderName == null)
@@ -80,11 +94,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project); 
 			gproject = GuiBuilderService.SteticApp.CreateProject (info);
 			formInfos = new List<GuiBuilderWindow> ();
-			
-			if (info.OldVersion) {
-				gproject.ConvertProject (info.SteticFile);
-				info.ConvertGtkFolder ();
-			}
+//			
+//			if (info.OldVersion) {
+//				gproject.ConvertProject (info.SteticFile);
+//				info.ConvertGtkFolder ();
+//			}
 		
 			info.UpdateGtkFolder ();
 
