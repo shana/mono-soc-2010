@@ -1,3 +1,8 @@
+2010-06-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* ProjectNodeBuilder.cs: Convert a project file layout on open	
+	* ProjectFileNodeBuilderExtension.cs: Group components files
+
 2010-06-16  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* ProjectFileNodeBuilderExtension.cs: 
