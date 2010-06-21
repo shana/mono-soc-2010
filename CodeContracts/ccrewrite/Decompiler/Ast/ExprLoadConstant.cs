@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Mono.Cecil;
+
+namespace Decompiler.Ast {
+	public class ExprLoadConstant : Expr {
+
+		public ExprLoadConstant (MethodInfo methodInfo, object value)
+			: base (methodInfo, ExprType.LoadConstant)
+		{
+			this.Value = value;
+
+			if (value == null) {
+				this.returnType = methodInfo.TypeObject;
+			} else {
+				Type type = value.GetType();
+				this.returnType = methodInfo.Module.Import (type);
+			}
+		}
+
+		private TypeReference returnType;
+
+		public object Value { get; private set; }
+
+		public override TypeReference ReturnType
+		{
+			get { return this.returnType; }
+		}
+
+	}
+}
