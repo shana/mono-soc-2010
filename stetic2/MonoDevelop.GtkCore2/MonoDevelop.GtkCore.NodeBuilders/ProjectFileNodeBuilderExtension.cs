@@ -33,6 +33,7 @@ using MonoDevelop.Projects.Dom;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.GtkCore.GuiBuilder;
+using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide;
 
@@ -45,13 +46,16 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			return typeof(ProjectFile).IsAssignableFrom (dataType);
 		}
 		
+		public override Type CommandHandlerType {
+			get { return typeof (ComponentComponentHandler); }
+		}
+		
 		public override void GetNodeAttributes (ITreeNavigator treeNavigator, object dataObject, ref NodeAttributes attributes)
 		{
 			if (treeNavigator.Options ["ShowAllFiles"])
 				return;
 			
 			ProjectFile pf = (ProjectFile) dataObject;
-			
 			if (pf.FilePath.Extension == ".gtkx")
 				attributes |= NodeAttributes.Hidden;
 		}
@@ -61,37 +65,43 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		{	
 			ProjectFile pf = (ProjectFile) dataObject;
 			
-			foreach (ProjectFile dependent in pf.DependentChildren)
-				if (dependent.FilePath.Extension == ".gtkx") {
-					
-					string className = dependent.FilePath.FileNameWithoutExtension;
-					GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-					GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
-					
-					if (win != null) {
-						if (win.RootWidget.IsWindow)
-							icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
-						else
-							icon = ImageService.GetPixbuf ("md-gtkcore-widget", Gtk.IconSize.Menu);
-					}
+			if (pf.IsComponentFile ()) {
+				string className = pf.GetComponentClassName ();
+				GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
+				GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
+				
+				if (win != null) {
+					if (win.RootWidget.IsWindow)
+						icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
+					else
+						icon = ImageService.GetPixbuf ("md-gtkcore-widget", Gtk.IconSize.Menu);
 				}
+			}
 		}
 		
 		public override bool HasChildNodes (ITreeBuilder builder, object dataObject)
 		{
 			return base.HasChildNodes (builder, dataObject);
 		}
-		
-		
-		public override void BuildChildNodes (ITreeBuilder treeBuilder, object dataObject)
+	}
+	
+	public class ComponentComponentHandler : ProjectFileNodeCommandHandler
+	{
+		public override void ActivateItem ()
 		{
-//			ProjectFile file = (ProjectFile) dataObject;
-//			GtkDesignInfo info = GtkDesignInfo.FromProject (file.Project);
+			ProjectFile pf = (ProjectFile) CurrentNode.DataItem;
 			
-			//file.ExtendedProperties.
+			if (pf.IsComponentFile ()) {
+				Document doc = IdeApp.Workbench.OpenDocument (pf.FilePath, true);
+				if (doc != null) {
+					GuiBuilderView view = doc.GetContent<GuiBuilderView> ();
+					if (view != null)
+						view.ShowDesignerView ();
+				}
+				return;
+			}
+					
+			base.ActivateItem ();
 		}
-		
-		
-		
 	}
 }

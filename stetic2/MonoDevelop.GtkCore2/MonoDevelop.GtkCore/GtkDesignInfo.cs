@@ -468,6 +468,7 @@ namespace MonoDevelop.GtkCore
 			return files.ToArray ();
 		}
 
+
 		void UpdateObjectsFile ()
 		{
 			if (!File.Exists (ObjectsFile))

@@ -32,6 +32,7 @@ using MonoDevelop.Projects;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.GtkCore.GuiBuilder;
+using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide;
 
@@ -41,8 +42,8 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 	{
 		public override bool CanBuildNode (Type dataType)
 		{
-			return typeof(ProjectFolder).IsAssignableFrom (dataType) ||
-			       typeof(DotNetProject).IsAssignableFrom (dataType);
+			return typeof(ProjectFolder).IsAssignableFrom (dataType);// ||
+//			       typeof(DotNetProject).IsAssignableFrom (dataType);
 		}
 		
 		public override Type CommandHandlerType {
@@ -51,15 +52,40 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		
 		public override void GetNodeAttributes (ITreeNavigator treeNavigator, object dataObject, ref NodeAttributes attributes)
 		{
-			if (treeNavigator.Options ["ShowAllFiles"])
-				return;
-
+//			if (treeNavigator.Options ["ShowAllFiles"])
+//				return;
+//
+//			ProjectFolder folder = dataObject as ProjectFolder;
+//			if (folder != null && folder.Project is DotNetProject) {
+//				GtkDesignInfo info = GtkDesignInfo.FromProject (folder.Project);
+//				if (info.GtkGuiFolder == folder.Path)
+//					attributes |= NodeAttributes.Hidden;
+//			}
+		}
+		
+		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, ref string label, ref Gdk.Pixbuf icon, ref Gdk.Pixbuf closedIcon)
+		{
 			ProjectFolder folder = dataObject as ProjectFolder;
-			if (folder != null && folder.Project is DotNetProject) {
+			
+			if (folder != null) {
 				GtkDesignInfo info = GtkDesignInfo.FromProject (folder.Project);
-				if (info.GtkGuiFolder == folder.Path)
-					attributes |= NodeAttributes.Hidden;
+				if (info.GtkGuiFolder == folder.Path) {
+					icon = Context.GetIcon (Stock.OpenResourceFolder);
+					closedIcon = Context.GetIcon (Stock.ClosedResourceFolder);
+				}		
 			}
+		}
+		
+		public override void BuildChildNodes (ITreeBuilder treeBuilder, object dataObject)
+		{
+//			ProjectFolder folder = dataObject as ProjectFolder;
+//			
+//			if (folder != null) {
+//				GtkDesignInfo info = GtkDesignInfo.FromProject (p);
+//				if (!info.GuiBuilderProject.HasError) {
+//					builder.AddChild (new StockIconsNode (p));
+//				}
+//			}
 		}
 	}
 	
