@@ -90,9 +90,10 @@ namespace MonoDevelop.GtkCore.Dialogs
 				PackStart (sep, false, false, 0);
 				
 				box = new Gtk.HBox (false, 3);
-				box.PackStart (new Label (GettextCatalog.GetString ("Folder name :")), false, false, 0);
+				box.PackStart (new Label (GettextCatalog.GetString ("GUI folder name :")), false, false, 0);
 				entryFolderName = new Gtk.Entry ();
 				entryFolderName.Text = designInfo.GtkGuiFolderName;
+				entryFolderName.Sensitive = false;
 				box.PackStart (entryFolderName, false, false, 0);
 				box.ShowAll ();
 				PackStart (box, false, false, 0);

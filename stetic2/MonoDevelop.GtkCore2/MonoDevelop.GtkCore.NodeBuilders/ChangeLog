@@ -1,3 +1,9 @@
+2010-06-23  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* ProjectNodeBuilder.cs:
+	* ProjectFileNodeBuilderExtension.cs: Show ProjectConversionDialog before
+	conversion
+
 2010-06-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* ProjectNodeBuilder.cs: Convert a project file layout on open	

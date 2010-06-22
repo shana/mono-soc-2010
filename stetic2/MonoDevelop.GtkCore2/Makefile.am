@@ -17,7 +17,7 @@ REFS =  \
 	$(GLIB_SHARP_LIBS) \
 	$(GTK_SHARP_LIBS) \
 	$(MONO_ADDINS_LIBS) \
-	-r:../../../contrib/Mono.Cecil/Mono.Cecil/bin/Debug/Mono.Cecil.dll \
+	-pkg:monodevelop \
 	-r:Mono.Posix \
 	-r:System \
 	-r:System.Core \
@@ -27,11 +27,13 @@ FILES =  \
 	AssemblyInfo.cs \
 	gtk-gui/generated.cs \
 	gtk-gui/MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionsPanelWidget.cs \
+	gtk-gui/MonoDevelop.GtkCore.Dialogs.ProjectConversionDialog.cs \
 	MonoDevelop.GtkCore.Commands/GladeCommands.cs \
 	MonoDevelop.GtkCore.Dialogs/BindDesignDialog.cs \
 	MonoDevelop.GtkCore.Dialogs/ConfirmWindowDeleteDialog.cs \
 	MonoDevelop.GtkCore.Dialogs/GtkDesignerOptionsPanelWidget.cs \
 	MonoDevelop.GtkCore.Dialogs/GtkFeatureWidget.cs \
+	MonoDevelop.GtkCore.Dialogs/ProjectConversionDialog.cs \
 	MonoDevelop.GtkCore.Dialogs/SelectRenamedClassDialog.cs \
 	MonoDevelop.GtkCore.Dialogs/WidgetBuilderOptionPanel.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ActionGroupDisplayBinding.cs \
