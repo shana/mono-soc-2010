@@ -277,7 +277,7 @@ namespace MonoDevelop.GtkCore
 			return projectModified;
 		}
 
-		public void ConvertGtkFolder ()
+		public void ConvertGtkFolder (bool makeBackup)
 		{	
 			foreach (ProjectFile pf in project.Files.GetFilesInPath (GtkGuiFolder)) {
 				FilePath path = pf.FilePath;
@@ -290,7 +290,7 @@ namespace MonoDevelop.GtkCore
 				}
 			}
 			
-			if (File.Exists (SteticFile)) {
+			if (makeBackup && File.Exists (SteticFile)) {
 				string backupFile = GtkGuiFolder.Combine ("old.stetic");
 				FileService.MoveFile (SteticFile, backupFile);
 			}

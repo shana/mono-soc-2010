@@ -72,14 +72,14 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			Counters.GuiProjectsLoaded++;
 		}
 		
-		public void Convert ()
+		public void Convert (string guiFolderName, bool makeBackup)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project); 
 			Stetic.Project gproject = GuiBuilderService.SteticApp.CreateProject (info);
 			//Stetic.Project does not implement IDisposable
 			try {
 				gproject.ConvertProject (info.SteticFile);
-				info.ConvertGtkFolder ();
+				info.ConvertGtkFolder (makeBackup);
 				info.UpdateGtkFolder ();
 			} finally {
 				gproject.Dispose ();

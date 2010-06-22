@@ -29,12 +29,15 @@
 using System;
 using System.Collections;
 
+using Gtk;
+
 using MonoDevelop.Projects;
 using MonoDevelop.Core;
 using MonoDevelop.Ide.Gui.Pads;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
 
+using MonoDevelop.GtkCore.Dialogs;
 using MonoDevelop.GtkCore.GuiBuilder;
 using MonoDevelop.Ide;
 
@@ -64,12 +67,22 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, ref string label, ref Gdk.Pixbuf icon, ref Gdk.Pixbuf closedIcon)
 		{
 			Project project = dataObject as Project;
+			
 			if (project is DotNetProject) {
 				GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 				
 				if (info.OldVersion) {
-					info.GuiBuilderProject.Convert ();
-					IdeApp.ProjectOperations.Save (project);
+					ProjectConversionDialog dialog = new ProjectConversionDialog (project);
+					
+					try
+					{
+						if (dialog.Run () == (int)ResponseType.Yes) {
+							info.GuiBuilderProject.Convert (dialog.GuiFolderName, dialog.MakeBackup);
+							IdeApp.ProjectOperations.Save (project);
+						}
+					} finally {
+						dialog.Destroy ();
+					}
 				}
 			}
 		}

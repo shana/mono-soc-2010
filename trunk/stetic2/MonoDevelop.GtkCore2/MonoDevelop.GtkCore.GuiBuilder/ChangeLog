@@ -1,3 +1,7 @@
+2010-06-23  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* GuiBuilderProject.cs: 
+
 2010-06-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* GuiBuilderProject.cs: Add Convert method
