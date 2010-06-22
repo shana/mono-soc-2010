@@ -185,4 +185,8 @@
 	<Extension path = "/MonoDevelop/Ide/GlobalOptionsDialog/Preferences/Style">
 		<Panel _label = "GTK# Designer" class = "MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionPanel" />
 	</Extension>
+	
+	<Extension path = "/MonoDevelop/XmlEditor/XmlFileExtensions">
+		 <XmlFileExtension extension = ".gtkx"/>
+	</Extension>
 </Addin>

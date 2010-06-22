@@ -20,6 +20,7 @@ REFS =  \
 	-r:../../../contrib/Mono.Cecil/Mono.Cecil/bin/Debug/Mono.Cecil.dll \
 	-r:Mono.Posix \
 	-r:System \
+	-r:System.Core \
 	-r:System.Xml
 
 FILES =  \
@@ -49,6 +50,7 @@ FILES =  \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxLoader.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxProvider.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ActionGroupNodeBuilder.cs \
+	MonoDevelop.GtkCore.NodeBuilders/ProjectFileExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs \
