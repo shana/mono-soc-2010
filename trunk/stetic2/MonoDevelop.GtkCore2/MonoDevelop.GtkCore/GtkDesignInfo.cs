@@ -413,7 +413,7 @@ namespace MonoDevelop.GtkCore
 		
 		public string GetBuildComponentFile (string componentName)
 		{
-			IType type=GuiBuilderProject.FindClass(componentName);
+			IType type = GuiBuilderProject.FindClass(componentName);
 			
 			if (type != null) {
 				FilePath folder = type.CompilationUnit.FileName.ParentDirectory;

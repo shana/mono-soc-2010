@@ -37,16 +37,19 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			ProjectFile pf = (ProjectFile) dataObject;
 			
 			if (pf.IsComponentFile ()) {
-				string className = pf.GetComponentClassName ();
-				GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-				GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
+				GtkComponentType type = pf.GetComponentType ();
 				
-				if (win != null) {
-					if (win.RootWidget.IsWindow)
-						icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
-					else
-						icon = ImageService.GetPixbuf ("md-gtkcore-widget", Gtk.IconSize.Menu);
-				}
+				switch (type) {
+				case GtkComponentType.Dialog : 
+					icon = ImageService.GetPixbuf ("md-gtkcore-dialog", Gtk.IconSize.Menu);
+					break;
+				case GtkComponentType.Widget :
+					icon = ImageService.GetPixbuf ("md-gtkcore-widget", Gtk.IconSize.Menu);
+					break;
+				case GtkComponentType.ActionGroup :
+					icon = ImageService.GetPixbuf ("md-gtkcore-actiongroup", Gtk.IconSize.Menu);
+					break;
+				}	
 			}
 		}
 		

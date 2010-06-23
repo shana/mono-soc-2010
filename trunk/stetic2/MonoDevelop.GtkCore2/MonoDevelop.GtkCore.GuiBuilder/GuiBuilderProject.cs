@@ -94,13 +94,9 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project); 
 			gproject = GuiBuilderService.SteticApp.CreateProject (info);
 			formInfos = new List<GuiBuilderWindow> ();
-//			
-//			if (info.OldVersion) {
-//				gproject.ConvertProject (info.SteticFile);
-//				info.ConvertGtkFolder ();
-//			}
-		
-			info.UpdateGtkFolder ();
+			
+//			TODO : when expanding project, UpdateGtkFolder causes in throwing exception by gtk
+//			info.UpdateGtkFolder ();
 
 			try {
 				gproject.Load (folderName);

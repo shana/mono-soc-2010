@@ -10,6 +10,7 @@
     <widget-library name="Mono.TextEditor, Version=1.0.0.0, Culture=neutral" />
     <widget-library name="../../../../build/bin/MonoDevelop.Ide.dll" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.DesignerSupport/MonoDevelop.DesignerSupport.dll" />
+    <widget-library name="../../../../build/AddIns/MonoDevelop.Deployment/MonoDevelop.Deployment.dll" />
     <widget-library name="../../../../build/bin/Mono.TextEditor.dll" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll" />

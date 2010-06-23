@@ -1,4 +1,14 @@
 2010-06-23  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+	Draw action group icon
+	* gtk-gui/gui.stetic:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore/GtkDesignInfo.cs:
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderProject.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFileExtension.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs:
+
+2010-06-23  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Makefile.am:
 	* MonoDevelop.GtkCore2.csproj: 

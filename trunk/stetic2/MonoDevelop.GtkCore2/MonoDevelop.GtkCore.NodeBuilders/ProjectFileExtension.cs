@@ -1,8 +1,17 @@
 using System;
+using MonoDevelop.GtkCore.GuiBuilder;
 using MonoDevelop.Projects;
 
 namespace MonoDevelop.GtkCore.NodeBuilders
 {
+	public enum GtkComponentType 
+	{
+		Dialog,
+		Widget,
+		ActionGroup,
+		Unknown
+	}
+	
 	public static class ProjectFileExtension
 	{
 		public static bool IsComponentFile (this ProjectFile pf)
@@ -17,6 +26,24 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 					return dependent.FilePath.FileNameWithoutExtension;
 			
 			return null;
+		}
+		
+		public static GtkComponentType GetComponentType (this ProjectFile pf)
+		{
+			GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
+			string className = pf.GetComponentClassName ();
+			
+			if (className != null) {
+				GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
+				if (win != null) 
+						return win.RootWidget.IsWindow ? GtkComponentType.Dialog : GtkComponentType.Widget;
+							
+				Stetic.ActionGroupInfo action =	info.GuiBuilderProject.GetActionGroup (className);
+				if (action != null)
+					return GtkComponentType.ActionGroup;
+			}
+			
+			return GtkComponentType.Unknown;
 		}
 	}
 }
