@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections;
+using System.IO;
 
 using Gtk;
 
@@ -84,7 +85,42 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 						dialog.Destroy ();
 					}
 				}
+				
+				project.FileAddedToProject += HandleProjectFileAddedToProject;
+				//project.f
 			}
+		}
+		
+		void HandleProjectFileAddedToProject (object sender, ProjectFileEventArgs e)
+		{
+			Project project = e.Project;
+			ProjectFile pf = e.ProjectFile;
+			
+			string path = pf.FilePath.ToString().Replace(".cs",string.Empty) +".gtkx";
+			
+			if (!project.IsFileInProject(path) && File.Exists (path)) {
+				ProjectFile pf2=project.AddFile(path);
+				pf2.DependsOn = pf.FilePath.FileName;
+			}
+			
+			string path2 = pf.FilePath.ToString().Replace(".cs", string.Empty) +".generated.cs";
+			
+			if (!project.IsFileInProject(path2) && File.Exists (path2)) {
+				ProjectFile pf3=project.AddFile(path2);
+				pf3.DependsOn = pf.FilePath.FileName;
+			}
+				
+			//project.FileAddedToProject -= HandleProjectFileAddedToProject;
+			
+//			if (e.ProjectFile.IsComponentFile ()) {
+				//GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+				//info.UpdateGtkFolder ();
+				
+				//IdeApp.ProjectOperations.Save (e.Project);
+//			}
+			
+			//project.FileAddedToProject += HandleProjectFileAddedToProject;
+			
 		}
 		
 		public override void BuildChildNodes (ITreeBuilder builder, object dataObject)

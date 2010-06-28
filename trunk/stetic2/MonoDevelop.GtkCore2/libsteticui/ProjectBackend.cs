@@ -511,32 +511,35 @@ namespace Stetic {
 			if (node == null)
 				return;
 			
-			List<XmlElement> toplevels = new List<XmlElement> ();
+//			List<XmlElement> toplevels = new List<XmlElement> ();
 			foreach (XmlElement toplevel in node.SelectNodes (splitElement)) {
 					
 					string id = toplevel.GetAttribute (idAttribute);
 					string basePath = frontend.DesignInfo.GetComponentFolder (id);
+					if (basePath == null)
+						throw new InvalidOperationException ("Cannot find component folder for " + id);
+				
 					string xmlFile = Path.Combine (basePath, id + ".gtkx");
 					
 					XmlDocument doc2 = new XmlDocument ();
 					doc2.PreserveWhitespace = true;
-
+					                     
 					XmlElement node2 = doc2.CreateElement ("stetic-interface");
 					doc2.AppendChild (node2);
 				
 					XmlNode wnode2 = doc2.ImportNode (toplevel, true);
 					node2.AppendChild (wnode2);
 				
-					//after saving component need to remove its xml element definition, 
-					//otherwise it would be saved in gui.stetic
-					toplevels.Add (toplevel);	
+//					//after saving component need to remove its xml element definition, 
+//					//otherwise it would be saved in gui.stetic
+//					toplevels.Add (toplevel);	
 				
 					WriteXmlFile (xmlFile, doc2);
 			}	
 			
-			foreach (XmlElement toplevel in toplevels)
-				//now it is safe to remove
-				node.RemoveChild (toplevel);
+//			foreach (XmlElement toplevel in toplevels)
+//				//now it is safe to remove
+//				node.RemoveChild (toplevel);
 		}
 		
 		void WriteXmlFile (string xmlFile, XmlDocument doc)
