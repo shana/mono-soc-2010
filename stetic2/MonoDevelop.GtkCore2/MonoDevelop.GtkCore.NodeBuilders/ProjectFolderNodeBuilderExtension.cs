@@ -35,6 +35,7 @@ using MonoDevelop.GtkCore.GuiBuilder;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
 using MonoDevelop.Ide;
+using MonoDevelop.Ide.Commands;
 
 namespace MonoDevelop.GtkCore.NodeBuilders
 {
@@ -180,6 +181,14 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		{
 			cinfo.Visible = CanAddWindow ();
 		}
+		
+		[CommandHandler (ProjectCommands.AddFiles)]
+		public void OnAddFiles ()
+		{
+			//ProjectFile pf = (ProjectFile) ob;
+			throw new Exception("NO WAY!!!");
+		}
+		
 		
 		bool CanAddWindow ()
 		{

@@ -1,15 +1,22 @@
 using System;
-using MonoDevelop.Projects;
-using MonoDevelop.Projects.Dom;
-using MonoDevelop.Ide.Gui.Pads.ProjectPad;
+
 using MonoDevelop.Components.Commands;
 using MonoDevelop.GtkCore.GuiBuilder;
+using MonoDevelop.Ide;
+using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
-using MonoDevelop.Ide;
+using MonoDevelop.Ide.Gui.Pads.ProjectPad;
+using MonoDevelop.Projects;
+using MonoDevelop.Projects.Dom;
 
 namespace MonoDevelop.GtkCore.NodeBuilders
 {
+	public class ProjectFileBuilder : ProjectFileNodeBuilder 
+	{
+	
+	}
+	
 	public class ProjectFileNodeBuilderExtension : NodeBuilderExtension
 	{
 		public override bool CanBuildNode (Type dataType)
@@ -78,5 +85,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 					
 			base.ActivateItem ();
 		}
+		
 	}
 }
