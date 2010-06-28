@@ -25,7 +25,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		}
 		
 		public override Type CommandHandlerType {
-			get { return typeof (ComponentComponentHandler); }
+			get { return typeof (ComponentCommandHandler); }
 		}
 		
 		public override void GetNodeAttributes (ITreeNavigator treeNavigator, object dataObject, ref NodeAttributes attributes)
@@ -66,25 +66,35 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		}
 	}
 	
-	public class ComponentComponentHandler : ProjectFileNodeCommandHandler
+	public class ComponentCommandHandler : ProjectFileNodeCommandHandler
 	{
-		
 		public override void ActivateItem ()
 		{
 			ProjectFile pf = (ProjectFile) CurrentNode.DataItem;
 			
 			if (pf.IsComponentFile ()) {
 				Document doc = IdeApp.Workbench.OpenDocument (pf.FilePath, true);
+				
 				if (doc != null) {
 					GuiBuilderView view = doc.GetContent<GuiBuilderView> ();
-					if (view != null)
-						view.ShowDesignerView ();
+					if (view != null) {
+						GtkComponentType type = pf.GetComponentType ();
+				
+						switch (type) {
+						case GtkComponentType.Dialog : 
+						case GtkComponentType.Widget :
+							view.ShowDesignerView ();
+							break;
+						case GtkComponentType.ActionGroup :
+							view.ShowActionDesignerView (((Stetic.ActionGroupInfo) CurrentNode.DataItem).Name);
+							break;
+						}
+					}
 				}
-				return;
+				return;	
 			}
-					
 			base.ActivateItem ();
 		}
-		
+
 	}
 }

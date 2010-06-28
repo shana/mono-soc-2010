@@ -87,7 +87,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 				}
 				
 				project.FileAddedToProject += HandleProjectFileAddedToProject;
-				//project.f
 			}
 		}
 		
@@ -95,32 +94,20 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		{
 			Project project = e.Project;
 			ProjectFile pf = e.ProjectFile;
+			string fileName = pf.FilePath.FullPath.ToString ();
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 			
-			string path = pf.FilePath.ToString().Replace(".cs",string.Empty) +".gtkx";
-			
-			if (!project.IsFileInProject(path) && File.Exists (path)) {
-				ProjectFile pf2=project.AddFile(path);
+			string buildFile = info.GetBuildFile (fileName);
+			if (!project.IsFileInProject(buildFile) && File.Exists (buildFile)) {
+				ProjectFile pf2 = project.AddFile (buildFile, BuildAction.Compile);
 				pf2.DependsOn = pf.FilePath.FileName;
 			}
 			
-			string path2 = pf.FilePath.ToString().Replace(".cs", string.Empty) +".generated.cs";
-			
-			if (!project.IsFileInProject(path2) && File.Exists (path2)) {
-				ProjectFile pf3=project.AddFile(path2);
+			string gtkxFile = info.GetGtkxFile (fileName);
+			if (!project.IsFileInProject(gtkxFile) && File.Exists (gtkxFile)) {
+				ProjectFile pf3 = project.AddFile (gtkxFile, BuildAction.EmbeddedResource);
 				pf3.DependsOn = pf.FilePath.FileName;
 			}
-				
-			//project.FileAddedToProject -= HandleProjectFileAddedToProject;
-			
-//			if (e.ProjectFile.IsComponentFile ()) {
-				//GtkDesignInfo info = GtkDesignInfo.FromProject (project);
-				//info.UpdateGtkFolder ();
-				
-				//IdeApp.ProjectOperations.Save (e.Project);
-//			}
-			
-			//project.FileAddedToProject += HandleProjectFileAddedToProject;
-			
 		}
 		
 		public override void BuildChildNodes (ITreeBuilder builder, object dataObject)

@@ -22,8 +22,10 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		public static string GetComponentClassName (this ProjectFile pf)
 		{
 			foreach (ProjectFile dependent in pf.DependentChildren)
-				if (dependent.FilePath.Extension == ".gtkx")
-					return dependent.FilePath.FileNameWithoutExtension;
+				if (dependent.FilePath.Extension == ".gtkx") {
+					GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
+					return info.GuiBuilderProject.GetClassNameForGtkxFile (dependent.FilePath.ToString ());
+				}
 			
 			return null;
 		}

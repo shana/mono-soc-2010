@@ -39,6 +39,9 @@ namespace Stetic {
 		// The action collection of the last selected widget
 		Stetic.Wrapper.ActionGroupCollection oldTopActionCollection;
 		
+		//Dictionary for gtkx file name and class name pair
+		Dictionary<string, string> classnameResolver;
+		
 		public event Wrapper.WidgetNameChangedHandler WidgetNameChanged;
 		public event Wrapper.WidgetEventHandler WidgetAdded;
 		public event Wrapper.WidgetEventHandler WidgetContentsChanged;
@@ -71,6 +74,7 @@ namespace Stetic {
 			iconFactory = new ProjectIconFactory ();
 			widgetLibraries = new ArrayList ();
 			internalLibs = new ArrayList ();
+			classnameResolver = new Dictionary<string, string> ();
 		}
 		
 		public void Dispose ()
@@ -208,6 +212,14 @@ namespace Stetic {
 			internalLibs.Remove (lib);
 		}
 		
+		public string GetClassNameForGtkxFile (string fileName)
+		{
+			if (classnameResolver.ContainsKey (fileName))
+				return classnameResolver [fileName];
+			
+			return null;
+		}
+			
 		public ArrayList GetComponentTypes ()
 		{
 			ArrayList list = new ArrayList ();
@@ -314,7 +326,8 @@ namespace Stetic {
 			doc.AppendChild (toplevel);
 			
 			ReadIconFactory (doc);
-			ReadSplitFiles (doc);
+			ReadActionGroups (doc);
+			ReadTopLevels (doc);
 			Read (doc);
 			
 			Id = System.IO.Path.GetFullPath (folderName);
@@ -355,7 +368,17 @@ namespace Stetic {
 			}
 		}
 		
-		void ReadSplitFiles (XmlDocument doc)
+		void ReadActionGroups (XmlDocument doc)
+		{
+			ReadSplitFiles (doc, "action-group", "name");
+		}
+		
+		void ReadTopLevels (XmlDocument doc)
+		{
+			ReadSplitFiles (doc, "widget", "id");
+		}
+		
+		void ReadSplitFiles (XmlDocument doc, string splitElement, string idAttribute)
 		{
 			XmlNode node = doc.SelectSingleNode ("/stetic-interface");
 			if (node == null)
@@ -373,9 +396,15 @@ namespace Stetic {
 				
 						XmlNode wnode = wdoc.SelectSingleNode ("/stetic-interface");
 						
-						foreach (XmlNode toplevel in wnode.SelectNodes ("widget | action-group")) {
-							XmlNode imported = doc.ImportNode (toplevel, true);
-							node.AppendChild (imported);
+						foreach (XmlElement toplevel in wnode.SelectNodes (splitElement)) {
+							string id = toplevel.GetAttribute (idAttribute);
+							
+							if (frontend.DesignInfo.HasComponentFile (id)) {
+								XmlNode imported = doc.ImportNode (toplevel, true);
+								node.AppendChild (imported);
+							
+								classnameResolver [file.FullName] = id;
+							}
 						}
 					}
 				}
@@ -515,12 +544,12 @@ namespace Stetic {
 			foreach (XmlElement toplevel in node.SelectNodes (splitElement)) {
 					
 					string id = toplevel.GetAttribute (idAttribute);
-					string basePath = frontend.DesignInfo.GetComponentFolder (id);
-					if (basePath == null)
-						throw new InvalidOperationException ("Cannot find component folder for " + id);
+					string componentFile = frontend.DesignInfo.GetComponentFile (id);
+					if (componentFile == null)
+						throw new InvalidOperationException ("Cannot find a component file for " + id);
 				
-					string xmlFile = Path.Combine (basePath, id + ".gtkx");
-					
+					string xmlFile = frontend.DesignInfo.GetGtkxFile (componentFile);
+				
 					XmlDocument doc2 = new XmlDocument ();
 					doc2.PreserveWhitespace = true;
 					                     
@@ -535,6 +564,7 @@ namespace Stetic {
 //					toplevels.Add (toplevel);	
 				
 					WriteXmlFile (xmlFile, doc2);
+					classnameResolver [xmlFile] = id;
 			}	
 			
 //			foreach (XmlElement toplevel in toplevels)
