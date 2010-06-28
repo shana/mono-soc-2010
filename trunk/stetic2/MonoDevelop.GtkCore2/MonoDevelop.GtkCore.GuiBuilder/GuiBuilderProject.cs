@@ -86,6 +86,14 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 		}
 		
+		public string GetClassNameForGtkxFile (string fileName)
+		{
+			if (gproject == null)
+				Load ();
+		
+			return gproject.GetClassNameForGtkxFile (fileName);
+		}
+		
 		void Load ()
 		{
 			if (gproject != null || disposed || folderName == null)

@@ -1,5 +1,16 @@
 2010-06-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* MonoDevelop.GtkCore/GtkDesignInfo.cs: 
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderService.cs:
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderProject.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFileExtension.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs:
+	Fixes fo better file grouping in the project pad
+
+
+2010-06-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* MonoDevelop.GtkCore2.csproj: 
 
 2010-06-23  Krzysztof Marecki  <marecki.krzysztof@gmail.com>

@@ -1,5 +1,12 @@
 2010-06-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* Project.cs: Find class name for given .gtkx file
+	* Makefile.am:
+	* ProjectBackend.cs:
+	* IProjectDesignInfo.cs: 
+
+2010-06-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* Makefile.am:
 	* ProjectBackend.cs:
 	* libsteticui2.csproj: 

@@ -474,6 +474,11 @@ namespace Stetic
 				ProjectBackend.Reload ();
 		}
 		
+		public string GetClassNameForGtkxFile (string fileName)
+		{
+			return ProjectBackend.GetClassNameForGtkxFile (fileName);
+		}
+		
 /*		public bool CanCopySelection {
 			get { return Selection != null ? Selection.CanCopy : false; }
 		}

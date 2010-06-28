@@ -310,14 +310,13 @@ namespace MonoDevelop.GtkCore
 			foreach (string filename in GetComponentsFiles ()) {
 				ProjectFile pf = project.AddFile (filename, BuildAction.EmbeddedResource);
 				pf.ResourceId = Path.GetFileName (filename);
-				
-				string componentName = Path.GetFileNameWithoutExtension (filename);
-				string componentFile = GetComponentFile (componentName);
+	
+				string componentFile = GetComponentFileFromGtkx (filename);
 				
 				if (componentFile != null) {
 					pf.DependsOn = componentFile;	
 				
-					string buildFile = GetBuildComponentFile (componentName);
+					string buildFile = GetBuildFileFromGtkx (filename);
 					if (buildFile != null) {
 						ProjectFile pf2 = project.AddFile (buildFile, BuildAction.Compile);
 						pf2.ResourceId = Path.GetFileName (buildFile);
@@ -401,28 +400,52 @@ namespace MonoDevelop.GtkCore
 			if (type != null) {
 				
 				foreach (IType part in type.Parts) {
-					string fileName = part.CompilationUnit.FileName.FileName;
-					if (!fileName.Contains (".generated"))
-						return fileName;
+					string componentFile = part.CompilationUnit.FileName.FullPath.ToString ();
+//					if (!componentFile.Contains (".generated"))
+//						return componentFile;
+					if (componentFile.Contains (".generated"))
+						componentFile = componentFile.Replace (".generated", string.Empty);
 					
+					return componentFile;
 				}
 			}
 				
 			return null;
 		}
 		
-		public string GetBuildComponentFile (string componentName)
-		{
-			IType type = GuiBuilderProject.FindClass(componentName);
-			
-			if (type != null) {
-				FilePath folder = type.CompilationUnit.FileName.ParentDirectory;
-				string fileName = componentName + ".generated" + Path.GetExtension (SteticGeneratedFile);
-				return folder.Combine (fileName);
+		public string GetBuildFile (string componentFile)
+		{	
+			if (componentFile != null) {
+				string buildFile = componentFile.Replace 
+					(Path.GetExtension (SteticGeneratedFile), ".generated" + Path.GetExtension (SteticGeneratedFile));
+				return buildFile;
 			}
 			
 			return null;
 		}
+		
+		public string GetGtkxFile (string componentFile)
+		{
+			if (componentFile != null) {
+				string gtkxFile = componentFile.Replace (Path.GetExtension (SteticGeneratedFile), ".gtkx");
+				return gtkxFile;
+			}
+			
+			return null;
+		}
+		
+		public string GetComponentFileFromGtkx (string gtkxFile)
+		{
+			string componentFile = gtkxFile.Replace (".gtkx", Path.GetExtension (SteticGeneratedFile));
+			return componentFile;
+		}
+		
+		public string GetBuildFileFromGtkx (string gtkxFile)
+		{
+			string buildFile = gtkxFile.Replace (".gtkx", ".generated" + Path.GetExtension (SteticGeneratedFile));
+			return buildFile;
+		}
+		
 		
 		public string GetComponentFolder (string componentName)
 		{
@@ -468,6 +491,10 @@ namespace MonoDevelop.GtkCore
 			return files.ToArray ();
 		}
 
+		public bool HasComponentFile (string componentName)
+		{
+			return (GetComponentFile (componentName) != null);
+		}
 
 		void UpdateObjectsFile ()
 		{

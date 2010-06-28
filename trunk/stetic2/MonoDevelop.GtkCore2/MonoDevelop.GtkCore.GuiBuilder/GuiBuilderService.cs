@@ -259,12 +259,12 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		public static string GetBuildCodeFileName (Project project, string componentName)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
-			string fileName = info.GetBuildComponentFile (componentName);
-		
-			if (fileName == null)
-				throw new UserException ("Cannot find type for " + componentName);			
+			string componentFile = info.GetComponentFile (componentName);
+			if (componentFile == null)
+				throw new UserException ("Cannot find component file for " + componentName);	
 			
-			return fileName;
+			string buildFile = info.GetBuildFile (componentFile);
+			return buildFile;
 		}
 		
 		public static string GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, bool saveToFile, bool overwrite)
