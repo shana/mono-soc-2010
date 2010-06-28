@@ -6,6 +6,9 @@ using Mono.Cecil;
 using System.Diagnostics.Contracts;
 using Mono.Cecil.Cil;
 using System.Diagnostics.Contracts.Internal;
+using System.Diagnostics;
+using System.Runtime.ConstrainedExecution;
+using System.Runtime.CompilerServices;
 
 namespace ccrewrite {
 	static class ContractsRuntime {
@@ -27,18 +30,24 @@ namespace ccrewrite {
 		private static void EnsureTypeContractRuntime ()
 		{
 			if (typeContractsRuntime == null) {
+				// Create type
 				TypeReference typeObject = module.Import (typeof (object));
 				TypeDefinition type = new TypeDefinition (Namespace, "__ContractsRuntime",
 					TypeAttributes.Abstract | TypeAttributes.Sealed | TypeAttributes.NotPublic | TypeAttributes.AnsiClass | TypeAttributes.AutoClass,
 					typeObject);
 				module.Types.Add (type);
+				// Attach custom attributes
+				var attrCompilerGeneratedCons = typeof (CompilerGeneratedAttribute).GetConstructor (Type.EmptyTypes);
+				CustomAttribute attrCompilerGenerated = new CustomAttribute (module.Import (attrCompilerGeneratedCons));
+				type.CustomAttributes.Add (attrCompilerGenerated);
+				// Store type
 				typeContractsRuntime = type;
 			}
 		}
 
 		private static void EnsureTypeContractException ()
 		{
-			if (typeContractException == null) {
+			if (CmdOptions.ThrowOnFailure && typeContractException == null) {
 				TypeReference typeVoid = module.Import (typeof (void));
 				TypeReference typeContractFailureKind = module.Import (typeof (ContractFailureKind));
 				TypeReference typeString = module.Import (typeof (string));
@@ -63,7 +72,11 @@ namespace ccrewrite {
 				il.Emit (OpCodes.Call, mExceptionCons);
 				il.Emit (OpCodes.Ret);
 				type.Methods.Add (cons);
-
+				// Attach custom attributes
+				var attrCompilerGeneratedCons = typeof (CompilerGeneratedAttribute).GetConstructor (Type.EmptyTypes);
+				CustomAttribute attrCompilerGenerated = new CustomAttribute (module.Import (attrCompilerGeneratedCons));
+				type.CustomAttributes.Add (attrCompilerGenerated);
+				// Store constructor and type
 				methodContractExceptionCons = cons;
 				typeContractException = type;
 			}
@@ -85,13 +98,22 @@ namespace ccrewrite {
 				method.Parameters.Add (new ParameterDefinition ("conditionText", ParameterAttributes.None, typeString));
 				method.Parameters.Add (new ParameterDefinition ("inner", ParameterAttributes.None, typeException));
 				var il = method.Body.GetILProcessor ();
-				il.Emit (OpCodes.Ldarg_0);
-				il.Emit (OpCodes.Ldarg_1);
-				il.Emit (OpCodes.Ldarg_2);
-				il.Emit (OpCodes.Ldarg_3);
-				il.Emit (OpCodes.Ldarg_S, method.Parameters [4]);
-				il.Emit (OpCodes.Newobj, methodContractExceptionCons);
-				il.Emit (OpCodes.Throw);
+				if (CmdOptions.ThrowOnFailure) {
+					il.Emit (OpCodes.Ldarg_0);
+					il.Emit (OpCodes.Ldarg_1);
+					il.Emit (OpCodes.Ldarg_2);
+					il.Emit (OpCodes.Ldarg_3);
+					il.Emit (OpCodes.Ldarg_S, method.Parameters [4]);
+					il.Emit (OpCodes.Newobj, methodContractExceptionCons);
+					il.Emit (OpCodes.Throw);
+				} else {
+					var mDebugFail = typeof (Debug).GetMethod ("Fail", new [] { typeof (string), typeof(string) });
+					MethodReference methodDebugFail = module.Import (mDebugFail);
+					il.Emit (OpCodes.Ldarg_1);
+					il.Emit (OpCodes.Ldarg_2);
+					il.Emit (OpCodes.Call, methodDebugFail);
+					il.Emit (OpCodes.Ret);
+				}
 				typeContractsRuntime.Methods.Add (method);
 				methodTriggerFailure = method;
 			}
@@ -138,7 +160,6 @@ namespace ccrewrite {
 
 		private static void EnsureGlobal ()
 		{
-			// For the moment, always generate these to throw runtime exception, not to assert.
 			EnsureTypeContractRuntime ();
 			EnsureTypeContractException ();
 			EnsureMethodTriggerFailure ();
@@ -169,6 +190,16 @@ namespace ccrewrite {
 				il.Emit (OpCodes.Call, methodReportFailure);
 				il.Append (instRet);
 				typeContractsRuntime.Methods.Add (method);
+				// Attach custom attributes
+				var attrDebugNonUserCodeCons = typeof (DebuggerNonUserCodeAttribute).GetConstructor (Type.EmptyTypes);
+				CustomAttribute attrDebugNonUserCode = new CustomAttribute (module.Import (attrDebugNonUserCodeCons));
+				method.CustomAttributes.Add (attrDebugNonUserCode);
+				var attrReliabilityContractCons = typeof (ReliabilityContractAttribute).GetConstructor (new [] { typeof (Consistency), typeof (Cer) });
+				// Blob for attribute: new ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)
+				byte [] blob = new byte [] { 1, 0, 3, 0, 0, 0, 1, 0, 0, 0 };
+				CustomAttribute attrReliabilityContract = new CustomAttribute (module.Import (attrReliabilityContractCons), blob);
+				method.CustomAttributes.Add (attrReliabilityContract);
+				// Store method
 				methodRequires = method;
 			}
 			return methodRequires;

@@ -7,8 +7,18 @@ namespace Decompiler.Ast {
 	public class ExprNop :Expr {
 
 		public ExprNop (MethodInfo methodInfo)
-			: base (methodInfo, ExprType.Nop, methodInfo.TypeVoid)
+			: base (methodInfo)
 		{
+		}
+
+		public override ExprType ExprType
+		{
+			get { return ExprType.Nop; }
+		}
+
+		public override Mono.Cecil.TypeReference ReturnType
+		{
+			get { return base.MethodInfo.TypeVoid; }
 		}
 
 	}

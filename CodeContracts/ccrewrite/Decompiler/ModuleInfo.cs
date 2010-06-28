@@ -16,6 +16,7 @@ namespace Decompiler {
 			this.typeObject = new Lazy<TypeReference> (() => this.Module.Import (typeof (object)));
 			this.typeInt32 = new Lazy<TypeReference> (() => this.Module.Import (typeof (int)));
 			this.typeInt64 = new Lazy<TypeReference> (() => this.Module.Import (typeof (long)));
+			this.typeUInt32 = new Lazy<TypeReference> (() => this.Module.Import (typeof (uint)));
 			this.typeBoolean = new Lazy<TypeReference> (() => this.Module.Import (typeof (bool)));
 			this.typeString = new Lazy<TypeReference> (() => this.Module.Import (typeof (string)));
 		}
@@ -27,6 +28,7 @@ namespace Decompiler {
 		private Lazy<TypeReference> typeObject;
 		private Lazy<TypeReference> typeInt32;
 		private Lazy<TypeReference> typeInt64;
+		private Lazy<TypeReference> typeUInt32;
 		private Lazy<TypeReference> typeBoolean;
 		private Lazy<TypeReference> typeString;
 
@@ -48,6 +50,11 @@ namespace Decompiler {
 		public TypeReference TypeInt64
 		{
 			get { return this.typeInt64.Value; }
+		}
+
+		public TypeReference TypeUInt32
+		{
+			get { return this.typeUInt32.Value; }
 		}
 
 		public TypeReference TypeBoolean

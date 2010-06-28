@@ -6,19 +6,22 @@ using System.Text;
 namespace Decompiler.Ast {
 	public enum ExprType {
 
+		Unknown,
+
 		Block,
 
 		Nop,
 		LoadArg,
 		LoadConstant,
-		LoadString,
 		CompareLessThan,
 		CompareGreaterThan,
 		CompareEqual,
 		Call,
 		Return,
 		Box,
-		ConvI8,
+		Conv,
+		Add,
+		Sub,
 
 	}
 }

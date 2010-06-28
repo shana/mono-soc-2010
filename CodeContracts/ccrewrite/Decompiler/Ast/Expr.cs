@@ -7,29 +7,16 @@ using Mono.Cecil;
 namespace Decompiler.Ast {
 	public abstract class Expr {
 
-		protected Expr (MethodInfo methodInfo, ExprType exprType, TypeReference returnType)
+		protected Expr (MethodInfo methodInfo)
 		{
 			this.MethodInfo = methodInfo;
-			this.ExprType = exprType;
-			this.returnType = returnType;
 		}
 
-		protected Expr (MethodInfo methodInfo, ExprType exprType) : this (methodInfo, exprType, null) { }
+		public abstract ExprType ExprType { get; }
+		public abstract TypeReference ReturnType { get; }
 
-		private TypeReference returnType;
-
-		public ExprType ExprType { get; private set; }
 		public MethodInfo MethodInfo { get; private set; }
 
-		public virtual TypeReference ReturnType
-		{
-			get {
-				if (this.returnType == null) {
-					throw new InvalidOperationException ("ReturnType not specified");
-				}
-				return this.returnType;
-			}
-		}
 
 	}
 }

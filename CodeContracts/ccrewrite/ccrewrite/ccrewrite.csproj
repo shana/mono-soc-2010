@@ -37,6 +37,15 @@
     <Reference Include="Mono.Cecil">
       <HintPath>.\Mono.Cecil.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>.\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>.\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Options">
+      <HintPath>.\Mono.Options.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,9 +55,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CmdOptions.cs" />
+    <Compile Include="ConditionTextExtractor.cs" />
+    <Compile Include="ContractRequiresInfo.cs" />
     <Compile Include="ContractsRuntime.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rewriter.cs" />
     <Compile Include="TransformContractsVisitor.cs" />
   </ItemGroup>
   <ItemGroup>

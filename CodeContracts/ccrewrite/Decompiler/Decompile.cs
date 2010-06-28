@@ -16,123 +16,119 @@ namespace Decompiler {
 			this.exprs = new Stack<Expr> ();
 			this.Instructions = new Dictionary<Expr, Instruction> ();
 			this.methodInfo = new MethodInfo (method);
+			this.gen = new ExprGen (this.methodInfo);
 		}
 
 		private MethodInfo methodInfo;
 		private MethodDefinition method;
 		private Stack<Expr> exprs;
+		private ExprGen gen;
 
 		public Dictionary<Expr, Instruction> Instructions { get; private set; }
 
 		public Expr Go ()
 		{
-			var insts = method.Body.Instructions;
-			try {
-				foreach (var inst in insts) {
-					this.ProcessInst (inst);
+			Instruction unknownInst = null;
+			var insts = this.method.Body.Instructions;
+			foreach (var inst in insts) {
+				if (unknownInst == null) {
+					try {
+						Expr expr = this.ProcessInst (inst);
+						this.Instructions.Add (expr, inst);
+						this.exprs.Push (expr);
+					} catch (NotSupportedException) {
+						unknownInst = inst;
+					}
+				} else {
+					// Met unknown instruction, so check that there are no more contracts
+					if (inst.OpCode.OperandType == OperandType.InlineMethod) {
+						MethodReference method = (MethodReference)inst.Operand;
+						if (method.DeclaringType.FullName == "System.Diagnostics.Contracts.Contract") {
+							throw new NotSupportedException ("Unknown instruction in contract: " + unknownInst);
+						}
+					}
 				}
-			} catch (NotSupportedException) {
-				// Ignore for now, to allow basic rewriting to work.
 			}
 
 			Expr decompiled = new ExprBlock (this.methodInfo, this.exprs.Reverse ().ToArray ());
 			return decompiled;
 		}
 
-		private void ProcessInst (Instruction inst)
+		private Expr ProcessInst (Instruction inst)
 		{
-			Expr expr;
-			switch (inst.OpCode.Code) {
+			var opcode = inst.OpCode.Code;
+			switch (opcode) {
 			case Code.Nop:
-				expr = this.ProcessNop ();
-				break;
+				return this.gen.Nop ();
 			case Code.Ldarg_0:
-				expr = this.ProcessLoadArg (0);
-				break;
 			case Code.Ldarg_1:
-				expr = this.ProcessLoadArg (1);
-				break;
 			case Code.Ldarg_2:
-				expr = this.ProcessLoadArg (2);
-				break;
 			case Code.Ldarg_3:
-				expr = this.ProcessLoadArg (3);
-				break;
+				return this.gen.LoadArg ((int) (opcode - Code.Ldarg_0));
 			case Code.Ldarg_S:
-				expr = this.ProcessLoadArg (((ParameterDefinition) inst.Operand).Index);
-				break;
+				return this.gen.LoadArg ((ParameterDefinition) inst.Operand);
+			case Code.Ldnull:
+				return this.gen.LoadConstant (null);
+			case Code.Ldc_I4_M1:
 			case Code.Ldc_I4_0:
-				expr = this.ProcessLoadConstant (0);
-				break;
+			case Code.Ldc_I4_1:
+			case Code.Ldc_I4_2:
+			case Code.Ldc_I4_3:
+			case Code.Ldc_I4_4:
+			case Code.Ldc_I4_5:
+			case Code.Ldc_I4_6:
+			case Code.Ldc_I4_7:
+			case Code.Ldc_I4_8:
+				return this.gen.LoadConstant ((int) (opcode - Code.Ldc_I4_0));
+			case Code.Ldc_I4_S:
+				return this.gen.LoadConstant ((int) (sbyte) inst.Operand);
+			case Code.Ldc_I4:
+				return this.gen.LoadConstant ((int) inst.Operand);
 			case Code.Ldc_R4:
 			case Code.Ldc_R8:
-				expr = this.ProcessLoadConstant (inst.Operand);
-				break;
+			case Code.Ldstr:
+				return this.gen.LoadConstant(inst.Operand);
 			case Code.Clt:
-				expr = this.ProcessCompareLessThan (false);
-				break;
 			case Code.Clt_Un:
-				expr = this.ProcessCompareLessThan (true);
-				break;
 			case Code.Cgt:
-				expr = this.ProcessCompareGreaterThan (false);
-				break;
 			case Code.Cgt_Un:
-				expr = this.ProcessCompareGreaterThan (true);
-				break;
 			case Code.Ceq:
-				expr = this.ProcessCompareEqual ();
-				break;
+			case Code.Add:
+			case Code.Sub:
+				return this.ProcessBinaryOp (opcode);
 			case Code.Call:
-				expr = this.ProcessCall ((MethodReference) inst.Operand);
-				break;
+				return this.ProcessCall ((MethodReference) inst.Operand);
 			case Code.Ret:
-				expr = this.ProcessReturn ();
-				break;
+				return this.gen.Return ();
 			case Code.Conv_I8:
-				expr = this.ProcessConvI8 ();
-				break;
+				return this.ProcessConv (TypeCode.Int64);
 			default:
 				throw new NotSupportedException ("Cannot handle opcode: " + inst.OpCode);
 			}
-			this.Instructions.Add (expr, inst);
-			this.exprs.Push (expr);
 		}
 
-		private Expr ProcessNop ()
-		{
-			return new ExprNop (this.methodInfo);
-		}
-
-		private Expr ProcessLoadArg (int index)
-		{
-			return new ExprLoadArg (this.methodInfo, index);
-		}
-
-		private Expr ProcessLoadConstant (object value)
-		{
-			return new ExprLoadConstant (this.methodInfo, value);
-		}
-
-		private Expr ProcessCompareLessThan (bool unsigned)
+		private Expr ProcessBinaryOp (Code opcode)
 		{
 			Expr right = this.exprs.Pop ();
 			Expr left = this.exprs.Pop ();
-			return new ExprCompareLessThan (this.methodInfo, left, right, unsigned);
-		}
-
-		private Expr ProcessCompareGreaterThan (bool unsigned)
-		{
-			Expr right = this.exprs.Pop ();
-			Expr left = this.exprs.Pop ();
-			return new ExprCompareGreaterThan (this.methodInfo, left, right, unsigned);
-		}
-
-		private Expr ProcessCompareEqual ()
-		{
-			Expr right = this.exprs.Pop ();
-			Expr left = this.exprs.Pop ();
-			return new ExprCompareEqual (this.methodInfo, left, right);
+			switch (opcode) {
+			case Code.Ceq:
+				return this.gen.CompareEqual (left, right);
+			case Code.Clt:
+				return this.gen.CompareLessThan (left, right, Sn.Signed);
+			case Code.Clt_Un:
+				return this.gen.CompareLessThan (left, right, Sn.Unsigned);
+			case Code.Cgt:
+				return this.gen.CompareGreaterThan (left, right, Sn.Signed);
+			case Code.Cgt_Un:
+				return this.gen.CompareGreaterThan (left, right, Sn.Unsigned);
+			case Code.Add:
+				return this.gen.Add (left, right, Sn.None, false);
+			case Code.Sub:
+				return this.gen.Sub (left, right, Sn.None, false);
+			default:
+				throw new NotSupportedException ("Unknown binary opcode: " + opcode);
+			}
 		}
 
 		private Expr ProcessCall (MethodReference method)
@@ -143,18 +139,13 @@ namespace Decompiler {
 				Expr parameter = this.exprs.Pop ();
 				parameterExprs [paramCount - i - 1] = parameter;
 			}
-			return new ExprCall (this.methodInfo, method, parameterExprs);
+			return this.gen.Call(method, parameterExprs);
 		}
 
-		private Expr ProcessReturn ()
-		{
-			return new ExprReturn (this.methodInfo);
-		}
-
-		private Expr ProcessConvI8 ()
+		private Expr ProcessConv (TypeCode convToType)
 		{
 			Expr exprToConvert = this.exprs.Pop ();
-			return new ExprConvI8 (this.methodInfo, exprToConvert);
+			return this.gen.Conv(exprToConvert, convToType);
 		}
 
 	}
