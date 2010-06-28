@@ -7,26 +7,27 @@ using Decompiler.Ast;
 using System.Diagnostics.Contracts;
 using Mono.Cecil;
 using Decompiler.Visitors;
+using Mono.Cecil.Cil;
 
 namespace ccrewrite {
 	class TransformContractsVisitor : ExprVisitor {
 
-		public TransformContractsVisitor (MethodDefinition method)
+		public TransformContractsVisitor (MethodDefinition method, Dictionary<Expr, Instruction> instructionLookup)
 		{
 			this.module = method.Module;
+			this.instructionLookup = instructionLookup;
 			this.methodInfo = new MethodInfo (method);
 		}
 
 		private ModuleDefinition module;
+		private Dictionary<Expr, Instruction> instructionLookup;
 		private MethodInfo methodInfo;
-		private List<Tuple<Expr, Expr>> toReplace = new List<Tuple<Expr, Expr>> ();
 
-		public IEnumerable<Tuple<Expr, Expr>> ToReplace
+		private List<ContractRequiresInfo> contractRequiresInfo = new List<ContractRequiresInfo> ();
+
+		public IEnumerable<ContractRequiresInfo> ContractRequiresInfo
 		{
-			get
-			{
-				return this.toReplace;
-			}
+			get { return this.contractRequiresInfo; }
 		}
 
 		protected override Expr VisitCall (ExprCall e)
@@ -57,34 +58,40 @@ namespace ccrewrite {
 			return call;
 		}
 
+		private string GetConditionString (Expr e)
+		{
+			var vSource = new SourcePositionVisitor (this.instructionLookup);
+			vSource.Visit (e);
+			var extractor = new ConditionTextExtractor (vSource.SourceCodeFileName, vSource.StartPosition, vSource.EndPosition);
+			return extractor.GetConditionText ();
+		}
+
 		private Expr ProcessRequires1 (ExprCall e)
 		{
-			//Expr conditionExpr = e.Parameters.First ();
-
-			//var mWriteLine2 = typeof (Console).GetMethod ("WriteLine", new [] { typeof (string), typeof (object) });
-			//var m = module.Import (mWriteLine2);
-			//var loadStringExpr = new ExprLoadString (this.methodInfo, "Condition evaluates to: {0}");
-			//var arg1Expr = new ExprBox (this.methodInfo, conditionExpr);
-			//var call = new ExprCall (this.methodInfo, m, new Expr[] { loadStringExpr, arg1Expr });
-
-			//this.toReplace.Add (Tuple.Create<Expr, Expr> (e, call));
-
-			//return call;
-
 			MethodDefinition mRequires = ContractsRuntime.GetRequires ();
 			Expr conditionExpr = e.Parameters.First ();
 			Expr nullArgExpr = new ExprLoadConstant (this.methodInfo, null);
-			Expr conditionStringExpr = new ExprLoadString (this.methodInfo, "<Cannot find condition expression>");
+			string conditionText = this.GetConditionString (e);
+			Expr conditionStringExpr = new ExprLoadConstant (this.methodInfo, conditionText);
 			var call = new ExprCall (this.methodInfo, mRequires, new Expr [] { conditionExpr, nullArgExpr, conditionStringExpr });
 
-			this.toReplace.Add (Tuple.Create<Expr, Expr> (e, call));
+			this.contractRequiresInfo.Add (new ContractRequiresInfo (e, call));
 
 			return call;
 		}
 
 		private Expr ProcessRequires2 (ExprCall e)
 		{
-			throw new NotImplementedException ();
+			MethodDefinition mRequires = ContractsRuntime.GetRequires ();
+			Expr conditionExpr = e.Parameters.First ();
+			Expr msgExpr = e.Parameters.ElementAt (1);
+			string conditionText = this.GetConditionString (e);
+			Expr conditionStringExpr = new ExprLoadConstant (this.methodInfo, conditionText);
+			var call = new ExprCall (this.methodInfo, mRequires, new Expr [] { conditionExpr, msgExpr, conditionStringExpr });
+
+			this.contractRequiresInfo.Add (new ContractRequiresInfo (e, call));
+
+			return call;
 		}
 
 	}

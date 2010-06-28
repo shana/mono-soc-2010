@@ -8,12 +8,17 @@ namespace Decompiler.Ast {
 	public class ExprLoadArg : Expr {
 
 		public ExprLoadArg (MethodInfo methodInfo, int index)
-			: base (methodInfo, ExprType.LoadArg)
+			: base (methodInfo)
 		{
 			this.Index = index;
 		}
 
 		public int Index { get; private set; }
+
+		public override ExprType ExprType
+		{
+			get { return ExprType.LoadArg; }
+		}
 
 		public override TypeReference ReturnType
 		{

@@ -2,97 +2,159 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
-using Mono.Cecil;
-using System.Diagnostics.Contracts;
-using Mono.Cecil.Cil;
 using Decompiler;
-using Decompiler.Visitors;
 using Decompiler.Ast;
+using Decompiler.Visitors;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace ccrewrite {
+
+	class A {
+		public virtual void Test (int i)
+		{
+			Contract.Requires (i == 4);
+		}
+	}
+
+	class B : A {
+		public override void Test (int i)
+		{
+		}
+	}
+
     class Program {
 
-        static void Test1 (sbyte a, short b, int c, long d, byte e, ushort f, uint g, ulong h, float i, double j)
+        static void Test1 (sbyte a, short b, int c, long d, byte e, ushort f, uint g, ulong h, float i, double j, object o)
         {
-			Contract.Requires (a == 0);
-			Contract.Requires (b == 0);
-			Contract.Requires (c == 0);
-			Contract.Requires (d == 0);
-			Contract.Requires (e == 0);
-			Contract.Requires (f == 0);
-			Contract.Requires (g == 0);
-			Contract.Requires (h == 0);
-			Contract.Requires (i == 0);
-			Contract.Requires (j == 0);
+			Contract.Requires (c + 100 == 101);
+			Contract.Requires (c + 1000 == 1001);
+			Contract.Requires (a + b + c == 3);
+			Contract.Requires (c - b == 0);
 
-			Console.Write ("All contracts written");
-        }
+			Contract.Requires (a == 1);
+			Contract.Requires (b == 1);
+			Contract.Requires (c == 1);
+			Contract.Requires (d == 1);
+			Contract.Requires (e == 1);
+			Contract.Requires (f == 1);
+			Contract.Requires (g == 1);
+			Contract.Requires (h == 1);
+			Contract.Requires (i == 1);
+			Contract.Requires (j == 1);
 
-        static void Rewrite (MethodDefinition method)
-        {
-            var body = method.Body;
-			Decompile decompile = new Decompile (method);
-			var decomp = decompile.Go ();
+			Contract.Requires (a >= 1);
+			Contract.Requires (b >= 1);
+			Contract.Requires (c >= 1);
+			Contract.Requires (d >= 1);
+			Contract.Requires (e >= 1);
+			Contract.Requires (f >= 1);
+			Contract.Requires (g >= 1);
+			Contract.Requires (h >= 1);
+			Contract.Requires (i >= 1);
+			Contract.Requires (j >= 1);
 
-			TransformContractsVisitor vTransform = new TransformContractsVisitor (method);
-			var transformed = vTransform.Visit (decomp);
+			Contract.Requires (a <= 1);
+			Contract.Requires (b <= 1);
+			Contract.Requires (c <= 1);
+			Contract.Requires (d <= 1);
+			Contract.Requires (e <= 1);
+			Contract.Requires (f <= 1);
+			Contract.Requires (g <= 1);
+			Contract.Requires (h <= 1);
+			Contract.Requires (i <= 1);
+			Contract.Requires (j <= 1);
 
-			var il = body.GetILProcessor ();
+			Contract.Requires (a > 0);
+			Contract.Requires (b > 0);
+			Contract.Requires (c > 0);
+			Contract.Requires (d > 0);
+			Contract.Requires (e > 0);
+			Contract.Requires (f > 0);
+			Contract.Requires (g > 0);
+			Contract.Requires (h > 0);
+			Contract.Requires (i > 0);
+			Contract.Requires (j > 0);
 
-			foreach (var replacement in vTransform.ToReplace) {
-				Expr exprRemove = replacement.Item1;
-				Expr exprInsert = replacement.Item2;
-				var vInstExtent = new InstructionExtentVisitor (decompile.Instructions);
-				vInstExtent.Visit (exprRemove);
-				var instBeforeFirst = vInstExtent.Instructions.First ().Previous;
-				Action<Instruction> fnEmit;
-				if (instBeforeFirst != null) {
-					var instInsertAfter = instBeforeFirst;
-					fnEmit = inst => {
-						il.InsertAfter (instInsertAfter, inst);
-						instInsertAfter = inst;
-					};
-				} else {
-					throw new NotImplementedException ();
-				}
-				foreach (var instRemove in vInstExtent.Instructions) {
-					il.Remove (instRemove);
-				}
-				var compiler = new CompileVisitor (il, fnEmit);
-				compiler.Visit (exprInsert);
-			}
-			
+			Contract.Requires (a < 2);
+			Contract.Requires (b < 2);
+			Contract.Requires (c < 2);
+			Contract.Requires (d < 2);
+			Contract.Requires (e < 2);
+			Contract.Requires (f < 2);
+			Contract.Requires (g < 2);
+			Contract.Requires (h < 2);
+			Contract.Requires (i < 2);
+			Contract.Requires (j < 2);
+
+			Contract.Requires (o != null);
+			Contract.Requires (o != null, "Mymsg");
+
+			Console.Write ("All contracts written: {0}", a * b);
         }
 
         static void Main (string [] args)
         {
 
-			if (args.Length > 0) {
-				Test1 (0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			if (args.Length > 0 && args[0] == "test") {
+				//Test1 (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, new object ());
+				B b = new B ();
+				try {
+					b.Test (0);
+					Console.WriteLine ("No exception");
+				} catch (Exception e) {
+					Console.WriteLine (e);
+				}
 				return;
 			}
 
-            var ass = AssemblyDefinition.ReadAssembly ("ccrewrite.exe");
-			var mod = ass.MainModule;
+			bool ok = CmdOptions.Initialise (args);
+			if (!ok) {
+				return;
+			}
+
+			if (CmdOptions.Assembly == null) {
+				CmdOptions.ShowUsage ("Error: No assembly given to rewrite");
+				return;
+			}
+
+			string filename = CmdOptions.Assembly;
+
+			var assembly = AssemblyDefinition.ReadAssembly (filename);
+			var mod = assembly.MainModule;
+
+			if (CmdOptions.Debug) {
+				try {
+					ISymbolReaderProvider symProv = new Mono.Cecil.Mdb.MdbReaderProvider ();
+					ISymbolReader sym = symProv.GetSymbolReader (mod, filename);
+					mod.ReadSymbols (sym);
+				} catch {
+					try {
+						ISymbolReaderProvider symProv = new Mono.Cecil.Pdb.PdbReaderProvider ();
+						ISymbolReader sym = symProv.GetSymbolReader (mod, filename);
+						mod.ReadSymbols (sym);
+					} catch {
+					}
+				}
+			}
+			if (CmdOptions.WritePdbFile) {
+				if (!CmdOptions.Debug) {
+					CmdOptions.ShowUsage ("Must specify -debug if using -writePDBFile");
+					return;
+				}
+				// TODO: Implement symbol writing
+			}
+
 			ContractsRuntime.Initialise (mod);
 
-            var allMethods =
-                from module in ass.Modules
-                from type in module.Types
-                from method in type.Methods
-                select method;
-
-            foreach (var m in allMethods.ToArray()) {
-                if (m.Name != "Test1") {
-                    continue;
-                }
-                Console.WriteLine (m.FullName);
-                Rewrite (m);
-            }
-
-			ass.Write ("ccrewrite_2.exe");
+			if (CmdOptions.Rewrite) {
+				var rewriter = new Rewriter ();
+				rewriter.Rewrite (assembly);
+				assembly.Write (CmdOptions.OutputFile ?? CmdOptions.Assembly);
+			}
 
             Console.WriteLine ();
             Console.WriteLine ("*** done ***");

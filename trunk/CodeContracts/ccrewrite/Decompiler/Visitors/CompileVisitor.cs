@@ -115,6 +115,8 @@ namespace Decompiler.Visitors {
 					return this.il.Create (OpCodes.Ldc_R4, (float) v);
 				case TypeCode.Double:
 					return this.il.Create (OpCodes.Ldc_R8, (double) v);
+				case TypeCode.String:
+					return this.il.Create (OpCodes.Ldstr, (string) v);
 				default:
 					throw new NotSupportedException ("Cannot handle constant: " + vTypeCode);
 				}
@@ -123,31 +125,50 @@ namespace Decompiler.Visitors {
 			return e;
 		}
 
-		protected override Expr VisitCompareLessThan (ExprCompareLessThan e)
+		private Expr VisitBinary (ExprBinaryOp e, Func<Instruction> fnCreateIl)
 		{
 			this.Visit (e.Left);
 			this.Visit (e.Right);
-			var instClt = this.il.Create (e.Unsigned ? OpCodes.Clt_Un : OpCodes.Clt);
-			this.Emit (instClt);
+			var inst = fnCreateIl ();
+			this.Emit (inst);
 			return e;
+		}
+
+		protected override Expr VisitCompareLessThan (ExprCompareLessThan e)
+		{
+			return this.VisitBinary (e, () => this.il.Create (e.IsSigned ? OpCodes.Clt : OpCodes.Clt_Un));
 		}
 
 		protected override Expr VisitCompareGreaterThan (ExprCompareGreaterThan e)
 		{
-			this.Visit (e.Left);
-			this.Visit (e.Right);
-			var instClt = this.il.Create (e.Unsigned ? OpCodes.Cgt_Un : OpCodes.Cgt);
-			this.Emit (instClt);
-			return e;
+			return this.VisitBinary (e, () => this.il.Create (e.IsSigned ? OpCodes.Cgt : OpCodes.Cgt_Un));
 		}
 
 		protected override Expr VisitCompareEqual (ExprCompareEqual e)
 		{
-			this.Visit (e.Left);
-			this.Visit (e.Right);
-			var instCeq = this.il.Create (OpCodes.Ceq);
-			this.Emit (instCeq);
-			return e;
+			return this.VisitBinary (e, () => this.il.Create (OpCodes.Ceq));
+		}
+
+		protected override Expr VisitAdd (ExprAdd e)
+		{
+			return this.VisitBinary (e, () => {
+				if (!e.Overflow) {
+					return this.il.Create (OpCodes.Add);
+				} else {
+					return this.il.Create (e.IsSigned ? OpCodes.Add_Ovf : OpCodes.Add_Ovf_Un);
+				}
+			});
+		}
+
+		protected override Expr VisitSub (ExprSub e)
+		{
+			return this.VisitBinary (e, () => {
+				if (!e.Overflow) {
+					return this.il.Create (OpCodes.Sub);
+				} else {
+					return this.il.Create (e.IsSigned ? OpCodes.Sub_Ovf : OpCodes.Sub_Ovf_Un);
+				}
+			});
 		}
 
 		protected override Expr VisitCall (ExprCall e)
@@ -157,13 +178,6 @@ namespace Decompiler.Visitors {
 			}
 			var instCall = this.il.Create (OpCodes.Call, e.Method);
 			this.Emit (instCall);
-			return e;
-		}
-
-		protected override Expr VisitLoadString (ExprLoadString e)
-		{
-			var instLoadString = this.il.Create (OpCodes.Ldstr, e.Value);
-			this.Emit (instLoadString);
 			return e;
 		}
 
@@ -182,11 +196,18 @@ namespace Decompiler.Visitors {
 			return e;
 		}
 
-		protected override Expr VisitConvI8 (ExprConvI8 e)
+		protected override Expr VisitConv (ExprConv e)
 		{
 			this.Visit (e.ExprToConvert);
-			var instConvI8 = this.il.Create (OpCodes.Conv_I8);
-			this.Emit (instConvI8);
+			Instruction instConv;
+			switch (e.ConvToType) {
+			case TypeCode.Int64:
+				instConv = this.il.Create (OpCodes.Conv_I8);
+				break;
+			default:
+				throw new NotSupportedException ("Cannot conv to: " + e.ConvToType);
+			}
+			this.Emit (instConv);
 			return e;
 		}
 

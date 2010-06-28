@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Decompiler.Ast;
+using Decompiler.Extensions;
 
 namespace Decompiler.Visitors {
 	public abstract class ExprVisitor {
@@ -23,18 +24,20 @@ namespace Decompiler.Visitors {
 				return this.VisitCompareLessThan ((ExprCompareLessThan) e);
 			case ExprType.CompareGreaterThan:
 				return this.VisitCompareGreaterThan ((ExprCompareGreaterThan) e);
+			case ExprType.Add:
+				return this.VisitAdd ((ExprAdd) e);
+			case ExprType.Sub:
+				return this.VisitSub ((ExprSub) e);
 			case ExprType.LoadArg:
 				return this.VisitLoadArg ((ExprLoadArg) e);
 			case ExprType.LoadConstant:
 				return this.VisitLoadConstant ((ExprLoadConstant) e);
 			case ExprType.Return:
 				return this.VisitReturn ((ExprReturn) e);
-			case ExprType.LoadString:
-				return this.VisitLoadString ((ExprLoadString) e);
 			case ExprType.Box:
 				return this.VisitBox ((ExprBox) e);
-			case ExprType.ConvI8:
-				return this.VisitConvI8 ((ExprConvI8) e);
+			case ExprType.Conv:
+				return this.VisitConv ((ExprConv) e);
 			default:
 				throw new NotSupportedException ("Cannot handle: " + e.ExprType);
 			}
@@ -88,17 +91,27 @@ namespace Decompiler.Visitors {
 
 		protected virtual Expr VisitCompareLessThan (ExprCompareLessThan e)
 		{
-			return this.VisitCollection (e, exprs => new ExprCompareLessThan (e.MethodInfo, exprs.ElementAt (0), exprs.ElementAt (1), e.Unsigned), e.Left, e.Right);
+			return this.VisitCollection (e, exprs => new ExprCompareLessThan (e.MethodInfo, exprs.First (), exprs.Second (), e.Signage), e.Left, e.Right);
 		}
 
 		protected virtual Expr VisitCompareGreaterThan (ExprCompareGreaterThan e)
 		{
-			return this.VisitCollection (e, exprs => new ExprCompareGreaterThan (e.MethodInfo, exprs.ElementAt (0), exprs.ElementAt (1), e.Unsigned), e.Left, e.Right);
+			return this.VisitCollection (e, exprs => new ExprCompareGreaterThan (e.MethodInfo, exprs.First (), exprs.Second (), e.Signage), e.Left, e.Right);
 		}
 
 		protected virtual Expr VisitCompareEqual (ExprCompareEqual e)
 		{
-			return this.VisitCollection (e, exprs => new ExprCompareEqual (e.MethodInfo, exprs.ElementAt (0), exprs.ElementAt (1)), e.Left, e.Right);
+			return this.VisitCollection (e, exprs => new ExprCompareEqual (e.MethodInfo, exprs.First (), exprs.Second ()), e.Left, e.Right);
+		}
+
+		protected virtual Expr VisitAdd (ExprAdd e)
+		{
+			return this.VisitCollection (e, exprs => new ExprAdd (e.MethodInfo, exprs.First (), exprs.Second (), e.Signage, e.Overflow), e.Left, e.Right);
+		}
+
+		protected virtual Expr VisitSub (ExprSub e)
+		{
+			return this.VisitCollection (e, exprs => new ExprSub (e.MethodInfo, exprs.First (), exprs.Second (), e.Signage, e.Overflow), e.Left, e.Right);
 		}
 
 		protected virtual Expr VisitCall (ExprCall e)
@@ -111,19 +124,14 @@ namespace Decompiler.Visitors {
 			return e;
 		}
 
-		protected virtual Expr VisitLoadString (ExprLoadString e)
-		{
-			return e;
-		}
-
 		protected virtual Expr VisitBox (ExprBox e)
 		{
 			return this.VisitCollection (e, exprs => new ExprBox (e.MethodInfo, exprs.First ()), e.ExprToBox);
 		}
 
-		protected virtual Expr VisitConvI8 (ExprConvI8 e)
+		protected virtual Expr VisitConv (ExprConv e)
 		{
-			return this.VisitCollection (e, exprs => new ExprConvI8 (e.MethodInfo, exprs.First ()), e.ExprToConvert);
+			return this.VisitCollection (e, exprs => new ExprConv (e.MethodInfo, exprs.First (), e.ConvToType), e.ExprToConvert);
 		}
 	}
 }

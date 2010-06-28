@@ -8,7 +8,7 @@ namespace Decompiler.Ast {
 	public class ExprLoadConstant : Expr {
 
 		public ExprLoadConstant (MethodInfo methodInfo, object value)
-			: base (methodInfo, ExprType.LoadConstant)
+			: base (methodInfo)
 		{
 			this.Value = value;
 
@@ -23,6 +23,11 @@ namespace Decompiler.Ast {
 		private TypeReference returnType;
 
 		public object Value { get; private set; }
+
+		public override ExprType ExprType
+		{
+			get { return ExprType.LoadConstant; }
+		}
 
 		public override TypeReference ReturnType
 		{

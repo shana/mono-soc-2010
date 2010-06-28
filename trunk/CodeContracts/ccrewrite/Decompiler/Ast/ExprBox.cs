@@ -7,9 +7,19 @@ namespace Decompiler.Ast {
 	public class ExprBox : Expr {
 
 		public ExprBox (MethodInfo methodInfo, Expr exprToBox)
-			: base (methodInfo, ExprType.Box, exprToBox.ReturnType)
+			: base (methodInfo)
 		{
 			this.ExprToBox = exprToBox;
+		}
+
+		public override ExprType ExprType
+		{
+			get { return ExprType.Box; }
+		}
+
+		public override Mono.Cecil.TypeReference ReturnType
+		{
+			get { return this.ExprToBox.ReturnType; }
 		}
 
 		public Expr ExprToBox { get; private set; }

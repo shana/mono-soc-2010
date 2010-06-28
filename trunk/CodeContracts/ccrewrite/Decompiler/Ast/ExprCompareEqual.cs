@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 
 namespace Decompiler.Ast {
-	public class ExprCompareEqual : Expr {
+	public class ExprCompareEqual : ExprBinaryOpComparison {
 
 		public ExprCompareEqual (MethodInfo methodInfo, Expr left, Expr right)
-			: base (methodInfo, ExprType.CompareEqual, methodInfo.TypeBoolean)
+			: base (methodInfo, left, right, Sn.None)
 		{
-			this.Left = left;
-			this.Right = right;
 		}
 
-		public Expr Left { get; private set; }
-		public Expr Right { get; private set; }
+		public override ExprType ExprType
+		{
+			get { return ExprType.CompareEqual; }
+		}
 
 	}
 }
