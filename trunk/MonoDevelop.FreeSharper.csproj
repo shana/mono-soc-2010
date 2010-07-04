@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="3.5" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{74E710CF-F156-4A2B-A306-C001EFAA88D2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MonoDevelop.FreeSharper</RootNamespace>
+    <AssemblyName>MonoDevelop.FreeSharper</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\build\AddIns\MonoDevelop.FreeSharper</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\build\AddIns\MonoDevelop.FreeSharper</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Posix" />
+    <Reference Include="Mono.C5" />
+    <Reference Include="Mono.Cairo" />
+    <Reference Include="Mono.Addins, Version=0.5.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
+    <Reference Include="System.Core" />
+    <Reference Include="gmcs, Version=2.7.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\mcs_mod\gmcs.dll</HintPath>
+    </Reference>
+    <Reference Include="glade-sharp, Version=3.0.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\..\usr\local\lib\mono\2.0\System.dll</HintPath>
+    </Reference>
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="MonoDevelop.GtkCore, Version=2.4.0.0, Culture=neutral">
+      <Package>monodevelop-core-addins</Package>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper.addin.xml">
+      <LogicalName>MonoDevelop.FreeSharper.addin.xml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\AssemblyInfo.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AbstractCRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AbstractAnalysisTask.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AbstractCSharpRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AbstractFSharpRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AbstractVBRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AbstractXMLRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AnalysisEngineService.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\AnalysisExtension.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\DynamicRuleLoader.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\InvalidReturnTypeRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\LoopsToLinqRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\NamingConventionRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\Priorities.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\ResultMessageType.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\RuleExtension.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\RuleExtensionNode.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\RuleResult.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\TaskAstVisitor.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\UnusedVariablesRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\RecursivePropertyRule.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\Commands.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\StructuralSearchAndReplace.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\VisitorMetadata.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\SettingsPad.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\ResultsPad.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\ResultService.cs" />
+    <Compile Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\ResultStore.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\CSharpBinding\CSharpBinding.csproj">
+      <Project>{07CC7654-27D6-421D-A64C-0FFA40456FA2}</Project>
+      <Name>CSharpBinding</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\core\MonoDevelop.Core\MonoDevelop.Core.csproj">
+      <Project>{7525BB88-6142-4A26-93B9-A30C6983390A}</Project>
+      <Name>MonoDevelop.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.Debugger\MonoDevelop.Debugger.csproj">
+      <Project>{2357AABD-08C7-4808-A495-8FF2D3CDFDB0}</Project>
+      <Name>MonoDevelop.Debugger</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\core\MonoDevelop.Ide\MonoDevelop.Ide.csproj">
+      <Project>{27096E7F-C91C-4AC6-B289-6897A701DF21}</Project>
+      <Name>MonoDevelop.Ide</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDeveloperExtensions\MonoDeveloperExtensions.csproj">
+      <Project>{9A415695-CF80-4845-AA80-0DA26CF1E256}</Project>
+      <Name>MonoDeveloperExtensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\core\Mono.Texteditor\Mono.TextEditor.csproj">
+      <Project>{A2329308-3751-4DBD-9A75-5F7B8B024625}</Project>
+      <Name>Mono.TextEditor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\contrib\NRefactory\Project\NRefactory.csproj">
+      <Project>{3A9AE6AA-BC07-4A2F-972C-581E3AE2F195}</Project>
+      <Name>NRefactory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.Refactoring\MonoDevelop.Refactoring.csproj">
+      <Project>{100568FC-F4E8-439B-94AD-41D11724E45B}</Project>
+      <Name>MonoDevelop.Refactoring</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\core\Mono.Debugging\Mono.Debugging.csproj">
+      <Project>{90C99ADB-7D4B-4EB4-98C2-40BD1B14C7D2}</Project>
+      <Name>Mono.Debugging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.SourceEditor2\MonoDevelop.SourceEditor.csproj">
+      <Project>{F8F92AA4-A376-4679-A9D4-60E7B7FBF477}</Project>
+      <Name>MonoDevelop.SourceEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+    <Folder Include="..\..\..\..\..\monodevelop %28copy%29\main\src\addins\MonoDevelop.FreeSharper\" />
+  </ItemGroup>
+</Project>
