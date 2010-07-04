@@ -1,0 +1,70 @@
+<Addin
+        id = "FreeSharper"
+        namespace = "MonoDevelop"
+        name = "Free Sharper"
+        author = "Nikhil Sarda"
+        copyright = "X11"
+        url = "http://www.monodevelop.com/"
+        description = "On the fly analysis for MonoDevelop"
+        category = "IDE extensions"
+        version = "2.4">
+	
+	<Runtime>
+		<Import assembly = "MonoDevelop.FreeSharper.dll"/>
+	</Runtime>
+
+	<Dependencies>
+		<Addin id="Core" version="2.4"/>
+		<Addin id="Ide" version="2.4"/>
+		<Addin id="Refactoring" version="2.4"/>
+	</Dependencies>
+	
+	<Extension path = "/MonoDevelop/Ide/TextEditorExtensions">
+		<Class class = "MonoDevelop.FreeSharper.AnalysisExtension" />
+	</Extension>
+	
+	<ExtensionPoint path = "/MonoDevelop/FreeSharper/AnalysisRuleExtensions" name = "On-the-fly rule extensions">
+		<Description>Extensions to the rules for on-the-fly code analysis</Description>
+		<ExtensionNode name="Class" type="MonoDevelop.FreeSharper.RuleExtensionNode"/>
+	</ExtensionPoint>
+	
+	<Extension path = "/MonoDevelop/Ide/Commands">
+	<!-- How to group these? -->
+		<Command id = "MonoDevelop.FreeSharper.Commands.ShowRuleLoader"
+				defaultHandler = "MonoDevelop.FreeSharper.ShowRuleHandler"
+				_label = "_Load Rule" />
+		<Command id = "MonoDevelop.FreeSharper.Commands.ShowSettingsLoader"
+				defaultHandler = "MonoDevelop.FreeSharper.ShowSettingsHandler"
+				_label = "_Code Analysis Settings" />
+	</Extension>
+	
+	<Extension path = "/MonoDevelop/Ide/MainMenu/Tools">
+		<CommandItem id = "MonoDevelop.FreeSharper.Commands.ShowRuleLoader"/>
+		<CommandItem id = "MonoDevelop.FreeSharper.Commands.ShowSettingsLoader"/>
+	</Extension>
+	
+	<!--Rules go here-->
+	<Extension path = "/MonoDevelop/FreeSharper/AnalysisRuleExtensions">
+		<Class class = "MonoDevelop.FreeSharper.NamingConventionRule" />
+		<Class class = "MonoDevelop.FreeSharper.InvalidReturnTypeRule" />
+		<Class class = "MonoDevelop.FreeSharper.LoopsToLinqRule" />
+		<Class class = "MonoDevelop.FreeSharper.UnusedVariablesRule" />
+	</Extension> 
+	
+	<Extension path = "/MonoDevelop/Ide/Pads">
+		<!--Pad id = "MonoDevelop.FreeSharper.SettingsPad" 
+			class = "MonoDevelop.FreeSharper.SettingsPad" 
+			_label="FreeSharper settings"
+			icon = "md-toolbox-pad"
+			defaultLayout="*"
+			defaultPlacement="Right"
+			defaultStatus="AutoHide" / -->
+		<Pad id = "MonoDevelop.FreeSharper.ResultsPad" 
+			class = "MonoDevelop.FreeSharper.ResultsPad" 
+			_label="FreeSharper results"
+			icon = "md-toolbox-pad"
+			defaultLayout="*"
+			defaultPlacement="Bottom"
+			defaultStatus="AutoHide" />
+	</Extension>
+</Addin>
