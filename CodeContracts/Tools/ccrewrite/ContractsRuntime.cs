@@ -53,7 +53,7 @@ namespace ccrewrite {
 				TypeReference typeString = module.Import (typeof (string));
 				TypeReference typeException = module.Import (typeof (Exception));
 				// Create type
-				TypeDefinition type = new TypeDefinition (Namespace, "ContractException",
+				TypeDefinition type = new TypeDefinition ("", "ContractException",
 					TypeAttributes.NestedPrivate | TypeAttributes.AnsiClass | TypeAttributes.AutoClass, typeException);
 				typeContractsRuntime.NestedTypes.Add (type);
 				// Create constructor

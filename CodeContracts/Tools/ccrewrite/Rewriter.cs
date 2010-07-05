@@ -11,6 +11,12 @@ using Decompiler.Ast;
 namespace ccrewrite {
 	class Rewriter {
 
+		public Rewriter (ISymbolWriter sym)
+		{
+			this.sym = sym;
+		}
+
+		private ISymbolWriter sym;
 		private Dictionary<MethodDefinition, TransformContractsVisitor> rewrittenMethods = new Dictionary<MethodDefinition, TransformContractsVisitor> ();
 
 		public void Rewrite (AssemblyDefinition assembly)
@@ -22,7 +28,7 @@ namespace ccrewrite {
 				select method;
 
 			foreach (var m in allMethods.ToArray ()) {
-				if (m.Name != "Test") continue;
+				//if (m.Name != "Test") continue;
 				Console.WriteLine (m.FullName);
 				this.PerformRewrite (m);
 			}
@@ -52,11 +58,12 @@ namespace ccrewrite {
 					}
 				}
 			}
+
 			TransformContractsVisitor vTransform = null;
 			if (method.HasBody) {
 				vTransform = this.TransformContracts (method);
+				this.sym.Write (method.Body);
 			}
-
 			this.rewrittenMethods.Add (method, vTransform);
 		}
 
@@ -83,10 +90,7 @@ namespace ccrewrite {
 		private void RewriteIL (MethodBody body, Dictionary<Expr,Instruction> instructionLookup, Expr remove, Expr insert)
 		{
 			var il = body.GetILProcessor ();
-			Instruction instInsertBefore = null;
-			Action<Instruction> fnEmit = inst => {
-				il.InsertBefore (instInsertBefore, inst);
-			};
+			Instruction instInsertBefore;
 			if (remove != null) {
 				var vInstExtent = new InstructionExtentVisitor (instructionLookup);
 				vInstExtent.Visit (remove);
@@ -98,7 +102,7 @@ namespace ccrewrite {
 				instInsertBefore = body.Instructions [0];
 			}
 			if (insert != null) {
-				var compiler = new CompileVisitor (il, fnEmit);
+				var compiler = new CompileVisitor (il, instructionLookup, inst => il.InsertBefore (instInsertBefore, inst));
 				compiler.Visit (insert);
 			}
 		}

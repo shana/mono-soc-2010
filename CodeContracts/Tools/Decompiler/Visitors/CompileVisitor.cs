@@ -8,33 +8,43 @@ using Decompiler.Ast;
 namespace Decompiler.Visitors {
 	public class CompileVisitor : ExprVisitor {
 
-		public CompileVisitor (ILProcessor il)
+		public CompileVisitor (ILProcessor il, Dictionary<Expr, Instruction> instructionLookup)
 		{
 			this.il = il;
+			this.instructionLookup = instructionLookup;
 			this.fnEmit = inst => this.il.Append (inst);
 		}
 
-		public CompileVisitor (ILProcessor il, Action<Instruction> fnEmit)
+		public CompileVisitor (ILProcessor il, Dictionary<Expr, Instruction> instructionLookup, Action<Instruction> fnEmit)
 		{
 			this.il = il;
+			this.instructionLookup = instructionLookup;
 			this.fnEmit = fnEmit;
 		}
 
 		private ILProcessor il;
+		private Dictionary<Expr, Instruction> instructionLookup;
 		private Action<Instruction> fnEmit;
 
-		private void Emit (Instruction inst)
+		private void Emit (Expr originalExpr, Instruction inst)
 		{
+			Instruction originalInst;
+			if (this.instructionLookup != null) {
+				// TODO: Doesn't handle inherited contracts - need to check what to do in this case.
+				if (this.instructionLookup.TryGetValue (originalExpr, out originalInst)) {
+					inst.SequencePoint = originalInst.SequencePoint;
+				}
+			}
 			this.fnEmit (inst);
 		}
 
-		private void Emit (Func<Instruction> fnCreateInstruction)
+		private void Emit (Expr originalExpr, Func<Instruction> fnCreateInstruction)
 		{
 			Instruction inst = fnCreateInstruction();
-			this.Emit (inst);
+			this.Emit (originalExpr, inst);
 		}
 
-		private void Emit (Func<IEnumerable<Instruction>> fnCreateInstruction)
+		private void Emit (Expr originalExpr, Func<IEnumerable<Instruction>> fnCreateInstruction)
 		{
 			throw new NotImplementedException ();
 		}
@@ -42,13 +52,13 @@ namespace Decompiler.Visitors {
 		protected override Expr VisitNop (ExprNop e)
 		{
 			var instNop = this.il.Create(OpCodes.Nop);
-			this.Emit (instNop);
+			this.Emit (e, instNop);
 			return e;
 		}
 
 		protected override Expr VisitLoadArg (ExprLoadArg e)
 		{
-			this.Emit (() => {
+			this.Emit (e, () => {
 				int index = e.Index;
 				switch (e.Index) {
 				case 0:
@@ -73,7 +83,7 @@ namespace Decompiler.Visitors {
 
 		protected override Expr VisitLoadConstant (ExprLoadConstant e)
 		{
-			this.Emit (() => {
+			this.Emit (e, () => {
 				object v = e.Value;
 				if (v == null) {
 					return this.il.Create (OpCodes.Ldnull);
@@ -130,7 +140,7 @@ namespace Decompiler.Visitors {
 			this.Visit (e.Left);
 			this.Visit (e.Right);
 			var inst = fnCreateIl ();
-			this.Emit (inst);
+			this.Emit (e, inst);
 			return e;
 		}
 
@@ -177,14 +187,14 @@ namespace Decompiler.Visitors {
 				this.Visit (param);
 			}
 			var instCall = this.il.Create (OpCodes.Call, e.Method);
-			this.Emit (instCall);
+			this.Emit (e, instCall);
 			return e;
 		}
 
 		protected override Expr VisitReturn (ExprReturn e)
 		{
 			var instReturn = this.il.Create (OpCodes.Ret);
-			this.Emit (instReturn);
+			this.Emit (e, instReturn);
 			return e;
 		}
 
@@ -192,7 +202,7 @@ namespace Decompiler.Visitors {
 		{
 			this.Visit (e.ExprToBox);
 			var instBox = this.il.Create (OpCodes.Box, e.ReturnType);
-			this.Emit (instBox);
+			this.Emit (e, instBox);
 			return e;
 		}
 
@@ -207,7 +217,7 @@ namespace Decompiler.Visitors {
 			default:
 				throw new NotSupportedException ("Cannot conv to: " + e.ConvToType);
 			}
-			this.Emit (instConv);
+			this.Emit (e, instConv);
 			return e;
 		}
 
