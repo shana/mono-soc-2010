@@ -10,6 +10,7 @@ using Decompiler.Ast;
 using Decompiler.Visitors;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System.IO;
 
 namespace ccrewrite {
 
@@ -122,43 +123,64 @@ namespace ccrewrite {
 			}
 
 			string filename = CmdOptions.Assembly;
+			string output = CmdOptions.OutputFile ?? CmdOptions.Assembly;
 
 			var assembly = AssemblyDefinition.ReadAssembly (filename);
 			var mod = assembly.MainModule;
 
+			bool usingMdb = false;
+			bool usingPdb = false;
 			if (CmdOptions.Debug) {
 				try {
 					ISymbolReaderProvider symProv = new Mono.Cecil.Mdb.MdbReaderProvider ();
 					ISymbolReader sym = symProv.GetSymbolReader (mod, filename);
 					mod.ReadSymbols (sym);
+					usingMdb = true;
 				} catch {
 					try {
 						ISymbolReaderProvider symProv = new Mono.Cecil.Pdb.PdbReaderProvider ();
 						ISymbolReader sym = symProv.GetSymbolReader (mod, filename);
 						mod.ReadSymbols (sym);
+						usingPdb = true;
 					} catch {
 					}
 				}
 			}
+			ISymbolWriter symWriter = null;
 			if (CmdOptions.WritePdbFile) {
 				if (!CmdOptions.Debug) {
 					CmdOptions.ShowUsage ("Must specify -debug if using -writePDBFile");
 					return;
 				}
 				// TODO: Implement symbol writing
+				ISymbolWriterProvider symProv = null;
+				if (usingMdb) {
+					symProv = new Mono.Cecil.Mdb.MdbWriterProvider ();
+				} else if (usingPdb) {
+					symProv = new Mono.Cecil.Pdb.PdbWriterProvider ();
+				} else {
+					Console.WriteLine ("No symbol file, cannot write symbols");
+				}
+				if (symProv != null) {
+					symWriter = symProv.GetSymbolWriter (mod, output);
+				}
 			}
 
 			ContractsRuntime.Initialise (mod);
 
 			if (CmdOptions.Rewrite) {
-				var rewriter = new Rewriter ();
+				var rewriter = new Rewriter (symWriter);
 				rewriter.Rewrite (assembly);
-				assembly.Write (CmdOptions.OutputFile ?? CmdOptions.Assembly);
+				assembly.Name.Name = Path.GetFileNameWithoutExtension (output);
+				assembly.Write (output);
+				if (symWriter != null) {
+					symWriter.Dispose ();
+				}
 			}
 
             Console.WriteLine ();
             Console.WriteLine ("*** done ***");
-            Console.ReadKey ();
+            //Console.ReadKey ();
         }
 
     }
