@@ -1,3 +1,9 @@
+2010-07-05  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* ProjectFileExtension.cs: Better approach for obtaining GtkComponentType
+	* ProjectFileNodeBuilderExtension.cs:
+	* ProjectFolderNodeBuilderExtension.cs: 
+
 2010-06-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* ProjectNodeBuilder.cs:

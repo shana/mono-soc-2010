@@ -77,6 +77,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			}
 		}
 		
+		
 		public override void BuildChildNodes (ITreeBuilder treeBuilder, object dataObject)
 		{
 //			ProjectFolder folder = dataObject as ProjectFolder;

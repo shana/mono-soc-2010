@@ -1,6 +1,8 @@
 using System;
 using MonoDevelop.GtkCore.GuiBuilder;
 using MonoDevelop.Projects;
+using MonoDevelop.Projects.Dom;
+using MonoDevelop.Projects.Dom.Parser;
 
 namespace MonoDevelop.GtkCore.NodeBuilders
 {
@@ -9,43 +11,38 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		Dialog,
 		Widget,
 		ActionGroup,
-		Unknown
+		IconFactory,
+		None
 	}
 	
 	public static class ProjectFileExtension
 	{
 		public static bool IsComponentFile (this ProjectFile pf)
 		{
-			return pf.GetComponentClassName() != null;
-		}
-		
-		public static string GetComponentClassName (this ProjectFile pf)
-		{
-			foreach (ProjectFile dependent in pf.DependentChildren)
-				if (dependent.FilePath.Extension == ".gtkx") {
-					GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-					return info.GuiBuilderProject.GetClassNameForGtkxFile (dependent.FilePath.ToString ());
-				}
-			
-			return null;
+			return pf.GetComponentType () != GtkComponentType.None;
 		}
 		
 		public static GtkComponentType GetComponentType (this ProjectFile pf)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-			string className = pf.GetComponentClassName ();
-			
-			if (className != null) {
-				GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
-				if (win != null) 
-						return win.RootWidget.IsWindow ? GtkComponentType.Dialog : GtkComponentType.Widget;
-							
-				Stetic.ActionGroupInfo action =	info.GuiBuilderProject.GetActionGroup (className);
-				if (action != null)
-					return GtkComponentType.ActionGroup;
+			//ParsedDocument doc = ProjectDomService.GetParsedDocument (ProjectDomService.GetProjectDom (pf.Project), pf.Name);
+			ParsedDocument doc = ProjectDomService.ParseFile (ProjectDomService.GetProjectDom (pf.Project), pf.FilePath.ToString ());
+			if (doc != null && doc.CompilationUnit != null) {
+				foreach (IType t in doc.CompilationUnit.Types) {
+					string className = t.FullName;
+					if (className != null) {
+						GuiBuilderWindow win = info.GuiBuilderProject.GetWindowForClass (className);
+						if (win != null) 
+								return win.RootWidget.IsWindow ? GtkComponentType.Dialog : GtkComponentType.Widget;
+									
+						Stetic.ActionGroupInfo action =	info.GuiBuilderProject.GetActionGroup (className);
+						if (action != null)
+							return GtkComponentType.ActionGroup;
+						
+					}
+				}
 			}
-			
-			return GtkComponentType.Unknown;
+			return GtkComponentType.None;
 		}
 	}
 }

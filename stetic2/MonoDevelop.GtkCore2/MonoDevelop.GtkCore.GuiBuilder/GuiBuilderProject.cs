@@ -44,6 +44,9 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 {
 	public class GuiBuilderProject
 	{
+		//to save temporarily GuiBuilderWindow while files are being moved between projects
+		static List<GuiBuilderWindow> formInfosRemoved;
+		
 		internal object MemoryProbe = Counters.GuiProjectsInMemory.CreateMemoryProbe ();
 		
 		List<GuiBuilderWindow> formInfos;
@@ -64,6 +67,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		public event EventHandler Reloaded;
 		public event EventHandler Unloaded;
 		public event EventHandler Changed;
+		
+		static GuiBuilderProject ()
+		{
+			formInfosRemoved = new List<GuiBuilderWindow> ();
+		}
 
 		public GuiBuilderProject (DotNetProject project, string folderName)
 		{
@@ -84,14 +92,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			} finally {
 				gproject.Dispose ();
 			}
-		}
-		
-		public string GetClassNameForGtkxFile (string fileName)
-		{
-			if (gproject == null)
-				Load ();
-		
-			return gproject.GetClassNameForGtkxFile (fileName);
 		}
 		
 		void Load ()
@@ -276,6 +276,16 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			RegisterWindow (c, true);
 			return c;
 		}
+		
+		public void AddNewComponent (string fileName)
+		{
+			object ob = SteticProject.AddNewComponent (fileName);
+			
+			if (ob is Stetic.WidgetInfo) {
+				var c = (Stetic.WidgetInfo) ob;
+				RegisterWindow (c, true);
+			}
+		}
 	
 		void RegisterWindow (Stetic.WidgetInfo widget, bool notify)
 		{
@@ -286,6 +296,16 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 				GuiBuilderWindow win = new GuiBuilderWindow (this, gproject, widget);
 				formInfos.Add (win);
+				
+				GuiBuilderWindow winToRemove = null;
+				foreach (GuiBuilderWindow form in formInfosRemoved)
+					if (form.RootWidget == widget) {
+						winToRemove = form;
+						break;
+					}
+				
+				if (winToRemove != null)
+					formInfosRemoved.Remove (winToRemove);
 			
 				if (notify) {
 					if (WindowAdded != null)
@@ -301,6 +321,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				return;
 
 			formInfos.Remove (win);
+			formInfosRemoved.Add (win);
 
 			if (WindowRemoved != null)
 				WindowRemoved (this, new WindowEventArgs (win));
@@ -339,24 +360,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		}
 		
 		void OnFileAdded (object sender, ProjectFileEventArgs args)
-		{
+		{	
+			FilePath path = args.ProjectFile.FilePath;
 			
-			ParsedDocument doc = ProjectDomService.GetParsedDocument (ProjectDomService.GetProjectDom (args.Project), args.ProjectFile.Name);
-			if (doc == null || doc.CompilationUnit == null)
-				return;
-
-			string dir = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData), "stetic"), "deleted-designs");
-			if (!Directory.Exists (dir) || Directory.GetFiles (dir).Length == 0)
-				return;
-
-			foreach (IType t in doc.CompilationUnit.Types) {
-				string path = Path.Combine (dir, t.FullName + ".xml");
-				if (!System.IO.File.Exists (path))
-					continue;
-				XmlDocument xmldoc = new XmlDocument ();
-				xmldoc.Load (path);
-				AddNewComponent (xmldoc.DocumentElement);
-				System.IO.File.Delete (path);
+			if (path.Extension == ".gtkx") { 
+					AddNewComponent (path);
 			}
 		}
 
@@ -444,6 +452,13 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 						return form;
 				}
 			}
+			
+			if (formInfosRemoved != null) {
+				foreach (GuiBuilderWindow form in formInfosRemoved) {
+					if (CodeBinder.GetObjectName (form.RootWidget) == className)
+						return form;
+				}
+			}
 			return null;
 		}
 
@@ -511,6 +526,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		{
 			FilePath gui_folder = GtkDesignInfo.FromProject (project).GtkGuiFolder;
 			ProjectDom ctx = GetParserContext ();
+
 			if (ctx == null)
 				return null;
 			IEnumerable<IType> classes = ctx.Types;

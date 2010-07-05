@@ -39,9 +39,6 @@ namespace Stetic {
 		// The action collection of the last selected widget
 		Stetic.Wrapper.ActionGroupCollection oldTopActionCollection;
 		
-		//Dictionary for gtkx file name and class name pair
-		Dictionary<string, string> classnameResolver;
-		
 		public event Wrapper.WidgetNameChangedHandler WidgetNameChanged;
 		public event Wrapper.WidgetEventHandler WidgetAdded;
 		public event Wrapper.WidgetEventHandler WidgetContentsChanged;
@@ -74,7 +71,6 @@ namespace Stetic {
 			iconFactory = new ProjectIconFactory ();
 			widgetLibraries = new ArrayList ();
 			internalLibs = new ArrayList ();
-			classnameResolver = new Dictionary<string, string> ();
 		}
 		
 		public void Dispose ()
@@ -100,16 +96,6 @@ namespace Stetic {
 			return null;
 		}
 		
-//		public string FileName {
-//			get { return fileName; }
-//			set {
-//				this.fileName = value;
-//				if (fileName != null)
-//					Id = System.IO.Path.GetFileName (fileName);
-//				else
-//					Id = null;
-//			}
-//		}
 		
 		public string FileName {
 			get { throw new Exception("FileName is obsolete"); }
@@ -211,14 +197,6 @@ namespace Stetic {
 			widgetLibraries.Remove (lib);
 			internalLibs.Remove (lib);
 		}
-		
-		public string GetClassNameForGtkxFile (string fileName)
-		{
-			if (classnameResolver.ContainsKey (fileName))
-				return classnameResolver [fileName];
-			
-			return null;
-		}
 			
 		public ArrayList GetComponentTypes ()
 		{
@@ -286,11 +264,11 @@ namespace Stetic {
 			set { iconFactory = value; }
 		}
 		
-		[Obsolete]
-		internal void SetFileName (string fileName)
-		{
-			
-		}
+//		[Obsolete]
+//		internal void SetFileName (string fileName)
+//		{
+//			
+//		}
 		
 		internal void SetFrontend (Project project)
 		{
@@ -402,13 +380,25 @@ namespace Stetic {
 							if (frontend.DesignInfo.HasComponentFile (id)) {
 								XmlNode imported = doc.ImportNode (toplevel, true);
 								node.AppendChild (imported);
-							
-								classnameResolver [file.FullName] = id;
 							}
 						}
 					}
 				}
 			}
+		}
+		
+		void AddActionGroup (XmlElement groupElem)
+		{
+			ObjectReader reader = new ObjectReader (this, FileFormat.Native);
+			
+			Wrapper.ActionGroup actionGroup = new Wrapper.ActionGroup ();
+			actionGroup.Read (reader, groupElem);
+			actionGroups.Add (actionGroup);
+		}
+		
+		void AddWidget (XmlElement toplevel)
+		{
+			topLevels.Add (new WidgetData (toplevel.GetAttribute ("id"), toplevel, null));
 		}
 		
 		void Read (XmlDocument doc)
@@ -428,13 +418,14 @@ namespace Stetic {
 				resolver = new AssemblyResolver (app);
 				app.LoadLibraries (resolver, widgetLibraries);
 				
-				ObjectReader reader = new ObjectReader (this, FileFormat.Native);
+//				ObjectReader reader = new ObjectReader (this, FileFormat.Native);
 				
 				if (ownedGlobalActionGroups) {
 					foreach (XmlElement groupElem in node.SelectNodes ("action-group")) {
-						Wrapper.ActionGroup actionGroup = new Wrapper.ActionGroup ();
-						actionGroup.Read (reader, groupElem);
-						actionGroups.Add (actionGroup);
+//						Wrapper.ActionGroup actionGroup = new Wrapper.ActionGroup ();
+//						actionGroup.Read (reader, groupElem);
+//						actionGroups.Add (actionGroup);
+						AddActionGroup (groupElem);
 					}
 				}
 				
@@ -442,9 +433,8 @@ namespace Stetic {
 				if (iconsElem != null)
 					iconFactory.Read (this, iconsElem);
 				
-				foreach (XmlElement toplevel in node.SelectNodes ("widget")) {
-					topLevels.Add (new WidgetData (toplevel.GetAttribute ("id"), toplevel, null));
-				}
+				foreach (XmlElement toplevel in node.SelectNodes ("widget"))
+					AddWidget (toplevel);
 				
 			} finally {
 				loading = false;
@@ -483,15 +473,7 @@ namespace Stetic {
 				WriteIconFactory (doc);
 				WriteActionGroups (doc);
 				WriteTopLevels (doc);
-//				// Write to a temporary file first, just in case something fails
-//				writer = new XmlTextWriter (fileName + "~", System.Text.Encoding.UTF8);
-//				writer.Formatting = Formatting.Indented;
-//				doc.Save (writer);
-//				writer.Close ();
-//				
-//				File.Copy (fileName + "~", fileName, true);
-//				File.Delete (fileName + "~");
-			
+
 			} finally {
 				if (writer != null)
 					writer.Close ();
@@ -540,7 +522,6 @@ namespace Stetic {
 			if (node == null)
 				return;
 			
-//			List<XmlElement> toplevels = new List<XmlElement> ();
 			foreach (XmlElement toplevel in node.SelectNodes (splitElement)) {
 					
 					string id = toplevel.GetAttribute (idAttribute);
@@ -559,17 +540,8 @@ namespace Stetic {
 					XmlNode wnode2 = doc2.ImportNode (toplevel, true);
 					node2.AppendChild (wnode2);
 				
-//					//after saving component need to remove its xml element definition, 
-//					//otherwise it would be saved in gui.stetic
-//					toplevels.Add (toplevel);	
-				
 					WriteXmlFile (xmlFile, doc2);
-					classnameResolver [xmlFile] = id;
 			}	
-			
-//			foreach (XmlElement toplevel in toplevels)
-//				//now it is safe to remove
-//				node.RemoveChild (toplevel);
 		}
 		
 		void WriteXmlFile (string xmlFile, XmlDocument doc)
@@ -676,6 +648,23 @@ namespace Stetic {
 			return null;
 		}
 		
+		public object AddNewComponent (string fileName)
+		{
+			XmlDocument doc = new XmlDocument();
+			doc.PreserveWhitespace = true;
+			doc.Load (fileName);
+			
+			XmlElement toplevel = (XmlElement)doc.SelectSingleNode ("/stetic-interface/widget");
+			if (toplevel != null)
+				return AddNewWidgetFromTemplate (toplevel.OuterXml);
+			
+			XmlElement groupElem = (XmlElement)doc.SelectSingleNode ("/stetic-interface/action-group");
+			if (groupElem != null)
+				return AddNewActionGroupFromTemplate (groupElem.OuterXml);
+			
+			return null;
+		}
+		
 		public object AddNewWidget (string type, string name)
 		{
 			ClassDescriptor cls = Registry.LookupClassByName (type);
@@ -703,21 +692,21 @@ namespace Stetic {
 			if (frontend != null)
 				frontend.NotifyWidgetRemoved (data.Name);
 		
-			XmlElement elem;
-			if (data.Widget != null)
-				elem = Stetic.WidgetUtils.ExportWidget (data.Widget);
-			else
-				elem = (XmlElement) data.XmlData.Clone ();
-			XmlDocument doc = new XmlDocument ();
-			XmlNode node = doc.ImportNode (elem, true);
-			doc.AppendChild (node);
-			string dir = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData), "stetic"), "deleted-designs");
-			if (!Directory.Exists (dir))
-				Directory.CreateDirectory (dir);
-			doc.Save (Path.Combine (dir, name + ".xml"));
-			topLevels.Remove (data);
-			if (data.Widget != null)
-				data.Widget.Destroy ();
+//			XmlElement elem;
+//			if (data.Widget != null)
+//				elem = Stetic.WidgetUtils.ExportWidget (data.Widget);
+//			else
+//				elem = (XmlElement) data.XmlData.Clone ();
+//			XmlDocument doc = new XmlDocument ();
+//			XmlNode node = doc.ImportNode (elem, true);
+//			doc.AppendChild (node);
+//			string dir = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData), "stetic"), "deleted-designs");
+//			if (!Directory.Exists (dir))
+//				Directory.CreateDirectory (dir);
+//			doc.Save (Path.Combine (dir, name + ".xml"));
+//			topLevels.Remove (data);
+//			if (data.Widget != null)
+//				data.Widget.Destroy ();
 		}
 		
 		public Stetic.Wrapper.ActionGroup AddNewActionGroup (string name)

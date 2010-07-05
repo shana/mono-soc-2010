@@ -43,7 +43,8 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		{	
 			ProjectFile pf = (ProjectFile) dataObject;
 			
-			if (pf.IsComponentFile ()) {
+			//do not show custom icon for generated source files
+			if (pf.DependsOn == null) {
 				GtkComponentType type = pf.GetComponentType ();
 				
 				switch (type) {
@@ -55,6 +56,9 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 					break;
 				case GtkComponentType.ActionGroup :
 					icon = ImageService.GetPixbuf ("md-gtkcore-actiongroup", Gtk.IconSize.Menu);
+					break;
+				case GtkComponentType.IconFactory :
+					icon = ImageService.GetPixbuf ("md-gtkcore-iconfactory", Gtk.IconSize.Menu);
 					break;
 				}	
 			}
@@ -68,7 +72,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 	
 	public class ComponentCommandHandler : ProjectFileNodeCommandHandler
 	{
-		public override void ActivateItem ()
+		/*public override void ActivateItem ()
 		{
 			ProjectFile pf = (ProjectFile) CurrentNode.DataItem;
 			
@@ -95,6 +99,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			}
 			base.ActivateItem ();
 		}
-
+		*/
 	}
 }

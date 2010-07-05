@@ -200,6 +200,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 		public override void Load (string fileName)
 		{
+			ShowPage (1);
 			ContentName = fileName;
 			content.Load (fileName);
 		}

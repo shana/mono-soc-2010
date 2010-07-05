@@ -51,13 +51,11 @@ FILES =  \
 	MonoDevelop.GtkCore.GuiBuilder/PropertiesWidget.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxLoader.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxProvider.cs \
-	MonoDevelop.GtkCore.NodeBuilders/ActionGroupNodeBuilder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFileExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/StockIconsNodeBuilder.cs \
-	MonoDevelop.GtkCore.NodeBuilders/WidgetNodeBuilder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/WindowsFolder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/WindowsFolderNodeBuilder.cs \
 	MonoDevelop.GtkCore/Counters.cs \

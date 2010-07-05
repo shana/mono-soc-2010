@@ -63,19 +63,19 @@
     <Reference Include="Mono.Cecil, Version=0.6.9.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
       <Package>monodevelop</Package>
     </Reference>
+    <Reference Include="NRefactory, Version=2.1.1.0, Culture=neutral, PublicKeyToken=efe927acf176eea2">
+      <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0fc9c7cce479da56">
+      <Package>monodevelop</Package>
+    </Reference>
     <Reference Include="MonoDevelop.Core, Version=2.4.0.0, Culture=neutral">
       <Package>monodevelop</Package>
     </Reference>
     <Reference Include="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral">
       <Package>monodevelop</Package>
     </Reference>
-    <Reference Include="NRefactory, Version=2.1.1.0, Culture=neutral, PublicKeyToken=efe927acf176eea2">
-      <Package>monodevelop</Package>
-    </Reference>
     <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral">
-      <Package>monodevelop</Package>
-    </Reference>
-    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0fc9c7cce479da56">
       <Package>monodevelop</Package>
     </Reference>
   </ItemGroup>
@@ -83,7 +83,6 @@
     <ProjectReference Include="..\..\core\MonoDevelop.Core\MonoDevelop.Core.csproj">
       <Project>{7525BB88-6142-4A26-93B9-A30C6983390A}</Project>
       <Name>MonoDevelop.Core</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\core\MonoDevelop.Ide\MonoDevelop.Ide.csproj">
       <Project>{27096E7F-C91C-4AC6-B289-6897A701DF21}</Project>
@@ -180,7 +179,6 @@
     <Compile Include="MonoDevelop.GtkCore\GtkCoreService.cs" />
     <Compile Include="MonoDevelop.GtkCore.Dialogs\WidgetBuilderOptionPanel.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\ProjectNodeBuilder.cs" />
-    <Compile Include="MonoDevelop.GtkCore.NodeBuilders\WidgetNodeBuilder.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\ProjectFolderNodeBuilderExtension.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\WindowsFolderNodeBuilder.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\WindowsFolder.cs" />
@@ -190,7 +188,6 @@
     <Compile Include="MonoDevelop.GtkCore.Dialogs\ConfirmWindowDeleteDialog.cs" />
     <Compile Include="MonoDevelop.GtkCore\ProjectResourceProvider.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\ActionGroupView.cs" />
-    <Compile Include="MonoDevelop.GtkCore.NodeBuilders\ActionGroupNodeBuilder.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\ActionGroupDisplayBinding.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\CombinedDesignView.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\CodeBinder.cs" />
