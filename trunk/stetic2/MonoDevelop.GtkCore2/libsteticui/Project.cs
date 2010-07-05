@@ -324,7 +324,7 @@ namespace Stetic
 			if (wi == null) {
 				wi = new WidgetInfo (this, wc);
 				widgets.Add (wi);
-			}
+			} 
 			return wi;
 		}
 		
@@ -338,6 +338,36 @@ namespace Stetic
 				widgets.Add (wi);
 			}
 			return wi;
+		}
+		
+		public object AddNewComponent (string fileName)
+		{
+			object ob = ProjectBackend.AddNewComponent (fileName);
+			object component = App.GetComponent (ob, null, null);
+			
+			if (component is WidgetComponent) {
+				var wc = (WidgetComponent) component;
+				WidgetInfo wi = GetWidget (wc.Name);
+				if (wi == null) {
+					wi = new WidgetInfo (this, wc);
+					widgets.Add (wi);
+				}
+				return wi;
+			}
+				
+			if (component is ActionGroupComponent) {
+				var ac = (ActionGroupComponent) component;
+				// Don't wait for the group added event to come to update the groups list since
+				// it may be too late.
+				ActionGroupInfo gi = GetActionGroup (ac.Name);
+				if (gi == null) {
+					gi = new ActionGroupInfo (this, ac.Name);
+					groups.Add (gi);
+				}
+				return gi;
+			}
+			
+			return null;
 		}
 		
 		public ComponentType[] GetComponentTypes ()
@@ -472,11 +502,6 @@ namespace Stetic
 			app.UpdateWidgetLibraries (false, false);
 			if (!reloadRequested)
 				ProjectBackend.Reload ();
-		}
-		
-		public string GetClassNameForGtkxFile (string fileName)
-		{
-			return ProjectBackend.GetClassNameForGtkxFile (fileName);
 		}
 		
 /*		public bool CanCopySelection {

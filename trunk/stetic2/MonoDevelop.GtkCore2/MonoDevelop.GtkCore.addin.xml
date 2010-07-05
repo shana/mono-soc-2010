@@ -46,9 +46,7 @@
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFolderNodeBuilderExtension"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFileNodeBuilderExtension"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectNodeBuilder"/>
-		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.WidgetNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.WindowsFolderNodeBuilder"/>
-		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ActionGroupNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.StockIconsNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFileNodeBuilderExtension" />
 	</Extension>
@@ -160,6 +158,7 @@
 		<StockIcon stockid = "md-gtkcore-dialog" resource = "dialog.png" />
 		<StockIcon stockid = "md-gtkcore-widget" resource = "widget.png" />
 		<StockIcon stockid = "md-gtkcore-actiongroup" resource = "actiongroup.png" />
+		<StockIcon stockid = "md-gtkcore-iconfactory" resource = "image-x-generic.png" />
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/ProjectModel/ProjectServiceExtensions">

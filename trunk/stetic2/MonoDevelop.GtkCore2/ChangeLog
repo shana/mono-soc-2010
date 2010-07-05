@@ -1,3 +1,9 @@
+2010-07-05  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Makefile.am:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore.addin.xml: 
+
 2010-06-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* MonoDevelop.GtkCore/GtkDesignInfo.cs: 
