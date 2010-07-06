@@ -23,6 +23,7 @@ namespace MonoDevelop.GtkCore.Dialogs
 			
 			labelProject.LabelProp = string.Format ("<b><big>{0}</big></b>", project.Name);
 			entryFolder.Text = "Gui";
+			entryFolder.Position = -1;
 			
 			buttonConvert.Clicked += HandleButtonConvertClicked;
 		}

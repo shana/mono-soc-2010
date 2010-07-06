@@ -61,6 +61,9 @@ namespace MonoDevelop.GtkCore
 		[ItemProperty (DefaultValue="Gui")]
 		string gtkguiFolderName = "Gui";
 		
+		[ItemProperty (DefaultValue=false)]
+		bool wasConverted;
+		
 		GtkDesignInfo ()
 		{
 		}
@@ -176,7 +179,8 @@ namespace MonoDevelop.GtkCore
 		}
 		
 		public FilePath GtkGuiFolder {
-			get { return project.BaseDirectory.Combine ("gtk-gui"); }
+//			get { return project.BaseDirectory.Combine ("gtk-gui"); }
+			get { return project.BaseDirectory.Combine (!wasConverted ? "gtk-gui" : gtkguiFolderName); }
 		}
 		
 		public bool GenerateGettext {
@@ -277,7 +281,7 @@ namespace MonoDevelop.GtkCore
 			return projectModified;
 		}
 
-		public void ConvertGtkFolder (bool makeBackup)
+		public void ConvertGtkFolder (string guiFolderName, bool makeBackup)
 		{	
 			foreach (ProjectFile pf in project.Files.GetFilesInPath (GtkGuiFolder)) {
 				FilePath path = pf.FilePath;
@@ -290,10 +294,24 @@ namespace MonoDevelop.GtkCore
 				}
 			}
 			
-			if (makeBackup && File.Exists (SteticFile)) {
+			string oldGuiFolder = GtkGuiFolder.FullPath;
+			string oldSteticFile = SteticFile;
+			string oldGeneratedFile = SteticGeneratedFile;
+			GtkGuiFolderName = guiFolderName;
+			wasConverted = true;
+			
+			if (!Directory.Exists (GtkGuiFolder))
+				FileService.CreateDirectory (GtkGuiFolder);
+			
+			if (makeBackup && File.Exists (oldSteticFile)) {
 				string backupFile = GtkGuiFolder.Combine ("old.stetic");
-				FileService.MoveFile (SteticFile, backupFile);
+				FileService.MoveFile (oldSteticFile, backupFile);
 			}
+			
+			if (File.Exists (oldGeneratedFile))
+				FileService.MoveFile (oldGeneratedFile, SteticGeneratedFile);
+			
+			FileService.DeleteDirectory (oldGuiFolder);
 		}
 		
 		public bool UpdateGtkFolder ()

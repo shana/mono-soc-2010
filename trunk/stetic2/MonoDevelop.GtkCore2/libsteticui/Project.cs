@@ -230,14 +230,14 @@ namespace Stetic
 			reader.Skip ();
 		}
 		
-		public void ConvertProject (string fileName)
+		public void ConvertProject (string oldSteticFileName, string newGuiFolderName)
 		{
 			//ProjectBackend property when created invokes Load method which is not valid
 			//for old file layout
 			
 			ProjectBackend backend = app.Backend.CreateProject ();
 			backend.SetFrontend (this);
-			backend.ConvertProject (fileName);
+			backend.ConvertProject (oldSteticFileName, newGuiFolderName);
 		}
 		
 		public void Save (string folderName)

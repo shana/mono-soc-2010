@@ -25,8 +25,8 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		public static GtkComponentType GetComponentType (this ProjectFile pf)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-			//ParsedDocument doc = ProjectDomService.GetParsedDocument (ProjectDomService.GetProjectDom (pf.Project), pf.Name);
-			ParsedDocument doc = ProjectDomService.ParseFile (ProjectDomService.GetProjectDom (pf.Project), pf.FilePath.ToString ());
+			ParsedDocument doc = ProjectDomService.GetParsedDocument (ProjectDomService.GetProjectDom (pf.Project), pf.Name);
+			//ParsedDocument doc = ProjectDomService.ParseFile (ProjectDomService.GetProjectDom (pf.Project), pf.FilePath.ToString ());
 			if (doc != null && doc.CompilationUnit != null) {
 				foreach (IType t in doc.CompilationUnit.Types) {
 					string className = t.FullName;
