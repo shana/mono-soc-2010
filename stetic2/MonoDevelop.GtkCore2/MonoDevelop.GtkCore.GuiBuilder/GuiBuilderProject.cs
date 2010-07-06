@@ -86,8 +86,9 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			Stetic.Project gproject = GuiBuilderService.SteticApp.CreateProject (info);
 			//Stetic.Project does not implement IDisposable
 			try {
-				gproject.ConvertProject (info.SteticFile);
-				info.ConvertGtkFolder (makeBackup);
+				string newGuiFolderName = project.BaseDirectory.Combine (guiFolderName);
+				gproject.ConvertProject (info.SteticFile, newGuiFolderName);
+				info.ConvertGtkFolder (guiFolderName, makeBackup);
 				info.UpdateGtkFolder ();
 			} finally {
 				gproject.Dispose ();
@@ -226,10 +227,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			if (GtkDesignInfo.FromProject (project).UpdateGtkFolder () && saveMdProject)
 				IdeApp.ProjectOperations.Save (project);
 		}
-		
-//		public string File {
-//			get { return fileName; }
-//		}
 		
 		public Stetic.Project SteticProject {
 			get {

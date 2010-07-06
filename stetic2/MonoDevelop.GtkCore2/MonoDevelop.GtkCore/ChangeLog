@@ -1,3 +1,7 @@
+2010-07-06  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* GtkDesignInfo.cs: Remove gtk-gui folder after project conversion
+
 2010-06-23  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* GtkDesignInfo.cs: 

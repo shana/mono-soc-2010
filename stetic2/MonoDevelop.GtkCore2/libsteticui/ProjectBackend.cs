@@ -264,12 +264,6 @@ namespace Stetic {
 			set { iconFactory = value; }
 		}
 		
-//		[Obsolete]
-//		internal void SetFileName (string fileName)
-//		{
-//			
-//		}
-		
 		internal void SetFrontend (Project project)
 		{
 			frontend = project;
@@ -418,15 +412,9 @@ namespace Stetic {
 				resolver = new AssemblyResolver (app);
 				app.LoadLibraries (resolver, widgetLibraries);
 				
-//				ObjectReader reader = new ObjectReader (this, FileFormat.Native);
-				
 				if (ownedGlobalActionGroups) {
-					foreach (XmlElement groupElem in node.SelectNodes ("action-group")) {
-//						Wrapper.ActionGroup actionGroup = new Wrapper.ActionGroup ();
-//						actionGroup.Read (reader, groupElem);
-//						actionGroups.Add (actionGroup);
+					foreach (XmlElement groupElem in node.SelectNodes ("action-group")) 
 						AddActionGroup (groupElem);
-					}
 				}
 				
 				XmlElement iconsElem = node.SelectSingleNode ("icon-factory") as XmlElement;
@@ -457,10 +445,10 @@ namespace Stetic {
 			return data.Widget;
 		}
 		
-		public void ConvertProject (string fileName)
+		public void ConvertProject (string oldSteticFileName, string newGuiFolderName)
 		{
-			LoadOldVersion (fileName);
-			Save (fileName);
+			LoadOldVersion (oldSteticFileName);
+			Save (newGuiFolderName);
 		}
 		
 		public void Save (string folderName)
@@ -691,22 +679,6 @@ namespace Stetic {
 			
 			if (frontend != null)
 				frontend.NotifyWidgetRemoved (data.Name);
-		
-//			XmlElement elem;
-//			if (data.Widget != null)
-//				elem = Stetic.WidgetUtils.ExportWidget (data.Widget);
-//			else
-//				elem = (XmlElement) data.XmlData.Clone ();
-//			XmlDocument doc = new XmlDocument ();
-//			XmlNode node = doc.ImportNode (elem, true);
-//			doc.AppendChild (node);
-//			string dir = Path.Combine (Path.Combine (Environment.GetFolderPath (Environment.SpecialFolder.ApplicationData), "stetic"), "deleted-designs");
-//			if (!Directory.Exists (dir))
-//				Directory.CreateDirectory (dir);
-//			doc.Save (Path.Combine (dir, name + ".xml"));
-//			topLevels.Remove (data);
-//			if (data.Widget != null)
-//				data.Widget.Destroy ();
 		}
 		
 		public Stetic.Wrapper.ActionGroup AddNewActionGroup (string name)

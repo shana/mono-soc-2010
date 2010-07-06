@@ -1,3 +1,7 @@
+2010-07-06  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* ProjectFileExtension.cs: Move cursor in entryFolder to the end.
+
 2010-07-05  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* ProjectFileExtension.cs: Better approach for obtaining GtkComponentType

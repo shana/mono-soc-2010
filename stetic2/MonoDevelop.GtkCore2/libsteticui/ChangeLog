@@ -1,3 +1,9 @@
+2010-07-06  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Project.cs: Add parameter to Convert method for passing
+				  a new gtk gui folder name.  
+	* ProjectBackend.cs: 
+
 2010-07-05  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Glade.cs:

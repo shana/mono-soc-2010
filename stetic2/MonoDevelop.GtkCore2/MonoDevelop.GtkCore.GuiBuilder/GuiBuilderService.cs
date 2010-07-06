@@ -384,8 +384,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 
 			// Check if generated code is already up to date.
-			if (!ref_changed && last_gen_time >= File.GetLastWriteTime (info.SteticFile))
-				return null;
+//			if (!ref_changed && last_gen_time >= File.GetLastWriteTime (info.SteticFile))
+//				return null;
 			
 			if (info.GuiBuilderProject.HasError) {
 				monitor.ReportError (GettextCatalog.GetString ("GUI code generation failed for project '{0}'. The file '{1}' could not be loaded.", project.Name, info.SteticFile), null);
