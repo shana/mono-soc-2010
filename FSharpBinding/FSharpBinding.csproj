@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" InitialTargets="GenerateAntlrCode" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -98,6 +98,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MonoDevelop.FSharp.Highlighting\FSharpSyntaxMode.cs" />
+    <Compile Include="MonoDevelop.FSharp.Parser\FSharpParserClass.cs" />
+		<Compile Include="MonoDevelop.FSharp.Parser\FSharpLexer.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>MonoDevelop.FSharp.Parser\FSharp.g</DependentUpon>
+		</Compile>
+		<Compile Include="MonoDevelop.FSharp.Parser\FSharpParser.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>MonoDevelop.FSharp.Parser\FSharp.g</DependentUpon>
+		</Compile>
     <Compile Include="MonoDevelop.FSharp\FSharpLanguageBinding.cs" />
     <Compile Include="MonoDevelop.FSharp\FSharpBindingCompilerManager.cs" />
     <Compile Include="MonoDevelop.FSharp.Project\FSharpCompilerParameters.cs" />
@@ -109,6 +120,17 @@
     <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CodeGenerationPanelWidget.cs" />
     <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CompilerOptionsPanelWidget.cs" />
   </ItemGroup>
+	<ItemGroup>
+		<Antlr3 Include="MonoDevelop.FSharp.Parser\FSharp.g">
+			<OutputFiles>MonoDevelop.FSharp.Parser\FSharpLexer.cs;MonoDevelop.FSharp.Parser\FSharpParser.cs</OutputFiles>
+		</Antlr3>
+	</ItemGroup>
+	<Target Name="GenerateAntlrCode" Inputs="@(Antlr3)" Outputs="%(Antlr3.OutputFiles)">
+		<Exec Command="java org.antlr.Tool -message-format vs2005 @(Antlr3)" Outputs="%(Antlr3.OutputFiles)"/>
+	</Target>
+	<PropertyGroup>
+		<BuildDependsOn>GenerateAntlrCode;$(BuildDependsOn)</BuildDependsOn>
+	</PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoDevelop\main\src\core\Mono.Texteditor\Mono.TextEditor.csproj">
       <Project>{A2329308-3751-4DBD-9A75-5F7B8B024625}</Project>
@@ -196,6 +218,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
