@@ -1,0 +1,500 @@
+Index: mono/mono/mini/mini-amd64.c
+===================================================================
+--- mono.orig/mono/mini/mini-amd64.c	2010-07-07 16:28:01.000000000 +0530
++++ mono/mono/mini/mini-amd64.c	2010-07-09 04:55:54.000000000 +0530
+@@ -2647,6 +2647,8 @@
+ 			no_patch = TRUE;
+ 		}
+ 
++		STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_METHOD_CALL, 0);
++
+ 		if (near_call) {
+ 			/* 
+ 			 * Align the call displacement to an address divisible by 4 so it does
+@@ -3990,6 +3992,7 @@
+ 		case OP_LBGT_UN:
+ 		case OP_LBGE_UN:
+ 		case OP_LBLE_UN:
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, cc_table [mono_opcode_to_cond (ins->opcode)], cc_signed_table [mono_opcode_to_cond (ins->opcode)]);
+ 			break;
+ 
+@@ -4098,6 +4101,9 @@
+ 				amd64_mov_reg_membase (code, AMD64_R11, AMD64_RIP, 0, 8);
+ 			else
+ 				amd64_set_reg_template (code, AMD64_R11);
++
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_BACKWARD_BRANCH, ins->opcode);
++
+ 			amd64_jump_reg (code, AMD64_R11);
+ 			break;
+ 		}
+@@ -4190,6 +4196,8 @@
+ 					amd64_mov_reg_imm (code, AMD64_RAX, nregs);
+ 			}
+ 
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_METHOD_CALL, ins->opcode);
++
+ 			amd64_call_reg (code, ins->sreg1);
+ 			if (call->stack_usage && !CALLCONV_IS_STDCALL (call->signature->call_convention) && !cfg->arch.no_pushes)
+ 				amd64_alu_reg_imm (code, X86_ADD, AMD64_RSP, call->stack_usage);
+@@ -4203,6 +4211,8 @@
+ 		case OP_CALL_MEMBASE:
+ 			call = (MonoCallInst*)ins;
+ 
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_METHOD_CALL, ins->opcode);
++
+ 			amd64_call_membase (code, ins->sreg1, ins->inst_offset);
+ 			if (call->stack_usage && !CALLCONV_IS_STDCALL (call->signature->call_convention) && !cfg->arch.no_pushes)
+ 				amd64_alu_reg_imm (code, X86_ADD, AMD64_RSP, call->stack_usage);
+@@ -4226,6 +4236,8 @@
+ 			for (i = 0; i < PARAM_REGS; ++i)
+ 				amd64_mov_reg_membase (code, param_regs [i], AMD64_R11, i * sizeof (gpointer), 8);
+ 			
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_METHOD_CALL, ins->opcode);
++
+ 			/* Make the call */
+ 			amd64_call_reg (code, AMD64_R10);
+ 
+@@ -4336,6 +4348,7 @@
+ 			/* Align stack */
+ 			amd64_alu_reg_imm (code, X86_SUB, AMD64_RSP, 8);
+ 			mono_add_patch_info (cfg, code - cfg->native_code, MONO_PATCH_INFO_BB, ins->inst_target_bb);
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_METHOD_CALL, ins->opcode);
+ 			amd64_call_imm (code, 0);
+ 			mono_cfg_add_try_hole (cfg, ins->inst_eh_block, code, bb);
+ 			/* Restore stack alignment */
+@@ -4355,6 +4368,7 @@
+ 		case OP_ENDFINALLY: {
+ 			MonoInst *spvar = mono_find_spvar_for_region (cfg, bb->region);
+ 			amd64_mov_reg_membase (code, AMD64_RSP, spvar->inst_basereg, spvar->inst_offset, 8);
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_RETURN, 0);
+ 			amd64_ret (code);
+ 			break;
+ 		}
+@@ -4362,6 +4376,7 @@
+ 			MonoInst *spvar = mono_find_spvar_for_region (cfg, bb->region);
+ 			amd64_mov_reg_membase (code, AMD64_RSP, spvar->inst_basereg, spvar->inst_offset, 8);
+ 			/* The local allocator will put the result into RAX */
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_RETURN, 0);
+ 			amd64_ret (code);
+ 			break;
+ 		}
+@@ -4374,6 +4389,7 @@
+ 			//if ((ins->inst_target_bb == bb->next_bb) && ins == bb->last_ins)
+ 			//break;
+ 				if (ins->inst_target_bb->native_offset) {
++					STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 					amd64_jump_code (code, cfg->native_code + ins->inst_target_bb->native_offset); 
+ 				} else {
+ 					mono_add_patch_info (cfg, offset, MONO_PATCH_INFO_BB, ins->inst_target_bb);
+@@ -4385,6 +4401,7 @@
+ 			}
+ 			break;
+ 		case OP_BR_REG:
++			STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_BACKWARD_BRANCH, ins->opcode);
+ 			amd64_jump_reg (code, ins->sreg1);
+ 			break;
+ 		case OP_CEQ:
+@@ -4760,6 +4777,7 @@
+ 		case OP_FBEQ: {
+ 			guchar *jump = code;
+ 			x86_branch8 (code, X86_CC_P, 0, TRUE);
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_EQ, FALSE);
+ 			amd64_patch (jump, code);
+ 			break;
+@@ -4767,17 +4785,30 @@
+ 		case OP_FBNE_UN:
+ 			/* Branch if C013 != 100 */
+ 			/* branch if !ZF or (PF|CF) */
++
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_NE, FALSE);
++
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_P, FALSE);
++
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_B, FALSE);
++
+ 			break;
+ 		case OP_FBLT:
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_GT, FALSE);
+ 			break;
+ 		case OP_FBLT_UN:
++
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_P, FALSE);
++
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_GT, FALSE);
+ 			break;
++
+ 		case OP_FBGT:
+ 		case OP_FBGT_UN:
+ 			if (ins->opcode == OP_FBGT) {
+@@ -4785,12 +4816,15 @@
+ 
+ 				/* skip branch if C1=1 */
+ 				br1 = code;
++				STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 				x86_branch8 (code, X86_CC_P, 0, FALSE);
+ 				/* branch if (C0 | C3) = 1 */
++				STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 				EMIT_COND_BRANCH (ins, X86_CC_LT, FALSE);
+ 				amd64_patch (br1, code);
+ 				break;
+ 			} else {
++				STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 				EMIT_COND_BRANCH (ins, X86_CC_LT, FALSE);
+ 			}
+ 			break;
+@@ -4800,14 +4834,17 @@
+ 
+ 			/* skip branch if C1=1 */
+ 			br1 = code;
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			x86_branch8 (code, X86_CC_P, 0, FALSE);
+ 			/* branch if (C0 | C3) = 1 */
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_BE, FALSE);
+ 			amd64_patch (br1, code);
+ 			break;
+ 		}
+ 		case OP_FBGE_UN:
+ 			/* Branch if C013 == 000 */
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_LE, FALSE);
+ 			break;
+ 		case OP_FBLE: {
+@@ -4816,15 +4853,20 @@
+ 
+ 			/* skip branch if C1=1 */
+ 			br1 = code;
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			x86_branch8 (code, X86_CC_P, 0, FALSE);
+ 			/* branch if C0=0 */
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_NB, FALSE);
+ 			amd64_patch (br1, code);
+ 			break;
+ 		}
+ 		case OP_FBLE_UN:
+ 			/* Branch if C013 != 001 */
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_P, FALSE);
++
++			STORE_SAFE_POINT_INFO_FULL (cfg, code, ins);
+ 			EMIT_COND_BRANCH (ins, X86_CC_GE, FALSE);
+ 			break;
+ 		case OP_CKFINITE:
+@@ -6448,6 +6490,8 @@
+ 		amd64_leave (code);
+ 	}
+ 	async_exc_point (code);
++
++	STORE_SAFE_POINT_INFO (cfg, code, SAFE_POINT_TYPE_RETURN, 0);
+ 	amd64_ret (code);
+ 
+ 	cfg->code_len = code - cfg->native_code;
+@@ -7632,3 +7676,4 @@
+ }
+ 
+ #endif
++
+Index: mono/mono/mini/mini.c
+===================================================================
+--- mono.orig/mono/mini/mini.c	2010-07-07 16:28:01.000000000 +0530
++++ mono/mono/mini/mini.c	2010-07-09 04:56:05.000000000 +0530
+@@ -3281,6 +3281,11 @@
+ 
+ 	mono_debug_open_method (cfg);
+ 
++#ifdef MONO_GC_SAFE_POINTS
++	cfg->safe_points_tail = cfg->safe_points_head = NULL;
++	cfg->safe_points_num = 0;
++#endif
++
+ 	/* emit code all basic blocks */
+ 	for (bb = cfg->bb_entry; bb; bb = bb->next_bb) {
+ 		bb->native_offset = cfg->code_len;
+@@ -3302,6 +3307,11 @@
+ 		}
+ 	}
+ 
++#ifdef MONO_GC_SAFE_POINTS
++	if (cfg->safe_points_tail)
++		cfg->safe_points_tail->next = NULL;
++#endif
++
+ 	mono_arch_emit_exceptions (cfg);
+ 
+ 	max_epilog_size = 0;
+@@ -3403,6 +3413,52 @@
+ 	}
+ }
+ 
++#ifdef MONO_GC_SAFE_POINTS
++
++static const char *
++safe_point_reason_to_string (MonoSafePointReason reason)
++{
++	switch (reason) {
++	case SAFE_POINT_TYPE_BACKWARD_BRANCH:
++		return "backward_branch";
++	case SAFE_POINT_TYPE_METHOD_CALL:
++		return "method_call";
++	case SAFE_POINT_TYPE_RETURN:
++		return "return";
++	default:
++		g_assert_not_reached ();
++	}
++}
++
++static void
++prepare_safe_point_jit_info (MonoJitInfo *jinfo, MonoCompile *cfg)
++{
++	MonoGCInfo *safe_point_set;
++	MonoSafePointCfgInfo *iter;
++	MonoSafePointJitInfo *safe_points;
++	int i;
++
++	if (cfg->method->dynamic)
++		safe_point_set = g_malloc0 (sizeof (MonoGCInfo) + sizeof (MonoSafePointCfgInfo) * cfg->safe_points_num);
++	else
++		safe_point_set = mono_domain_alloc0 (cfg->domain, sizeof (MonoGCInfo) + sizeof (MonoSafePointCfgInfo) * cfg->safe_points_num);
++
++	safe_points = safe_point_set->safe_points;
++
++	for (i = 0, iter = cfg->safe_points_head; iter; iter = iter->next, i++) {
++		if (i >= cfg->safe_points_num)
++			break;
++		safe_points [i].native_offset = iter->native_offset;
++		safe_points [i].op = iter->op;
++		safe_points [i].reason = iter->reason;
++	}
++	safe_point_set->safe_points_len = cfg->safe_points_num;
++
++	jinfo->gc_info = safe_point_set;
++}
++
++#endif
++
+ static MonoJitInfo*
+ create_jit_info (MonoCompile *cfg, MonoMethod *method_to_compile)
+ {
+@@ -3640,6 +3696,10 @@
+ 	}
+ #endif
+ 
++#ifdef MONO_GC_SAFE_POINTS
++	prepare_safe_point_jit_info (jinfo, cfg);
++#endif
++
+ 	return jinfo;
+ }
+ #endif
+@@ -5003,8 +5063,12 @@
+ 	 */
+ 	mono_jit_info_table_remove (domain, ji->ji);
+ 
+-	if (destroy)
++	if (destroy) {
+ 		mono_code_manager_destroy (ji->code_mp);
++#ifdef MONO_GC_SAFE_POINTS
++		g_free (ji->ji->gc_info);
++#endif
++	}
+ 	g_free (ji);
+ }
+ 
+@@ -6284,6 +6348,68 @@
+ 	g_hash_table_destroy (assemblies);
+ }
+ 
++#ifdef MONO_GC_SAFE_POINTS
++
++gchar *
++mono_jit_safe_point_descr (MonoSafePointJitInfo *info)
++{
++	if (info->op == -1) {
++		/*
++		 * This is so that STORE_SAFE_POINT_INFO (cfg, code, FOO, -1) can be used to mark one particular kind of safe point
++		 * and used for debugging.
++		 */
++		return g_strdup_printf ("(jit safe pt. %s 0x%x DEBUG)", safe_point_reason_to_string (info->reason), info->native_offset);
++	} else if (info->op) {
++		g_assert (info->op >= MONO_CEE_LAST);
++		return g_strdup_printf ("(jit safe pt. %s 0x%x %s)", safe_point_reason_to_string (info->reason), info->native_offset, mono_inst_name (info->op));
++	} else {
++		return g_strdup_printf ("(jit safe pt. %s 0x%x nil)", safe_point_reason_to_string (info->reason), info->native_offset);
++	}
++}
++
++gboolean
++mono_is_safe_point (const MonoInst *inst, const MonoCompile *cfg, const guint8 *code, MonoSafePointReason *reason)
++{
++	guint16 op = inst->opcode;
++	long code_offset = code - cfg->native_code;
++
++	g_assert (reason);
++
++	if ((op >= OP_VOIDCALL && op <= OP_DYN_CALL) || op == OP_JMP || op == OP_TAILCALL) {
++		*reason = SAFE_POINT_TYPE_METHOD_CALL;
++		return TRUE;
++	}
++
++	if (op == OP_BR && inst->inst_target_bb->native_offset && inst->inst_target_bb->native_offset && code_offset > inst->inst_target_bb->native_offset) {
++		*reason = SAFE_POINT_TYPE_BACKWARD_BRANCH;
++		return TRUE;
++	}
++
++	if ((op >= OP_IBEQ && op <= OP_IBLT_UN) && inst->inst_true_bb->native_offset && code_offset > inst->inst_true_bb->native_offset) {
++		*reason = SAFE_POINT_TYPE_BACKWARD_BRANCH;
++		return TRUE;
++	}
++
++	if ((op >= OP_LBEQ && op <= OP_LBLT_UN) && inst->inst_true_bb->native_offset && code_offset > inst->inst_true_bb->native_offset) {
++		*reason = SAFE_POINT_TYPE_BACKWARD_BRANCH;
++		return TRUE;
++	}
++
++	if ((op >= OP_FBEQ && op <= OP_FBLT_UN) && inst->inst_true_bb->native_offset && code_offset > inst->inst_true_bb->native_offset) {
++		*reason = SAFE_POINT_TYPE_BACKWARD_BRANCH;
++		return TRUE;
++	}
++
++	if (op == OP_BR_REG) { /* Can't take chances. */
++		*reason = SAFE_POINT_TYPE_BACKWARD_BRANCH;
++		return TRUE;
++	}
++
++	return FALSE;
++}
++
++#endif // MONO_GC_SAFE_POINTS
++
+ #ifndef DISABLE_JIT
+ 
+ void*
+Index: mono/mono/mini/mini.h
+===================================================================
+--- mono.orig/mono/mini/mini.h	2010-07-07 16:28:01.000000000 +0530
++++ mono/mono/mini/mini.h	2010-07-09 04:55:54.000000000 +0530
+@@ -17,6 +17,11 @@
+ #include <mono/metadata/profiler-private.h>
+ #include <mono/metadata/debug-helpers.h>
+ #include <mono/utils/mono-compiler.h>
++#include <mono/metadata/gc-internal.h>
++
++#ifdef HAVE_SGEN_GC
++#include <mono/metadata/sgen-gc.h>
++#endif
+ 
+ #define MONO_BREAKPOINT_ARRAY_SIZE 64
+ 
+@@ -440,6 +445,52 @@
+ 	int offset;
+ };
+ 
++typedef enum {
++	SAFE_POINT_TYPE_BACKWARD_BRANCH,
++	SAFE_POINT_TYPE_METHOD_CALL,
++	SAFE_POINT_TYPE_RETURN,
++	SAFE_POINT_TYPE_MAX
++} MonoSafePointReason;
++
++/*
++ * Holds the GC map for a stack frame at a particular safe point.
++ * This is created from the corresponding MonoSafePointCfgInfo structures in
++ * create_jit_info.
++ */
++typedef struct {
++	guint native_offset;
++	MonoSafePointReason reason;
++
++	/*
++	 * Currently op only serves a decorative purpose, but later it will be
++	 * used to figure out things like whether a method call was a tail call
++	 * (and hence a stack frame has been discarded) and so on. This may also
++	 * be merged with reason later, since they are not really independent fields.
++	 */
++	int op;
++} MonoSafePointJitInfo;
++
++/*
++ * Represents a safe point inside the control flow graph (MonoCompile).
++ */
++typedef struct MonoSafePointCfgInfo {
++	guint native_offset;
++	int id, op;
++	MonoSafePointReason reason;
++	struct MonoSafePointCfgInfo *next;
++} MonoSafePointCfgInfo;
++
++/*
++ * A list of all the MonoSafePointJitInfo structures for a particular method
++ * along with some other useful information.
++ */
++typedef struct {
++	guint32 safe_points_len;
++	MonoSafePointJitInfo safe_points [MONO_ZERO_LEN_ARRAY];
++} MonoGCInfo;
++
++gchar *mono_jit_safe_point_descr (MonoSafePointJitInfo *) MONO_INTERNAL;
++
+ /*
+  * The IR-level extended basic block.  
+  *
+@@ -1197,6 +1248,11 @@
+ 	int llvm_this_reg, llvm_this_offset;
+ 
+ 	GSList *try_block_holes;
++
++#ifdef MONO_GC_SAFE_POINTS
++	MonoSafePointCfgInfo *safe_points_head, *safe_points_tail;
++	guint32 safe_points_num;
++#endif
+ } MonoCompile;
+ 
+ typedef enum {
+@@ -2194,4 +2250,37 @@
+ 	MONO_AOT_WRAPPER_LAST
+ };
+ 
++#ifdef MONO_GC_SAFE_POINTS
++
++gboolean mono_is_safe_point (const MonoInst *inst, const MonoCompile *cfg, const guint8 *code, MonoSafePointReason *reason) MONO_INTERNAL;
++
++#define STORE_SAFE_POINT_INFO(cfg,code,reas,opcode) do {\
++	if ((cfg)->compile_aot) \
++		NOT_IMPLEMENTED; \
++	if (((cfg)->safe_points_head) == NULL) { \
++		((cfg)->safe_points_head) = ((cfg)->safe_points_tail) = mono_mempool_alloc ((cfg)->mempool, sizeof (MonoSafePointCfgInfo)); \
++	} else { \
++		((cfg)->safe_points_tail)->next = mono_mempool_alloc ((cfg)->mempool, sizeof (MonoSafePointCfgInfo)); \
++		((cfg)->safe_points_tail) = ((cfg)->safe_points_tail)->next; \
++	} \
++	((cfg)->safe_points_tail)->native_offset = code - cfg->native_code; \
++	((cfg)->safe_points_tail)->reason = reas; \
++	((cfg)->safe_points_tail)->op = opcode; \
++	((cfg)->safe_points_num)++; \
++} while (0)
++
++#define STORE_SAFE_POINT_INFO_FULL(cfg, code, inst) \
++do { \
++	MonoSafePointReason r; \
++	if (mono_is_safe_point (inst, cfg, code, &r)) \
++		STORE_SAFE_POINT_INFO(cfg,code,r,inst->opcode); \
++} while (0)
++
++#else
++
++#define STORE_SAFE_POINT_INFO(cfg,offet,reas,oper)
++#define STORE_SAFE_POINT_INFO_FULL(cfg, code, inst)
++
++#endif
++
+ #endif /* __MONO_MINI_H__ */

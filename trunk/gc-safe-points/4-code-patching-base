@@ -1,0 +1,160 @@
+Builds up to the final patch by adding the functions that will be used later.
+
+Index: mono/mono/arch/x86/x86-codegen.h
+===================================================================
+--- mono.orig/mono/arch/x86/x86-codegen.h	2010-07-09 02:18:57.000000000 +0530
++++ mono/mono/arch/x86/x86-codegen.h	2010-07-09 04:31:32.000000000 +0530
+@@ -2003,6 +2003,12 @@
+ 		x86_reg_emit ((inst), (dreg), (sreg));	\
+ 	} while (0)
+ 
++#define x86_int_trap(inst) \
++	do { \
++		*(inst)++ = (unsigned char) 0xCC; \
++	} while (0)
++
++#define INT_TRAP_INSTRUCTION_BYTE (0xCC)
+ 
+ #define x86_movd_reg_xreg(inst,dreg,sreg)	\
+ 	do {	\
+Index: mono/mono/mini/exceptions-amd64.c
+===================================================================
+--- mono.orig/mono/mini/exceptions-amd64.c	2010-07-09 02:18:57.000000000 +0530
++++ mono/mono/mini/exceptions-amd64.c	2010-07-09 02:19:13.000000000 +0530
+@@ -285,6 +285,19 @@
+ 	return start;
+ }
+ 
++#ifdef MONO_GC_SAFE_POINTS
++
++static ExceptionCallbackFunc gc_exception_callback = NULL;
++
++void
++mono_arch_install_exception_callback (ExceptionCallbackFunc cb)
++{
++	DEBUG_SAFE_POINTS ("%s exception sgen hook.\n", cb == NULL?"Removing":"Adding");
++	gc_exception_callback = cb;
++}
++
++#endif
++
+ /* 
+  * The first few arguments are dummy, to force the other arguments to be passed on
+  * the stack, this avoids overwriting the argument registers in the throw trampoline.
+@@ -301,6 +314,45 @@
+ 	if (!restore_context)
+ 		restore_context = mono_get_restore_context ();
+ 
++#ifdef MONO_GC_SAFE_POINTS
++	/*
++	 * Don't throw an exception when in a stop-the-world routine. This prevents the
++	 * following pattern from infinitely halting:
++	 *
++	 * try {
++	 *    // do something to throw a NullReferenceException
++	 * } catch (NullReferenceException nre) {
++	 *    while (true);
++	 * }
++	 */
++	if (gc_exception_callback) {
++		ucontext_t ctx;
++		#define COPY_REG(r) UCONTEXT_GREGS (&ctx) [REG_R ## r] = regs [AMD64_R ## r]
++		COPY_REG (AX);
++		COPY_REG (BX);
++		COPY_REG (CX);
++		COPY_REG (DX);
++		COPY_REG (SI);
++		COPY_REG (DI);
++		COPY_REG (BP);
++		COPY_REG (8);
++		COPY_REG (9);
++		COPY_REG (10);
++		COPY_REG (11);
++		COPY_REG (12);
++		COPY_REG (13);
++		COPY_REG (14);
++		COPY_REG (15);
++		#undef COPY_REG
++		DEBUG_SAFE_POINTS ("Exception thrown, halting thread.");
++		gc_exception_callback (&ctx);
++	}
++	/*
++	 * Execution resumes here to regular exception handling code, once
++	 * the collection is over.
++	 */
++#endif
++
+ 	ctx.rsp = regs [AMD64_RSP];
+ 	ctx.rip = rip;
+ 	ctx.rbx = regs [AMD64_RBX];
+Index: mono/mono/mini/mini-amd64.c
+===================================================================
+--- mono.orig/mono/mini/mini-amd64.c	2010-07-09 02:18:57.000000000 +0530
++++ mono/mono/mini/mini-amd64.c	2010-07-09 02:19:13.000000000 +0530
+@@ -7677,3 +7677,36 @@
+ 
+ #endif
+ 
++#ifdef MONO_GC_SAFE_POINTS
++
++gpointer
++mono_arch_emit_safe_point (gpointer ip)
++{
++	guint8 old = *(guint8 *) ip;
++	guint8 *code = ip;
++
++	if (old != 0xCC) {
++		DEBUG_SAFE_POINTS ("Patching IP %p, old instruction 0x%x in thread %p\n", ip, *code, (gpointer) pthread_self ());
++
++		x86_int_trap (code);
++	}
++
++	return GINT_TO_POINTER (old);
++}
++
++void
++mono_arch_clear_safe_point (gpointer ip, gpointer prev)
++{
++	if (((guint8) GPOINTER_TO_INT (prev)) == INT_TRAP_INSTRUCTION_BYTE)
++		return;
++	DEBUG_SAFE_POINTS ("Clearing IP %p, previous instruction 0x%x new instruction 0x%x in thread %p\n", ip, (guint8) prev, *(guint8 *) ip,  (gpointer) pthread_self ());
++	*(guint8 *) ip = (guint8) GPOINTER_TO_INT (prev);
++}
++
++void
++mono_arch_patch_safe_point_context (gpointer sigctx)
++{
++	UCONTEXT_GREGS (sigctx) [REG_RIP] = UCONTEXT_GREGS (sigctx) [REG_RIP] - 1;
++}
++
++#endif
+Index: mono/mono/mini/mini.h
+===================================================================
+--- mono.orig/mono/mini/mini.h	2010-07-09 02:18:57.000000000 +0530
++++ mono/mono/mini/mini.h	2010-07-09 02:19:13.000000000 +0530
+@@ -20,6 +20,7 @@
+ #include <mono/metadata/gc-internal.h>
+ 
+ #ifdef HAVE_SGEN_GC
++#include <mono/metadata/sgen-archdep.h>
+ #include <mono/metadata/sgen-gc.h>
+ #endif
+ 
+@@ -1840,6 +1841,17 @@
+ guint8*   mono_arch_emit_load_aotconst          (guint8 *start, guint8 *code, MonoJumpInfo **ji, int tramp_type, gconstpointer target) MONO_INTERNAL;
+ GSList*   mono_arch_get_cie_program             (void) MONO_INTERNAL;
+ 
++#ifdef MONO_GC_SAFE_POINTS
++gpointer mono_arch_emit_safe_point (gpointer ip) MONO_INTERNAL;
++void mono_arch_clear_safe_point (gpointer ip, gpointer prev) MONO_INTERNAL;
++void mono_arch_patch_safe_point_context (gpointer sigctx) MONO_INTERNAL;
++
++typedef void (*ExceptionCallbackFunc) (gpointer sigctx);
++
++/* Call with NULL to reset */
++void mono_arch_install_exception_callback (ExceptionCallbackFunc) MONO_INTERNAL;
++#endif
++
+ /* Soft Debug support */
+ #ifdef MONO_ARCH_SOFT_DEBUG_SUPPORTED
+ void      mono_arch_set_breakpoint              (MonoJitInfo *ji, guint8 *ip) MONO_INTERNAL;
