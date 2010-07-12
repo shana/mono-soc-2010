@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" InitialTargets="GenerateAntlrCode" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1B6FE87F-EB90-4A5D-8F64-F56BE3A9D836}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FSharpBinding</RootNamespace>
+    <AssemblyName>FSharpBinding</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <newfilesearch>OnLoad</newfilesearch>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\monodevelop\main\build\AddIns\BackendBindings\</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\monodevelop\main\build\AddIns\BackendBindings\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="Mono.TextEditor">
+      <HintPath>..\MonoDevelop\main\build\bin\Mono.TextEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Core">
+      <HintPath>..\MonoDevelop\main\build\bin\MonoDevelop.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Debugger">
+      <HintPath>..\MonoDevelop\main\build\AddIns\MonoDevelop.Debugger.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Ide">
+      <HintPath>..\MonoDevelop\main\build\bin\MonoDevelop.Ide.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.SourceEditor2">
+      <HintPath>..\MonoDevelop\main\build\AddIns\MonoDevelop.SourceEditor2.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="Mono.Posix" />
+    <Reference Include="gtk-dotnet, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <HintPath>\usr\lib\cli\gtk-sharp-2.0\gtk-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <HintPath>\usr\lib\cli\gdk-sharp-2.0\gdk-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <HintPath>\usr\lib\gtk-sharp-2.0\glib-sharp.dll</HintPath>
+      <HintPath>$(GTK_BASEPATH)\lib\gtk-sharp-2.0\glib-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <HintPath>\usr\lib\cli\pango-sharp-2.0\pango-sharp.dll</HintPath>
+      <HintPath>$(GTK_BASEPATH)\lib\gtk-sharp-2.0\pango-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MonoDevelop.FSharp.Highlighting\FSharpSyntaxMode.cs" />
+    <Compile Include="MonoDevelop.FSharp.Parser\FSharpParserClass.cs" />
+		<Compile Include="MonoDevelop.FSharp.Parser\FSharpLexer.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>MonoDevelop.FSharp.Parser\FSharp.g</DependentUpon>
+		</Compile>
+		<Compile Include="MonoDevelop.FSharp.Parser\FSharpParser.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>MonoDevelop.FSharp.Parser\FSharp.g</DependentUpon>
+		</Compile>
+    <Compile Include="MonoDevelop.FSharp\FSharpLanguageBinding.cs" />
+    <Compile Include="MonoDevelop.FSharp\FSharpBindingCompilerManager.cs" />
+    <Compile Include="MonoDevelop.FSharp.Project\FSharpCompilerParameters.cs" />
+    <Compile Include="MonoDevelop.FSharp.Project\FSharpProjectParameters.cs" />
+    <Compile Include="MonoDevelop.FSharp.Project\FSharpResourceIdBuilder.cs" />
+    <Compile Include="MonoDevelop.FSharp.Project\CompilerOptionsPanelWidget.cs" />
+    <Compile Include="MonoDevelop.FSharp.Project\CodeGenerationPanel.cs" />
+    <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CodeGenerationPanelWidget.cs" />
+    <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CompilerOptionsPanelWidget.cs" />
+  </ItemGroup>
+	<ItemGroup>
+		<Antlr3 Include="MonoDevelop.FSharp.Parser\FSharp.g">
+			<OutputFiles>MonoDevelop.FSharp.Parser\FSharpLexer.cs;MonoDevelop.FSharp.Parser\FSharpParser.cs</OutputFiles>
+		</Antlr3>
+	</ItemGroup>
+	<Target Name="GenerateAntlrCode" Inputs="@(Antlr3)" Outputs="%(Antlr3.OutputFiles)">
+		<Exec Command="java org.antlr.Tool -message-format vs2005 @(Antlr3)" Outputs="%(Antlr3.OutputFiles)"/>
+	</Target>
+	<PropertyGroup>
+		<BuildDependsOn>GenerateAntlrCode;$(BuildDependsOn)</BuildDependsOn>
+	</PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoDevelop\main\src\core\Mono.Texteditor\Mono.TextEditor.csproj">
+      <Project>{A2329308-3751-4DBD-9A75-5F7B8B024625}</Project>
+      <Name>Mono.TextEditor</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MonoDevelop.FSharp.Highlighting\FSharpSyntaxMode.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <EmbeddedResource Include="icons\F#.FileIcon">
+      <LogicalName>F#.FileIcon</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\F#.ProjectIcon">
+      <LogicalName>F#.ProjectIcon</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\F#S.FileIcon">
+      <LogicalName>F#S.FileIcon</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\fsharp-file-16.png">
+      <LogicalName>fsharp-file-16.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\fsharp-project-16.png">
+      <LogicalName>fsharp-project-16.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\fsharp-project-32.png">
+      <LogicalName>fsharp-project-32.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\fsharp-project-console-32.png">
+      <LogicalName>fsharp-project-console-32.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\fsharp-project-library-32.png">
+      <LogicalName>fsharp-project-library-32.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\fsharp-signature-16.png">
+      <LogicalName>fsharp-signature-16.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="gtk-gui\objects.xml">
+      <LogicalName>objects.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templates\FSharpEmptyFile.xft.xml">
+      <LogicalName>FSharpEmptyFile.xft.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templates\FSharpEmptyProject.xpt.xml">
+      <LogicalName>FSharpEmptyProject.xpt.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templates\FSharpConsoleProject.xpt.xml">
+      <LogicalName>FSharpConsoleProject.xpt.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templates\FSharpLibraryProject.xpt.xml">
+      <LogicalName>FSharpLibraryProject.xpt.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templates\GtkSharp2Project.xpt.xml">
+      <LogicalName>GtkSharp2Project.xpt.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templates\GladeSharp2Project.xpt.xml">
+      <LogicalName>GladeSharp2Project.xpt.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FSharpBinding.addin.xml">
+      <LogicalName>FSharpBinding.addin.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="md1format.xml">
+      <LogicalName>md1format.xml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
