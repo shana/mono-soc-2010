@@ -1,0 +1,496 @@
+// 
+// ClassDesigner.cs
+//  
+// Author:
+//       Evan Briones <erbriones@gmail.com>
+// 
+// Copyright (c) 2010 Evan Briones
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+using Gdk;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+using MonoDevelop.DesignerSupport.Toolbox;
+using MonoDevelop.Diagram;
+using MonoDevelop.Diagram.Components;
+using MonoDevelop.ClassDesigner.Gui.Dialogs;
+using MonoDevelop.ClassDesigner.Gui.Toolbox;
+using MonoDevelop.ClassDesigner.Figures;
+using MonoDevelop.Components.Commands;
+using MonoDevelop.Core;
+using MonoDevelop.Projects;
+using MonoDevelop.Projects.Dom;
+using MonoDevelop.Projects.Dom.Parser;
+using MonoDevelop.Ide;
+using MonoDevelop.Ide.Commands;
+using MonoDevelop.Ide.Gui;
+
+using MonoHotDraw;
+using MonoHotDraw.Tools;
+using MonoHotDraw.Connectors;
+using MonoHotDraw.Figures;
+
+
+namespace MonoDevelop.ClassDesigner
+{
+	public sealed class ClassDesigner : AbstractDesigner
+	{
+		static readonly string path = "/MonoDevelop/ClassDesigner/FigureCommandHandlers";
+		static FigureCommandHandlerCollection handlers = new FigureCommandHandlerCollection (path);
+	
+		ClassDiagram diagram;
+		ToolboxList toolboxItems;
+		
+		public ClassDesigner (Project project) : this ()
+		{
+			this.UntitledName = "ClassDiagram.cd";
+			this.Project = project;
+		}
+		
+		public ClassDesigner (string fileName) : this ()
+		{
+			if (String.IsNullOrEmpty (fileName)) 
+				throw new ArgumentNullException ();
+			
+			this.ContentName = fileName;
+			this.Project = IdeApp.Workspace.GetProjectContainingFile (fileName);
+		}	
+		
+		protected ClassDesigner () : base (100)
+		{
+			this.Diagram = new ClassDiagram ();
+			this.UntitledName = "ClassDiagram.cd";
+			this.IsViewOnly = false;
+			//this.View.VisibleAreaChanged
+			SetupTools ();
+		}
+		
+		#region Public API
+		public ClassDiagram Diagram {
+			get { return diagram; }
+			set {
+				if (value == null)
+					return;
+				
+				diagram = value;
+			}
+		}
+		
+		public void AddInheritanceLines ()
+		{
+			ClassFigure subclass;
+			ClassFigure superclass;
+			
+			foreach (IType type in Dom.Types) {				
+				if (type.ClassType == ClassType.Class) {		
+					subclass = Diagram.GetFigure (type.Name) as ClassFigure;
+					
+					if (subclass.HideInheritance)
+						continue;
+					
+					if (type.BaseType == null)
+						superclass = null;
+					else
+						superclass = Diagram.GetFigure (type.BaseType.Name) as ClassFigure;
+					
+					if (subclass != null && superclass != null) {
+						var connection = new InheritanceConnectionFigure (subclass, superclass);
+						View.Add (connection);
+					}
+				}
+			}	
+		}
+		
+		public void AddFromDirectory (string directory)
+		{
+			AddRange (Project.Files.Where(pf => pf.FilePath.IsChildPathOf (directory)).Select (file => file.Name));
+		}
+		
+		public override void AddFromFile (string fileName)
+		{
+			ParsedDocument doc = ProjectDomService.ParseFile (Dom, fileName);			
+			var file = Project.Files.GetFile (fileName);
+			
+			if (file.FilePath.Extension == ".cd") {
+				Load (fileName);
+				return;
+			}
+		
+			if (doc == null)
+				return;
+			
+			var compilationUnit = doc.CompilationUnit;
+			
+			if (compilationUnit == null)
+				return;
+			
+			var figures = compilationUnit.Types.Select (t => Diagram.CreateFigure (t)).Where (t => t != null);
+			View.AddRange (figures);
+			
+			AutoLayout ();	
+		}
+		
+		public void AddFromNamespace (string ns)
+		{	
+			IList<IMember> members = Dom.GetNamespaceContents (ns, false, true);
+			
+			if (members == null) {
+				Console.WriteLine ("In namespace: {0} members were not found.", ns);
+				return;
+			}
+			
+			foreach (IMember item in members) {	
+				if (item.MemberType == MemberType.Namespace) {
+					AddFromNamespace (item.FullName);
+					continue;
+				} else if (item.MemberType != MemberType.Type)
+					continue; 
+				
+				AddFromType (Dom.GetType (item.FullName));
+			}
+			
+			AutoLayout ();	
+		}
+		
+		public override void AddFromProject (Project project)
+		{
+			Project = project;
+			View.AddRange (Dom.Types.Select (t => Diagram.CreateFigure (t)).Where (f => f != null));
+			
+			AutoLayout ();	
+		}
+ 
+		public void AddFromType (IType type)
+		{
+			var figure = Diagram.CreateFigure (type);
+			
+			if (figure == null)
+				return;
+			
+			View.Add (figure);
+		}
+		#endregion
+		
+		#region Commands
+		
+		[CommandHandler (MembersFormat.FullSignature)]
+		protected void FormatByFullSignature ()
+		{
+			Diagram.Format = MembersFormat.FullSignature;	
+		}
+		
+		[CommandHandler (MembersFormat.Name)]
+		protected void FormatByName ()
+		{
+			Diagram.Format = MembersFormat.Name;
+		}
+		
+		[CommandHandler (MembersFormat.NameAndType)]
+		protected void FormatByNameAndType ()
+		{
+	
+			Diagram.Format = MembersFormat.NameAndType;
+		}
+		
+		[CommandHandler (GroupingSetting.Member)]
+		protected void GroupByAccess ()
+		{
+			Diagram.Grouping = GroupingSetting.Member;
+		}
+		
+		[CommandHandler (GroupingSetting.Alphabetical)]
+		protected void GroupByAlphabetical ()
+		{
+			Diagram.Grouping = GroupingSetting.Alphabetical;
+		}
+		
+		[CommandHandler (GroupingSetting.Kind)]
+		protected void GroupByKind ()
+		{
+			Diagram.Grouping = GroupingSetting.Kind;		
+		}
+		
+		[CommandUpdateHandler (MembersFormat.FullSignature)]
+		protected void UpdateFormatByFullSignature (CommandInfo info)
+		{
+			info.Enabled = true;
+			
+			if (Diagram.Format == MembersFormat.FullSignature)
+				info.Enabled = false;	
+			
+			if (View.SelectionCount == 0)
+				info.Visible = true;
+			else
+				info.Visible = false;
+
+		}
+		
+		[CommandUpdateHandler (MembersFormat.Name)]
+		protected void UpdateFormatByName (CommandInfo info)
+		{
+			info.Enabled = true;
+			
+			if (Diagram.Format == MembersFormat.Name)
+				info.Enabled = false;
+			
+			if (View.SelectionCount == 0)
+				info.Visible = true;
+			else
+				info.Visible = false;
+		}
+		
+		[CommandUpdateHandler (MembersFormat.NameAndType)]
+		protected void UpdateFormatByNameAndType (CommandInfo info)
+		{
+			info.Enabled = true;
+			
+			if (Diagram.Format == MembersFormat.NameAndType)
+				info.Enabled = false;
+			
+			if (View.SelectionCount == 0)
+				info.Visible = true;
+			else
+				info.Visible = false;			
+		}
+		
+		[CommandUpdateHandler (GroupingSetting.Member)]
+		protected void UpdateGroupByAccess (CommandInfo info)
+		{
+			info.Enabled = true;
+			
+			if (Diagram.Grouping == GroupingSetting.Member)
+				info.Enabled = false;
+
+			if (View.SelectionCount == 0)
+				info.Visible = true;
+			else
+				info.Visible = false;
+		}
+		
+		[CommandUpdateHandler (GroupingSetting.Alphabetical)]
+		protected void UpdateGroupByAlphabetical (CommandInfo info)
+		{
+			info.Enabled = true;
+			
+			if (Diagram.Grouping == GroupingSetting.Alphabetical)
+				info.Enabled = false;
+			
+			if (View.SelectionCount == 0)
+				info.Visible = true;
+			else
+				info.Visible = false;
+		}
+
+		[CommandUpdateHandler (GroupingSetting.Kind)]
+		protected void UpdateGroupByKind (CommandInfo info)
+		{
+			info.Enabled = true;
+						
+			if (Diagram.Grouping == GroupingSetting.Kind)
+				info.Enabled = false;
+			
+			if (View.SelectionCount == 0)
+				info.Visible = true;
+			else
+				info.Visible = false;
+		}
+
+		[CommandHandler (DesignerCommands.AddClass)]
+		protected void CreateClass ()
+		{
+			var dialog = new AddFigureDialog ("Class", ClassType.Class, PointerToDrawing, this);
+		}
+		
+		[CommandHandler (DesignerCommands.AddComment)]
+		protected void CreateComment ()
+		{
+			var figure = new CommentFigure (String.Empty);
+			figure.MoveTo (PointerToDrawing.X, PointerToDrawing.Y);
+			View.Add (figure);
+		}
+		
+		[CommandHandler (DesignerCommands.AddDelegate)]
+		protected void CreateDelegate ()
+		{
+			var dialog = new AddFigureDialog ("Delegate", ClassType.Class, PointerToDrawing, this);
+		}
+		
+		[CommandHandler (DesignerCommands.AddEnum)]
+		protected void CreateEnum ()
+		{
+			var dialog = new AddFigureDialog ("Enum", ClassType.Delegate, PointerToDrawing, this);			
+		}
+		
+		[CommandHandler (DesignerCommands.AddInterface)]		
+		protected void CreateInterface ()
+		{
+			var dialog = new AddFigureDialog ("Interface", ClassType.Interface, PointerToDrawing, this);
+		}
+		
+		[CommandHandler (DesignerCommands.AddStruct)]
+		protected void CreateStruct ()
+		{
+			var dialog = new AddFigureDialog ("Struct", ClassType.Struct, PointerToDrawing, this);
+		}
+		
+		#endregion
+				
+		#region AbstractViewContent Members
+		public override void Load (string fileName)
+		{
+			Diagram.Load (fileName, this.Dom);
+			View.AddRange (diagram.Figures);
+			IsDirty = false;
+			Control.GrabFocus ();
+		}
+		
+		public override void Save ()
+		{
+			Save (ContentName);
+		}
+		
+		public override void Save (string fileName)
+		{	
+			lock (Diagram)
+				Diagram.Write (fileName);
+			
+			ContentName = fileName;
+			IsDirty = false;
+		}
+
+		public override bool IsFile {
+			get {
+				return true;
+			}
+		}
+		
+		#endregion
+
+		#region AbstractDesigner Members
+		protected override IEnumerable<FigureCommandHandler> CommandHandlers {
+			get { return handlers; }
+		}
+		
+		public override void AddCommands ()
+		{
+		}
+		
+		public override void DisplayMenu (IFigure figure, MouseEvent ev)
+		{
+			IdeApp.CommandService.ShowContextMenu ("/ClassDesigner/ContextMenu/Diagram");
+		} 
+		#endregion
+		
+		#region Toolbox support
+		public override IEnumerable<ItemToolboxNode> GetDynamicItems (IToolboxConsumer consumer)
+		{
+			foreach (ItemToolboxNode item in toolboxItems) {
+				item.Category = GettextCatalog.GetString ("Class Diagram");
+				yield return item;
+			}
+		}
+		
+		public override void ConsumeItem (ItemToolboxNode item)
+		{
+			var figureItem = item as IToolboxFigure;
+			var connectorItem = item as IToolboxConnector;
+			
+			if (connectorItem == null && figureItem == null)
+				return;
+			
+			if (connectorItem != null) {
+				AbstractConnectionFigure connector;
+				
+				if (connectorItem.ConnectorType == ConnectionType.Inheritance)
+					connector = new InheritanceConnectionFigure ();
+				else
+					connector = new AssociationConnectionFigure (connectorItem.ConnectorType);
+				
+				Tool = new ConnectionCreationTool (this, connector.ConnectionLine);
+				return;
+			}
+			
+			int x, y;
+			Control.GetPointer (out x, out y);
+			var point = View.ViewToDrawing (x, y);
+			
+			if (figureItem.ClassType == ClassType.Unknown) {
+				var comment = new CommentFigure (String.Empty);
+				comment.MoveTo (point.X, point.Y);
+				View.Add (comment);
+				return;
+			}
+			
+			var dialog = new AddFigureDialog (figureItem.Name, figureItem.ClassType, point, this);
+			dialog.ShowAll ();
+		}
+		
+		public override string DefaultItemDomain {
+			get { return "Class Diagram"; }
+		}
+		#endregion
+		
+		
+		#region Private Methods			
+		void AddRange (IEnumerable<string> files)
+		{
+			foreach (string file in files)
+				AddFromFile (file);
+		}
+		
+		void SetupTools ()
+		{
+			toolboxItems = new ToolboxList ();
+			
+			var icon = ImageService.GetPixbuf (Stock.TextFileIcon, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Comment", ClassType.Unknown, true, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.ProtectedClass, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Abstract Class", ClassType.Class, true, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.Class, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Class", ClassType.Class, false, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.Interface, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Interface", ClassType.Interface, false, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.Enum, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Enum", ClassType.Enum, false, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.Delegate, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Delegate", ClassType.Delegate, false, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.Struct, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new FigureToolboxItemNode ("Struct", ClassType.Struct, false, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.SplitWindow, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new ConnectorToolboxItemNode ("Association", ConnectionType.Association, icon));
+			
+			icon = ImageService.GetPixbuf (Stock.MiscFiles, Gtk.IconSize.SmallToolbar);
+			toolboxItems.Add (new ConnectorToolboxItemNode ("Inheritance", ConnectionType.Inheritance, icon));
+		}
+		
+		#endregion
+	}
+}
