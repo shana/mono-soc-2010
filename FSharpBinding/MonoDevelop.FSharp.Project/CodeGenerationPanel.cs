@@ -51,7 +51,8 @@ namespace MonoDevelop.FSharp.Project
 			generateDebugInformationCheckButton.Active = configuration.DebugMode;
 			generateXmlOutputCheckButton.Active        = compilerParameters.GenerateXmlDocumentation;
 			enableOptimizationCheckButton.Active       = compilerParameters.Optimize;
-			generateOverflowChecksCheckButton.Active   = compilerParameters.GenerateOverflowChecks;
+			generateTailCallsCheckbox.Active = compilerParameters.TailCalls;
+			crossModuleOptimizationCheckBox.Active = compilerParameters.CrossOptimize;
 			warningsAsErrorsCheckButton.Active         = compilerParameters.TreatWarningsAsErrors;
 			warningLevelSpinButton.Value               = compilerParameters.WarningLevel;
 			additionalArgsEntry.Text                   = compilerParameters.AdditionalArguments;
@@ -70,11 +71,12 @@ namespace MonoDevelop.FSharp.Project
 			configuration.DebugMode                     = generateDebugInformationCheckButton.Active;
 			compilerParameters.GenerateXmlDocumentation = generateXmlOutputCheckButton.Active;
 			compilerParameters.Optimize                 = enableOptimizationCheckButton.Active;
-			compilerParameters.GenerateOverflowChecks   = generateOverflowChecksCheckButton.Active;
 			compilerParameters.TreatWarningsAsErrors    = warningsAsErrorsCheckButton.Active;
 			compilerParameters.WarningLevel             = warningLevelSpinButton.ValueAsInt;
 			compilerParameters.AdditionalArguments      = additionalArgsEntry.Text;
 			compilerParameters.NoWarnings               = ignoreWarningsEntry.Text;
+			compilerParameters.CrossOptimize = crossModuleOptimizationCheckBox.Active;
+			compilerParameters.TailCalls = generateTailCallsCheckbox.Active;
 			compilerParameters.PlatformTarget           = FSharpLanguageBinding.SupportedPlatforms [comboPlatforms.Active];
 		}
 	}

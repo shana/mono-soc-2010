@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1B6FE87F-EB90-4A5D-8F64-F56BE3A9D836}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FSharpBinding</RootNamespace>
+    <RootNamespace>MonoDevelop.FSharp</RootNamespace>
     <AssemblyName>FSharpBinding</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <newfilesearch>OnLoad</newfilesearch>
@@ -41,10 +41,11 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>..\monodevelop\main\build\AddIns\BackendBindings\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -56,21 +57,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="Mono.TextEditor">
-      <HintPath>..\MonoDevelop\main\build\bin\Mono.TextEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoDevelop.Core">
-      <HintPath>..\MonoDevelop\main\build\bin\MonoDevelop.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoDevelop.Debugger">
-      <HintPath>..\MonoDevelop\main\build\AddIns\MonoDevelop.Debugger.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoDevelop.Ide">
-      <HintPath>..\MonoDevelop\main\build\bin\MonoDevelop.Ide.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoDevelop.SourceEditor2">
-      <HintPath>..\MonoDevelop\main\build\AddIns\MonoDevelop.SourceEditor2.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -95,6 +81,26 @@
       <HintPath>$(GTK_BASEPATH)\lib\gtk-sharp-2.0\pango-sharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MonoDevelop\main\build\bin\Mono.TextEditor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoDevelop.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MonoDevelop\main\build\bin\MonoDevelop.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoDevelop.Debugger, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MonoDevelop\main\build\AddIns\MonoDevelop.Debugger\MonoDevelop.Debugger.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MonoDevelop\main\build\bin\MonoDevelop.Ide.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoDevelop.SourceEditor2, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MonoDevelop\main\build\AddIns\MonoDevelop.SourceEditor2.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MonoDevelop.FSharp.Highlighting\FSharpSyntaxMode.cs" />
@@ -108,16 +114,13 @@
     <Compile Include="gtk-gui\generated.cs" />
     <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CodeGenerationPanelWidget.cs" />
     <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CompilerOptionsPanelWidget.cs" />
+    <Compile Include="MonoDevelop.FSharp.Project\CompilationOrderPanelWidget.cs" />
+    <Compile Include="gtk-gui\MonoDevelop.FSharp.Project.CompilationOrderPanelWidget.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoDevelop\main\src\core\Mono.Texteditor\Mono.TextEditor.csproj">
-      <Project>{A2329308-3751-4DBD-9A75-5F7B8B024625}</Project>
-      <Name>Mono.TextEditor</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="MonoDevelop.FSharp.Highlighting\FSharpSyntaxMode.xml" />
+    <EmbeddedResource Include="MonoDevelop.FSharp.Highlighting\FSharpSyntaxMode.xml">
+      <LogicalName>FSharpSyntaxMode.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -163,17 +166,9 @@
     <EmbeddedResource Include="templates\FSharpConsoleProject.xpt.xml">
       <LogicalName>FSharpConsoleProject.xpt.xml</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="templates\FSharpLibraryProject.xpt.xml">
-      <LogicalName>FSharpLibraryProject.xpt.xml</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="templates\GtkSharp2Project.xpt.xml">
-      <LogicalName>GtkSharp2Project.xpt.xml</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="templates\GladeSharp2Project.xpt.xml">
-      <LogicalName>GladeSharp2Project.xpt.xml</LogicalName>
-    </EmbeddedResource>
     <EmbeddedResource Include="FSharpBinding.addin.xml">
       <LogicalName>FSharpBinding.addin.xml</LogicalName>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="md1format.xml">
       <LogicalName>md1format.xml</LogicalName>

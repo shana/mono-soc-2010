@@ -37,6 +37,7 @@ using MonoDevelop.Projects.Dom;
 using MonoDevelop.Projects.Dom.Parser;
 using MonoDevelop.Projects.Text;
 using MonoDevelop.Ide;
+using MonoDevelop.Ide.Gui.Dialogs;
 // using MonoDevelop.Projects.Gui.Dialogs;
 
 namespace MonoDevelop.FSharp.Project
@@ -46,7 +47,6 @@ namespace MonoDevelop.FSharp.Project
 	{
 		DotNetProject project;
 		ListStore classListStore;
-		bool classListFilled;
 		
 		public CompilerOptionsPanelWidget (DotNetProject project)
 		{
@@ -68,19 +68,6 @@ namespace MonoDevelop.FSharp.Project
 			compileTargetCombo.Active = (int) configuration.CompileTarget;
 			compileTargetCombo.Changed += new EventHandler (OnTargetChanged);
 			
-			if (project.IsLibraryBasedProjectType) {
-				//fixme: should we totally hide these?
-				compileTargetCombo.Sensitive = false;
-				mainClassEntry.Sensitive = false;
-			} else {
-				classListStore = new ListStore (typeof(string));
-				mainClassEntry.Model = classListStore;
-				mainClassEntry.TextColumn = 0;
-				((Entry)mainClassEntry.Child).Text = projectParameters.MainClass ?? string.Empty;
-			
-				UpdateTarget ();
-			}
-			
 			// Load the codepage. If it matches any of the supported encodigs, use the encoding name 			
 			string foundEncoding = null;
 			foreach (TextEncoding e in TextEncoding.SupportedEncodings) {
@@ -95,16 +82,9 @@ namespace MonoDevelop.FSharp.Project
 			else if (projectParameters.CodePage != 0)
 				codepageEntry.Entry.Text = projectParameters.CodePage.ToString ();
 			
-			iconEntry.Path = projectParameters.Win32Icon;
-			iconEntry.DefaultPath = project.BaseDirectory;
 			allowUnsafeCodeCheckButton.Active = compilerParameters.UnsafeCode;
-			
-			ListStore langVerStore = new ListStore (typeof (string));
-			langVerStore.AppendValues (GettextCatalog.GetString ("Default"));
-			langVerStore.AppendValues ("ISO-1");
-			langVerStore.AppendValues ("ISO-2");
-			langVerCombo.Model = langVerStore;
-			langVerCombo.Active = (int) compilerParameters.LangVersion;
+			//tailCallsCheckBox.Active = compilerParameters.TailCalls;
+			//crossOptimizeCheckBox.Active = compilerParameters.CrossOptimize;
 		}
 		
 		protected override void OnDestroyed ()
@@ -141,9 +121,7 @@ namespace MonoDevelop.FSharp.Project
 		public void Store (ItemConfigurationCollection<ItemConfiguration> configs)
 		{
 			int codePage;
-			CompileTarget compileTarget =  (CompileTarget) compileTargetCombo.Active;
-			LangVersion langVersion = (LangVersion) langVerCombo.Active; 
-			
+			CompileTarget compileTarget =  (CompileTarget) compileTargetCombo.Active;			
 			
 			if (codepageEntry.Entry.Text.Length > 0) {
 				// Get the codepage. If the user specified an encoding name, find it.
@@ -171,17 +149,12 @@ namespace MonoDevelop.FSharp.Project
 			FSharpProjectParameters projectParameters = (FSharpProjectParameters) project.LanguageParameters; 
 			
 			projectParameters.CodePage = codePage;
-
-			if (iconEntry.Sensitive)
-				projectParameters.Win32Icon = iconEntry.Path;
-			
-			if (mainClassEntry.Sensitive)
-				projectParameters.MainClass = mainClassEntry.Entry.Text;
 			
 			foreach (DotNetProjectConfiguration configuration in configs) {
 				FSharpCompilerParameters compilerParameters = (FSharpCompilerParameters) configuration.CompilationParameters; 
 				compilerParameters.UnsafeCode = allowUnsafeCodeCheckButton.Active;
-				compilerParameters.LangVersion = langVersion;
+				//compilerParameters.TailCalls = tailCallsCheckBox.Active;
+				//compilerParameters.CrossOptimize = crossOptimizeCheckBox.Active;
 			}
 		}
 		
@@ -192,55 +165,24 @@ namespace MonoDevelop.FSharp.Project
 		
 		void UpdateTarget ()
 		{
-			if ((CompileTarget) compileTargetCombo.Active == CompileTarget.Library) {
-				iconEntry.Sensitive = false;
-			} else {
-				iconEntry.Sensitive = true;
-				if (!classListFilled)
-					FillClasses ();
-			}
-		}
-		
-		void FillClasses ()
-		{
-			try {
-				ProjectDom     ctx = ProjectDomService.GetProjectDom (project);
-				if (ctx == null)
-					// Project not found in parser database
-					return;
-				foreach (IType c in ctx.Types) {
-					if (c.Methods != null) {
-						foreach (IMethod m in c.Methods) {
-							if (m.IsStatic && m.Name == "Main")
-								classListStore.AppendValues (c.FullName);
-						}
-					}
-				}
-				classListFilled = true;
-			} catch (InvalidOperationException) {
-				// Project not found in parser database
-			}
 		}
 	}
-	
-	//public class CompilerOptionsPanel : ItemOptionsPanel
-	//{
-	//    CompilerOptionsPanelWidget widget;
-		
-	//    public override Widget CreatePanelWidget ()
-	//    {
-	//        return (widget = new CompilerOptionsPanelWidget ((DotNetProject) ConfiguredProject));
-	//    }
-		
-	//    public override bool ValidateChanges ()
-	//    {
-	//        return widget.ValidateChanges ();
-	//    }
-		
-	//    public override void ApplyChanges ()
-	//    {
-	//        MultiConfigItemOptionsDialog dlg = (MultiConfigItemOptionsDialog) ParentDialog;
-	//        widget.Store (dlg.Configurations);
-	//    }
-	//}
+
+	public class CompilerOptionsPanel : ItemOptionsPanel
+	{
+		CompilerOptionsPanelWidget widget;
+
+		public override Widget CreatePanelWidget() {
+			return (widget = new CompilerOptionsPanelWidget((DotNetProject)ConfiguredProject));
+		}
+
+		public override bool ValidateChanges() {
+			return widget.ValidateChanges();
+		}
+
+		public override void ApplyChanges() {
+			MultiConfigItemOptionsDialog dlg = (MultiConfigItemOptionsDialog)ParentDialog;
+			widget.Store(dlg.Configurations);
+		}
+	}
 }

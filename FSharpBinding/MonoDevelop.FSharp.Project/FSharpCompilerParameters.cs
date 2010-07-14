@@ -35,17 +35,13 @@ using MonoDevelop.Core.Serialization;
 
 namespace MonoDevelop.FSharp.Project
 {
-	public enum LangVersion {
-		Default = 0,
-		ISO_1   = 1,
-		ISO_2   = 2
-	}
-	
 	/// <summary>
 	/// This class handles project specific compiler parameters
 	/// </summary>
 	public class FSharpCompilerParameters: ConfigurationParameters
 	{
+		public FSharpCompilerParameters(): base() {
+		}
 		// Configuration parameters
 		
 		[ItemProperty ("WarningLevel")]
@@ -56,12 +52,15 @@ namespace MonoDevelop.FSharp.Project
 		
 		[ItemProperty ("Optimize")]
 		bool optimize;
+
+		[ItemProperty("Tailcalls")]
+		bool tailcalls;
+
+		[ItemProperty("CrossOptimize")]
+		bool crossoptimize;
 		
 		[ItemProperty ("AllowUnsafeBlocks", DefaultValue = false)]
 		bool unsafecode = false;
-		
-		[ItemProperty ("CheckForOverflowUnderflow", DefaultValue = false)]
-		bool generateOverflowChecks;
 		
 		[ItemProperty ("DefineConstants", DefaultValue = "")]
 		string definesymbols = String.Empty;
@@ -71,12 +70,6 @@ namespace MonoDevelop.FSharp.Project
 		
 		[ItemProperty ("additionalargs", DefaultValue = "")]
 		string additionalArgs = string.Empty;
-		
-		[ItemProperty ("LangVersion", DefaultValue = "Default")]
-		string langVersion = "Default";
-		
-		[ItemProperty ("NoStdLib", DefaultValue = false)]
-		bool noStdLib;
 		
 		[ItemProperty ("TreatWarningsAsErrors", DefaultValue = false)]
 		bool treatWarningsAsErrors;
@@ -92,9 +85,6 @@ namespace MonoDevelop.FSharp.Project
 		
 		[ItemProperty ("StartupObject", DefaultValue = null)]
 		internal string mainclass;
-		
-		[ProjectPathItemProperty ("ApplicationIcon", DefaultValue = null)]
-		internal string win32Icon;
 
 		[ProjectPathItemProperty ("Win32Resource", DefaultValue = null)]
 		internal string win32Resource;
@@ -112,10 +102,6 @@ namespace MonoDevelop.FSharp.Project
 			// Backwards compatibility. Move parameters to the project parameters object
 			if (ParentConfiguration != null && ParentConfiguration.ProjectParameters != null) {
 				FSharpProjectParameters cparams = (FSharpProjectParameters) ParentConfiguration.ProjectParameters;
-				if (win32Icon != null) {
-					cparams.Win32Icon = win32Icon;
-					win32Icon = null;
-				}
 				if (win32Resource != null) {
 					cparams.Win32Resource = win32Resource;
 					win32Resource = null;
@@ -134,16 +120,6 @@ namespace MonoDevelop.FSharp.Project
 		public string AdditionalArguments {
 			get { return additionalArgs; }
 			set { additionalArgs = value ?? string.Empty; }
-		}
-		
-		public LangVersion LangVersion {
-			get {
-				string val = langVersion.ToString ().Replace ('-','_'); 
-				return (LangVersion) Enum.Parse (typeof(LangVersion), val); 
-			}
-			set {
-				langVersion = value.ToString ().Replace ('_','-'); 
-			}
 		}
 
 #region Code Generation
@@ -165,6 +141,22 @@ namespace MonoDevelop.FSharp.Project
 				optimize = value;
 			}
 		}
+
+		public bool CrossOptimize {
+			get {
+				return crossoptimize;
+			}
+			set { crossoptimize = value; }
+		}
+
+		public bool TailCalls {
+			get {
+				return tailcalls;
+			}
+			set {
+				tailcalls = value;
+			}
+		}
 		
 		public bool UnsafeCode {
 			get {
@@ -172,15 +164,6 @@ namespace MonoDevelop.FSharp.Project
 			}
 			set {
 				unsafecode = value;
-			}
-		}
-		
-		public bool GenerateOverflowChecks {
-			get {
-				return generateOverflowChecks;
-			}
-			set {
-				generateOverflowChecks = value;
 			}
 		}
 		
@@ -220,15 +203,6 @@ namespace MonoDevelop.FSharp.Project
 			}
 			set {
 				noWarnings = value;
-			}
-		}
-
-		public bool NoStdLib {
-			get {
-				return noStdLib;
-			}
-			set {
-				noStdLib = value;
 			}
 		}
 

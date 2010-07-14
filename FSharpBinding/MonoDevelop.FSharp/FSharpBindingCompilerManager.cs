@@ -67,8 +67,7 @@ namespace MonoDevelop.FSharp
 
 			StringBuilder sb = new StringBuilder ();
 			List<string> gacRoots = new List<string> ();
-			sb.AppendFormat ("--out:{0}", outputName);  
-			sb.AppendLine ();
+			AppendQuoted(sb, "--out:", outputName);
 			
 			HashSet<string> alreadyAddedReference = new HashSet<string> ();
 			foreach (ProjectReference lib in projectItems.GetAll <ProjectReference> ()) {
@@ -132,18 +131,13 @@ namespace MonoDevelop.FSharp
 				sb.AppendLine ("--optimize+");
 			else
 				sb.AppendLine ("--optimize-");
+
+			sb.AppendFormat("--tailcalls{0}", compilerParameters.TailCalls ? '+' : '-');
+			sb.AppendLine();
 			
 			bool hasWin32Res = !string.IsNullOrEmpty (projectParameters.Win32Resource) && File.Exists (projectParameters.Win32Resource);
 			if (hasWin32Res) 
 				AppendQuoted (sb, "--win32res:", projectParameters.Win32Resource);
-			
-			if (!string.IsNullOrEmpty (projectParameters.Win32Icon) && File.Exists (projectParameters.Win32Icon)) {
-				if (hasWin32Res) {
-					monitor.ReportWarning ("Both Win32 icon and Win32 resource cannot be specified. Ignoring the icon.");
-				} else {
-					AppendQuoted (sb, "--win32icon:", projectParameters.Win32Icon);
-				}
-			}
 			
 			if (projectParameters.CodePage != 0)    // WNH RIP OUT???
 				sb.AppendLine ("--codepage:" + projectParameters.CodePage);
@@ -166,7 +160,7 @@ namespace MonoDevelop.FSharp
 			}
 
 			if (compilerParameters.TreatWarningsAsErrors) {
-				sb.AppendLine ("--all-warnings-as-errors");
+				sb.AppendLine("--warnaserror+");
 				if (!string.IsNullOrEmpty (compilerParameters.WarningsNotAsErrors))
 					sb.AppendLine ("-warnaserror-:" + compilerParameters.WarningsNotAsErrors); 
 			}
@@ -201,8 +195,8 @@ namespace MonoDevelop.FSharp
 
 				switch (finfo.BuildAction) {
 					case "Compile":
-// WNH 						AppendQuoted (sb, "", finfo.Name);
-						sb.AppendLine (finfo.Name);   // WNH
+						AppendQuoted (sb, "", finfo.Name);
+						// sb.AppendLine (finfo.Name);   // WNH
 						break;
 					case "EmbeddedResource":
 						string fname = finfo.Name;
@@ -216,6 +210,9 @@ namespace MonoDevelop.FSharp
 						continue;
 				}
 			}
+			
+			sb.AppendLine("--noframework");
+			
 			if (compilerParameters.GenerateXmlDocumentation) 
 				AppendQuoted (sb, "--doc:", Path.ChangeExtension (outputName, ".xml"));  
 			
@@ -223,7 +220,7 @@ namespace MonoDevelop.FSharp
 				sb.AppendLine (compilerParameters.AdditionalArguments);
 			
 			if (!string.IsNullOrEmpty (compilerParameters.NoWarnings)) 
-				AppendQuoted (sb, "--no-warn:", compilerParameters.NoWarnings);  // WNH can't be a list on FSC!!!! FIX!!!
+				AppendQuoted (sb, "--nowarn:", compilerParameters.NoWarnings);  // WNH can't be a list on FSC!!!! FIX!!!
 			
 			if (runtime.RuntimeId == "MS.NET")
 				sb.AppendLine ("--fullpaths");
@@ -262,7 +259,8 @@ namespace MonoDevelop.FSharp
 			
 			// Compile!
 			Dictionary<string,string> envVars = runtime.GetToolsExecutionEnvironment (project.TargetFramework).Variables;
-			int exitCode = DoCompilation (compilerName, sb.ToString(), workingDir, envVars, gacRoots, ref output, ref error);
+			int exitCode = DoCompilation (compilerName, sb.ToString().Replace(Environment.NewLine, " ")
+				, workingDir, envVars, gacRoots, ref output, ref error);
 			
 
 			BuildResult result = ParseOutput (output, error);
@@ -287,11 +285,11 @@ namespace MonoDevelop.FSharp
 		
 		static string GetCompilerName (TargetRuntime runtime, TargetFramework fx)
 		{
-
 			string fsc = runtime.GetToolPath (fx, "fsc");
 			if (fsc != null) {
 				return fsc;}
 			else {
+				// TODO: allow to modify compiler path via MonoDevelop.Core.PropertyService
 				string message = GettextCatalog.GetString ("F# compiler not found for {0}.", fx.Name);
 				LoggingService.LogError (message);
 				throw new Exception (message);

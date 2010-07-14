@@ -10,7 +10,7 @@
 	</TemplateConfiguration>
 	
 	<TemplateFiles>
-		<File DefaultExtension=".fs" DefaultName="EmptyCSharpfile" AddStandardHeader="True">
+		<File DefaultExtension=".fs" DefaultName="EmptyFSharpfile" AddStandardHeader="True">
 		</File>
 	</TemplateFiles>
 	

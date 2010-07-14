@@ -67,7 +67,7 @@ namespace MonoDevelop.FSharp.Highlighting
 		
 		public FSharpSyntaxMode ()
 		{
-			ResourceXmlProvider provider = new ResourceXmlProvider (typeof(IXmlProvider).Assembly, "FSharpSyntaxMode.xml");
+			ResourceXmlProvider provider = new ResourceXmlProvider (typeof(FSharpSyntaxMode).Assembly, "FSharpSyntaxMode.xml");
 			using (XmlReader reader = provider.Open ()) {
 				SyntaxMode baseMode = SyntaxMode.Read (reader);
 				this.rules = new List<Rule> (baseMode.Rules);

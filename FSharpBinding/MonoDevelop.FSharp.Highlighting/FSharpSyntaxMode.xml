@@ -26,8 +26,8 @@
 
 <SyntaxMode name = "F#" mimeTypes="text/x-fsharp">
 	<Property name="LineComment">//</Property>
-	<Property name="BlockCommentStart">/*</Property>
-	<Property name="BlockCommentEnd">*/</Property>
+	<Property name="BlockCommentStart">(*</Property>
+	<Property name="BlockCommentEnd">*)</Property>
 	<Property name="StringQuote">"</Property>
 	<Property name="StringQuote">'</Property>
 
@@ -36,8 +36,8 @@
 	<EolSpan color = "comment.line" rule="Comment" tagColor="comment.tag.line">//</EolSpan>
 
 	<Span color = "comment.block" rule="Comment" tagColor="comment.tag.block">
-		<Begin>/*</Begin>
-		<End>*/</End>
+		<Begin>(*</Begin>
+		<End>*)</End>
 	</Span>
 
 	<Span color = "string.other" rule="String" stopateol = "false" escape='""'>
