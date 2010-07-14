@@ -87,8 +87,12 @@ LoggingService.LogInfo(">>>>>>> F# Compile");
 				if (SupportedPlatforms.Contains (platform))
 					pars.PlatformTarget = platform;
 				string debugAtt = projectOptions.GetAttribute ("DefineDebug");
-				if (string.Compare ("True", debugAtt, true) == 0)
+				if (string.Compare("True", debugAtt, true) == 0) {
 					pars.DefineSymbols = "DEBUG";
+					pars.Optimize = pars.CrossOptimize = pars.TailCalls = false;
+				} else {
+					pars.Optimize = pars.CrossOptimize = pars.TailCalls = true;
+				}
 			}
 LoggingService.LogInfo("F# CreateCompliationParameters");
 			return pars;
@@ -101,8 +105,8 @@ LoggingService.LogInfo("F# CreateProjectParameters");
 		}
 		
 		public string SingleLineCommentTag { get { return "//"; } }
-		public string BlockCommentStartTag { get { return "/*"; } }
-		public string BlockCommentEndTag { get { return "*/"; } }
+		public string BlockCommentStartTag { get { return "(*"; } }
+		public string BlockCommentEndTag { get { return "*)"; } }
 		
 		public CodeDomProvider GetCodeDomProvider ()
 		{
@@ -140,7 +144,6 @@ LoggingService.LogInfo("F# Refactorer");
 		{
 LoggingService.LogInfo("F# GetSupportedClrVersions");
 			return new ClrVersion[] { 
-				ClrVersion.Net_1_1, 
 				ClrVersion.Net_2_0, 
 				ClrVersion.Clr_2_1,
 				ClrVersion.Net_4_0

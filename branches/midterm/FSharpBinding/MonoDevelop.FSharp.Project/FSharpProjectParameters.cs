@@ -34,9 +34,6 @@ namespace MonoDevelop.FSharp.Project
 	{
 		[ItemProperty ("StartupObject", DefaultValue = "")]
 		string mainclass = string.Empty;
-		
-		[ProjectPathItemProperty ("ApplicationIcon", DefaultValue = "")]
-		string win32Icon = String.Empty;
 
 		[ProjectPathItemProperty ("Win32Resource", DefaultValue = "")]
 		string win32Resource = String.Empty;
@@ -59,15 +56,6 @@ namespace MonoDevelop.FSharp.Project
 			}
 			set {
 				codePage = value;
-			}
-		}
-		
-		public string Win32Icon {
-			get {
-				return win32Icon;
-			}
-			set {
-				win32Icon = value ?? string.Empty;
 			}
 		}
 		
