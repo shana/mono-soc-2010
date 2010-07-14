@@ -117,6 +117,7 @@
       <Section id="FSharpCompilationOrderPanel"
              _label="File Order"
               insertafter="General"
+              fill = "true"
              class="MonoDevelop.FSharp.Project.CompilationOrderPanel"/>
     </Condition>
   </Extension>

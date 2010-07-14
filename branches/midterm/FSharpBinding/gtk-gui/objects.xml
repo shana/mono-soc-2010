@@ -1,2 +1,6 @@
 <objects attr-sync="on">
+  <object type="MonoDevelop.FSharp.Project.CompilationOrderPanelWidget" palette-category="General" allow-children="false" base-type="Gtk.Bin">
+    <itemgroups />
+    <signals />
+  </object>
 </objects>
