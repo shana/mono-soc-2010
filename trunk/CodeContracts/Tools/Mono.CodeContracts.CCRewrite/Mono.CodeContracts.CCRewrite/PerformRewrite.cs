@@ -67,7 +67,9 @@ namespace Mono.CodeContracts.CCRewrite {
 			TransformContractsVisitor vTransform = null;
 			if (method.HasBody) {
 				vTransform = this.TransformContracts (method, contractsRuntime);
-				this.sym.Write (method.Body);
+				if (this.sym != null) {
+					this.sym.Write (method.Body);
+				}
 				if (vTransform.ContractRequiresInfo.Any ()) {
 					anyRewrites = true;
 				}

@@ -63,7 +63,7 @@ namespace Mono.CodeContracts.CCRewrite {
 				} else if (usingPdb) {
 					symProv = new Mono.Cecil.Pdb.PdbWriterProvider ();
 				} else {
-					Console.WriteLine ("No symbol file, cannot write symbols");
+					warnings.Add("No symbol file, cannot write symbols");
 				}
 				if (symProv != null) {
 					symWriter = symProv.GetSymbolWriter (assembly.MainModule, outputFilename);
