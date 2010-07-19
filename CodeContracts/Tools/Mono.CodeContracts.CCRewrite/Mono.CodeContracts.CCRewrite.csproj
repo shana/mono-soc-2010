@@ -73,6 +73,7 @@
     <Compile Include="Mono.CodeContracts.CCRewrite.Ast\ExprType.cs" />
     <Compile Include="Mono.CodeContracts.CCRewrite.Ast\Sn.cs" />
     <Compile Include="Mono.CodeContracts.CCRewrite.Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Mono.CodeContracts.CCRewrite\AssemblyRef.cs" />
     <Compile Include="Mono.CodeContracts.CCRewrite\ConditionTextExtractor.cs" />
     <Compile Include="Mono.CodeContracts.CCRewrite\ContractRequiresInfo.cs" />
     <Compile Include="Mono.CodeContracts.CCRewrite\ContractsRuntime.cs" />
