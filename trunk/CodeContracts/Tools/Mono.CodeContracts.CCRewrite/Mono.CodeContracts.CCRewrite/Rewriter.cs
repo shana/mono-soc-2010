@@ -15,46 +15,60 @@ namespace Mono.CodeContracts.CCRewrite {
 				return RewriterResults.Warning("Not asked to rewrite");
 			}
 
-			string intputFilename = options.Assembly;
-			if (intputFilename == null) {
+			if (!options.Assembly.IsSet) {
 				return RewriterResults.Error ("No assembly given to rewrite");
 			}
-
-			string outputFilename = options.OutputFile ?? intputFilename;
+			AssemblyDefinition assembly = options.Assembly.IsFilename ?
+				AssemblyDefinition.ReadAssembly (options.Assembly.Filename) :
+				AssemblyDefinition.ReadAssembly (options.Assembly.Streams.Assembly);
 
 			List<string> errors = new List<string> ();
 			List<string> warnings = new List<string> ();
 
-			var assembly = AssemblyDefinition.ReadAssembly (intputFilename);
-
 			bool usingMdb = false;
 			bool usingPdb = false;
 			if (options.Debug) {
-				try {
-					ISymbolReaderProvider symProv = new Mono.Cecil.Mdb.MdbReaderProvider ();
-					foreach (var module in assembly.Modules) {
-						using (ISymbolReader sym = symProv.GetSymbolReader (module, intputFilename)) {
-							module.ReadSymbols (sym);
-						}
-					}
-					usingMdb = true;
-				} catch {
+				if (options.Assembly.IsStream && options.Assembly.Streams.Symbols == null) {
+					warnings.Add ("-debug specified, but no symbol stream provided.");
+				} else {
 					try {
-						ISymbolReaderProvider symProv = new Mono.Cecil.Pdb.PdbReaderProvider ();
+						ISymbolReaderProvider symProv = new Mono.Cecil.Mdb.MdbReaderProvider ();
 						foreach (var module in assembly.Modules) {
-							using (ISymbolReader sym = symProv.GetSymbolReader (module, intputFilename)) {
+							using (ISymbolReader sym = options.Assembly.IsFilename ?
+								symProv.GetSymbolReader (module, options.Assembly.Filename) :
+								symProv.GetSymbolReader (module, options.Assembly.Streams.Symbols)) {
 								module.ReadSymbols (sym);
 							}
 						}
-						usingPdb = true;
+						usingMdb = true;
 					} catch {
+						try {
+							ISymbolReaderProvider symProv = new Mono.Cecil.Pdb.PdbReaderProvider ();
+							foreach (var module in assembly.Modules) {
+								using (ISymbolReader sym = options.Assembly.IsFilename ?
+									symProv.GetSymbolReader (module, options.Assembly.Filename) :
+									symProv.GetSymbolReader (module, options.Assembly.Streams.Symbols)) {
+									module.ReadSymbols (sym);
+								}
+							}
+							usingPdb = true;
+						} catch {
+						}
+					}
+					if (!usingMdb && !usingPdb) {
+						warnings.Add ("-debug specified, but no MDB or PDB symbol file found.");
 					}
 				}
 			}
+
+			var output = options.OutputFile.IsSet ? options.OutputFile : options.Assembly;
 			ISymbolWriter symWriter = null;
 			if (options.WritePdbFile) {
 				if (!options.Debug) {
-					return RewriterResults.Error ("Must specify -debug if using -writePDBFile");
+					return RewriterResults.Error ("Must specify -debug if using -writePDBFile.");
+				}
+				if (output.IsStream && output.Streams.Symbols==null){
+					return RewriterResults.Error ("-writePDFFile specified, but no output symbol stream provided.");
 				}
 				// TODO: Implement symbol writing
 				ISymbolWriterProvider symProv = null;
@@ -63,21 +77,28 @@ namespace Mono.CodeContracts.CCRewrite {
 				} else if (usingPdb) {
 					symProv = new Mono.Cecil.Pdb.PdbWriterProvider ();
 				} else {
-					warnings.Add("No symbol file, cannot write symbols");
+					warnings.Add ("-writePDBFile specified, but no symbol file found, cannot write symbols.");
 				}
 				if (symProv != null) {
-					symWriter = symProv.GetSymbolWriter (assembly.MainModule, outputFilename);
+					symWriter = output.IsFilename ?
+						symProv.GetSymbolWriter (assembly.MainModule, output.Filename) :
+						symProv.GetSymbolWriter (assembly.MainModule, output.Streams.Symbols);
 				}
 			}
+			try {
+				PerformRewrite rewriter = new PerformRewrite (symWriter, options);
+				rewriter.Rewrite (assembly);
 
-			PerformRewrite rewriter = new PerformRewrite (symWriter, options);
-			rewriter.Rewrite (assembly);
-
-			assembly.Name.Name = Path.GetFileNameWithoutExtension (outputFilename);
-			assembly.Write (outputFilename);
-
-			if (symWriter != null) {
-				symWriter.Dispose ();
+				if (output.IsFilename) {
+					assembly.Name.Name = Path.GetFileNameWithoutExtension (output.Filename);
+					assembly.Write (output.Filename);
+				} else {
+					assembly.Write (output.Streams.Assembly);
+				}
+			} finally {
+				if (symWriter != null) {
+					symWriter.Dispose ();
+				}
 			}
 
 			return new RewriterResults (warnings, errors);
