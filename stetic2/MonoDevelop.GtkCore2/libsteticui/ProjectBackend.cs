@@ -609,9 +609,14 @@ namespace Stetic {
 			}
 		}
 		
-		internal WidgetEditSession CreateWidgetDesignerSession (WidgetDesignerFrontend frontend, string windowName, Stetic.ProjectBackend editingBackend, bool autoCommitChanges)
+//		internal WidgetEditSession CreateWidgetDesignerSession (WidgetDesignerFrontend frontend, string windowName, Stetic.ProjectBackend editingBackend, bool autoCommitChanges)
+//		{
+//			return new WidgetEditSession (this, frontend, windowName, editingBackend, autoCommitChanges);
+//		}
+		
+		internal WidgetEditSession CreateWidgetDesignerSession (WidgetDesignerFrontend frontend, string windowName)
 		{
-			return new WidgetEditSession (this, frontend, windowName, editingBackend, autoCommitChanges);
+			return new WidgetEditSession (this, frontend, windowName);
 		}
 		
 		internal ActionGroupEditSession CreateGlobalActionGroupDesignerSession (ActionGroupDesignerFrontend frontend, string groupName, bool autoCommitChanges)

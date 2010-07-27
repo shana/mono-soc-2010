@@ -1,5 +1,13 @@
 2010-07-27  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* Project.cs: Remove autoCommit argument 
+	* Makefile.am:
+	* WidgetDesigner.cs: Remove temporary project
+	* ProjectBackend.cs: Do not clear libraries on Close
+	* WidgetEditSession.cs: Remove temporary project
+
+2010-07-27  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* Project.cs:
 	* WidgetDesigner.cs:
 	* ProjectBackend.cs: 

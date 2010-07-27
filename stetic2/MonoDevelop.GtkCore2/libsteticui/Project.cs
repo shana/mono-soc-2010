@@ -306,9 +306,14 @@ namespace Stetic
 			return null;
 		}
 				
-		public WidgetDesigner CreateWidgetDesigner (WidgetInfo widgetInfo, bool autoCommitChanges)
+//		public WidgetDesigner CreateWidgetDesigner (WidgetInfo widgetInfo, bool autoCommitChanges)
+//		{
+//			return new WidgetDesigner (this, widgetInfo.Name, autoCommitChanges);
+//		}
+		
+		public WidgetDesigner CreateWidgetDesigner (WidgetInfo widgetInfo)
 		{
-			return new WidgetDesigner (this, widgetInfo.Name, autoCommitChanges);
+			return new WidgetDesigner (this, widgetInfo.Name);
 		}
 		
 		public ActionGroupDesigner CreateActionGroupDesigner (ActionGroupInfo actionGroup, bool autoCommitChanges)
