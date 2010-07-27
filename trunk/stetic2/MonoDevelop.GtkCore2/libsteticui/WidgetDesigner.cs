@@ -232,8 +232,8 @@ namespace Stetic
 				if (disposed)
 					return;
 				
-				if (project.App.ActiveProject == editedProject)
-					project.App.ActiveProject = null;
+//				if (project.App.ActiveProject == editedProject)
+//					project.App.ActiveProject = null;
 				
 				disposed = true;
 				frontend.disposed = true;

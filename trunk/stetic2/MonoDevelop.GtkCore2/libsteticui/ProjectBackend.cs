@@ -284,7 +284,8 @@ namespace Stetic {
 
 			selection = null;
 			topLevels.Clear ();
-			widgetLibraries.Clear ();
+			//widgetLibraries.Clear ();
+			
 
 			iconFactory = new ProjectIconFactory ();
 		}
@@ -800,10 +801,19 @@ namespace Stetic {
 			NotifyComponentTypesChanged ();
 		}
 		
+		bool preserveWidgetLibraries;
+		
 		public void Reload ()
 		{
-			OnRegistryChanging (null, null);
-			OnRegistryChanged (null, null);
+			try {
+				preserveWidgetLibraries = true;
+				OnRegistryChanging (null, null);
+				OnRegistryChanged (null, null);
+			}
+			finally
+			{
+				preserveWidgetLibraries = false;
+			}
 		}
 
 		public string Id {
