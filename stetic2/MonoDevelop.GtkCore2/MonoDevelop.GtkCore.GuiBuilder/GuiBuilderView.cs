@@ -121,7 +121,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			gproject.Unloaded += OnDisposeProject;
 			
-			designer = gproject.SteticProject.CreateWidgetDesigner (window.RootWidget, false);
+			designer = gproject.SteticProject.CreateWidgetDesigner (window.RootWidget, true);
 			
 			// Designer page
 			designerPage.ClearChild ();
