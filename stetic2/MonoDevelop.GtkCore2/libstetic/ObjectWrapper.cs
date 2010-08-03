@@ -149,7 +149,7 @@ namespace Stetic {
 			get { return disposed; }
 		}
 
-		public static ObjectWrapper Create (IProject proj, object wrapped)
+		public static ObjectWrapper Create (IProject proj, object wrapped, ObjectWrapper root)
 		{
 			ClassDescriptor klass = Registry.LookupClassByName (wrapped.GetType ().FullName);
 			ObjectWrapper wrapper = klass.CreateWrapper ();
@@ -159,6 +159,9 @@ namespace Stetic {
 			wrapper.Wrap (wrapped, true);
 			wrapper.OnWrapped ();
 			wrapper.Loading = false;
+			if (root != null) {
+				wrapper.RootWrapperName = (root.RootWrapperName != null) ? root.RootWrapperName : root.Name;
+			}
 			return wrapper;
 		}
 
@@ -191,13 +194,13 @@ namespace Stetic {
 			
 			if (klass == null) {
 				ErrorWidget we = new ErrorWidget (className, elem.GetAttribute ("id"));
-				ErrorWidgetWrapper wrap = (ErrorWidgetWrapper) Create (reader.Project, we);
+				ErrorWidgetWrapper wrap = (ErrorWidgetWrapper) Create (reader.Project, we, null);
 				wrap.Read (reader, elem);
 				return wrap;
 			}
 			if (!klass.SupportsGtkVersion (reader.Project.TargetGtkVersion)) {
 				ErrorWidget we = new ErrorWidget (className, klass.TargetGtkVersion, reader.Project.TargetGtkVersion, elem.GetAttribute ("id"));
-				ErrorWidgetWrapper wrap = (ErrorWidgetWrapper) Create (reader.Project, we);
+				ErrorWidgetWrapper wrap = (ErrorWidgetWrapper) Create (reader.Project, we, null);
 				wrap.Read (reader, elem);
 				return wrap;
 			}
@@ -218,7 +221,7 @@ namespace Stetic {
 			catch (Exception ex) {
 				Console.WriteLine (ex);
 				ErrorWidget we = new ErrorWidget (ex, elem.GetAttribute ("id"));
-				ErrorWidgetWrapper wrap = (ErrorWidgetWrapper) Create (reader.Project, we);
+				ErrorWidgetWrapper wrap = (ErrorWidgetWrapper) Create (reader.Project, we, null);
 				wrap.Read (reader, elem);
 				return wrap;
 			}
@@ -328,6 +331,10 @@ namespace Stetic {
 		{
 			OnObjectChanged (new ObjectWrapperEventArgs (this));
 		}
+		
+		public abstract string Name { get; set; }
+		
+		public string RootWrapperName { get; protected set; }
 		
 		static object GetIndentityObject (object ob)
 		{

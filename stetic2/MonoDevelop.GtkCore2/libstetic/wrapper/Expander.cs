@@ -21,7 +21,7 @@ namespace Stetic.Wrapper {
 					AddPlaceholder ();
 			}
 			if (expander.LabelWidget != null)
-				ObjectWrapper.Create (proj, expander.LabelWidget);
+				ObjectWrapper.Create (proj, expander.LabelWidget, this);
 		}
 
 		protected override ObjectWrapper ReadChild (ObjectReader reader, XmlElement child_elem)

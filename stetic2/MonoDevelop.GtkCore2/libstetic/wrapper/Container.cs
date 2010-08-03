@@ -41,7 +41,7 @@ namespace Stetic.Wrapper
 				Gtk.Widget child = prop.GetValue (container) as Gtk.Widget;
 				if (child == null)
 					continue;
-				Widget wrapper = ObjectWrapper.Create (proj, child) as Stetic.Wrapper.Widget;
+				Widget wrapper = ObjectWrapper.Create (proj, child, this) as Stetic.Wrapper.Widget;
 				wrapper.InternalChildProperty = prop;
 				if (child.Name == ((GLib.GType)child.GetType ()).ToString ())
 					child.Name = container.Name + "_" + prop.Name;
@@ -770,7 +770,7 @@ namespace Stetic.Wrapper
 			if (cwrap != null)
 				return cwrap;
 			else
-				return Stetic.ObjectWrapper.Create (parentWrapper.proj, cc) as ContainerChild;
+				return Stetic.ObjectWrapper.Create (parentWrapper.proj, cc, parentWrapper) as ContainerChild;
 		}
 
 		protected Gtk.Container.ContainerChild ContextChildProps (Gtk.Widget context)
@@ -1449,6 +1449,8 @@ namespace Stetic.Wrapper
 					EmitNotify ("AutoSize");
 				}
 			}
+			
+			public override string Name { get; set; }
 		}
 	}
 }

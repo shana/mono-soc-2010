@@ -1,3 +1,7 @@
+2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* ObjectWrapper.cs: Save a root wrapper name
+
 2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* IProject.cs:
