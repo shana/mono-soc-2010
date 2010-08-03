@@ -27,7 +27,7 @@ namespace Stetic.Wrapper {
 		protected override ObjectWrapper ReadChild (ObjectReader reader, XmlElement child_elem)
 		{
 			if ((string)GladeUtils.GetChildProperty (child_elem, "type", "") == "label_item") {
-				ObjectWrapper wrapper = reader.ReadObject (child_elem["widget"]);
+				ObjectWrapper wrapper = reader.ReadObject (child_elem["widget"], this);
 				expander.LabelWidget = (Gtk.Widget)wrapper.Wrapped;
 				return wrapper;
 			} else

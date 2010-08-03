@@ -361,7 +361,7 @@ namespace Stetic.Wrapper
 
 		protected virtual ObjectWrapper ReadChild (ObjectReader reader, XmlElement child_elem)
 		{
-			ObjectWrapper wrapper = reader.ReadObject (child_elem["widget"]);
+			ObjectWrapper wrapper = reader.ReadObject (child_elem["widget"], this);
 			Container.ContainerChild childwrapper = null;
 			
 			try {
@@ -414,7 +414,7 @@ namespace Stetic.Wrapper
 				Gtk.Widget child = prop.GetValue (container) as Gtk.Widget;
 				Widget wrapper = Widget.Lookup (child);
 				if (wrapper != null) {
-					reader.ReadObject (wrapper, child_elem["widget"]);
+					reader.ReadExistingObject (wrapper, child_elem["widget"]);
 					if (reader.Format == FileFormat.Glade)
 						GladeUtils.SetPacking (ChildWrapper (wrapper), child_elem);
 					else

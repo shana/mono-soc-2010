@@ -26,7 +26,7 @@ namespace Stetic {
 
 			ObjectReader reader = new ObjectReader (project, FileFormat.Glade);
 			foreach (XmlElement toplevel in node.SelectNodes ("widget")) {
-				Wrapper.Container wrapper = Stetic.ObjectWrapper.ReadObject (reader, toplevel) as Wrapper.Container;
+				Wrapper.Container wrapper = Stetic.ObjectWrapper.ReadObject (reader, toplevel, null) as Wrapper.Container;
 				if (wrapper != null)
 					project.AddWidget ((Gtk.Widget)wrapper.Wrapped);
 			}
