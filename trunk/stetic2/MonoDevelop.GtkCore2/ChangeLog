@@ -1,3 +1,7 @@
+2010-08-04  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* MonoDevelop.GtkCore2.csproj: 
+
 2010-07-27  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderView.cs: 

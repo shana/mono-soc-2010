@@ -1,3 +1,7 @@
+2010-08-04  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* WidgetFileDescriptionTemplate.cs: Bump Api
+
 2010-07-06  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* GtkDesignInfo.cs: Remove gtk-gui folder after project conversion
