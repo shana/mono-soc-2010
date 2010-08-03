@@ -1,5 +1,20 @@
 2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* GladeUtils.cs: Set ObjectWrapper.RootWrapperName when reading from xml
+	* WidgetUtils.cs:
+	* ObjectReader.cs:
+	* ObjectWrapper.cs:
+	* wrapper/Frame.cs:
+	* wrapper/Window.cs:
+	* wrapper/MenuItem.cs:
+	* wrapper/Expander.cs:
+	* undo/UndoManager.cs:
+	* wrapper/Notebook.cs:
+	* wrapper/Container.cs:
+	* wrapper/OptionMenu.cs: 
+
+2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* ObjectWrapper.cs: Save a root wrapper name
 
 2010-06-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>

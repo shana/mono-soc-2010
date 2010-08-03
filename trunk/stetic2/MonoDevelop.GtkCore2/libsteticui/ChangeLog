@@ -1,5 +1,11 @@
 2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* Glade.cs:
+	* Makefile.am:
+	* ProjectBackend.cs: 
+
+2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* Makefile.am:
 	* ProjectBackend.cs: Return empty string when GtktargetVersion
 						 is not initialized

@@ -437,7 +437,8 @@ namespace Stetic {
 				try {
 					loading = true;
 					ObjectReader reader = new ObjectReader (this, FileFormat.Native);
-					Wrapper.Container wrapper = Stetic.ObjectWrapper.ReadObject (reader, data.XmlData) as Wrapper.Container;
+					Wrapper.Container wrapper = Stetic.ObjectWrapper.ReadObject (reader, data.XmlData, null) as Wrapper.Container;
+					//wrapper.RootWrapperName = data.Name;
 					data.Widget = wrapper.Wrapped;
 				} finally {
 					loading = false;

@@ -153,15 +153,15 @@ namespace Stetic {
 		{
 			ClassDescriptor klass = Registry.LookupClassByName (wrapped.GetType ().FullName);
 			ObjectWrapper wrapper = klass.CreateWrapper ();
+			if (root != null) {
+				wrapper.RootWrapperName = (root.RootWrapperName != null) ? root.RootWrapperName : root.Name;
+			}
 			wrapper.Loading = true;
 			wrapper.proj = proj;
 			wrapper.classDescriptor = klass;
 			wrapper.Wrap (wrapped, true);
 			wrapper.OnWrapped ();
 			wrapper.Loading = false;
-			if (root != null) {
-				wrapper.RootWrapperName = (root.RootWrapperName != null) ? root.RootWrapperName : root.Name;
-			}
 			return wrapper;
 		}
 
@@ -183,7 +183,7 @@ namespace Stetic {
 			throw new System.NotImplementedException ();
 		}
 
-		public static ObjectWrapper ReadObject (ObjectReader reader, XmlElement elem)
+		public static ObjectWrapper ReadObject (ObjectReader reader, XmlElement elem, ObjectWrapper root)
 		{
 			string className = elem.GetAttribute ("class");
 			ClassDescriptor klass;
@@ -206,12 +206,17 @@ namespace Stetic {
 			}
 
 			ObjectWrapper wrapper = klass.CreateWrapper ();
+			if (root != null) {
+				if (root.RootWrapperName != null) {
+					wrapper.RootWrapperName = root.RootWrapperName; 
+				} 
+			}
 			wrapper.classDescriptor = klass;
 			wrapper.proj = reader.Project;
-			return ReadObject (reader, elem, wrapper);
+			return ReadExistingObject (reader, elem, wrapper);
 		}
 
-		public static ObjectWrapper ReadObject (ObjectReader reader, XmlElement elem, ObjectWrapper wrapper)
+		public static ObjectWrapper ReadExistingObject (ObjectReader reader, XmlElement elem, ObjectWrapper wrapper)
 		{
 			try {
 				wrapper.OnBeginRead (reader.Format);
