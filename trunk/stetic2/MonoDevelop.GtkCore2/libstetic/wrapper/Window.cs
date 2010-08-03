@@ -19,6 +19,7 @@ namespace Stetic.Wrapper {
 			}
 
 			window.DeleteEvent += DeleteEvent;
+			RootWrapperName = window.Name;
 		}
 
 		public static TopLevelWindow CreateInstance ( )

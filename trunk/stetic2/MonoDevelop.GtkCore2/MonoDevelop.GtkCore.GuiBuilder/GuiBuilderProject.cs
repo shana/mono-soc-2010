@@ -590,8 +590,10 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			// Make sure the target gtk version is properly set
 			if (gproject.TargetGtkVersion != target_version) {
+				if (gproject.TargetGtkVersion != string.Empty) {
+					needsSave = true;
+				}
 				gproject.TargetGtkVersion = target_version;
-				needsSave = true;
 			}
 
 			string outLib = project.GetOutputFileName (IdeApp.Workspace.ActiveConfiguration);
@@ -604,8 +606,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			// See if something has changed
 			if (LibrariesChanged (oldLibs, internalLibs, newLibs)) {
+			// If oldLibs is empty, gproject was uninitialized, so there are no changes to save
+				if (oldLibs.Length > 0) {
+					needsSave = true;
+				}
 				gproject.SetWidgetLibraries (newLibs, internalLibs);
-				needsSave = true;
 			} else {
 				GuiBuilderService.SteticApp.UpdateWidgetLibraries (false);
 			}

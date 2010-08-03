@@ -1,3 +1,9 @@
+2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Makefile.am:
+	* ProjectBackend.cs: Return empty string when GtktargetVersion
+						 is not initialized
+
 2010-07-27  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Project.cs: Remove autoCommit argument 

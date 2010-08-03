@@ -141,7 +141,8 @@ namespace Stetic {
 		}
 		
 		public string TargetGtkVersion {
-			get { return targetGtkVersion != null ? targetGtkVersion : "2.4"; }
+//			get { return targetGtkVersion != null ? targetGtkVersion : "2.4"; }
+			get { return targetGtkVersion ?? string.Empty; }
 			set {
 				if (TargetGtkVersion == value)
 					return;
