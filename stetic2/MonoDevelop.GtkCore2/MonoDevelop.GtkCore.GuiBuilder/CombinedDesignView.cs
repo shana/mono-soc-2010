@@ -62,10 +62,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			// Main notebook
 			
 			notebook.TabPos = Gtk.PositionType.Bottom;
-//			notebook.ShowTabs = false;
-//			notebook.ShowBorder = false;
-			notebook.ShowTabs = true;
-			notebook.ShowBorder = true;
+			notebook.ShowTabs = false;
+			notebook.ShowBorder = false;
 			notebook.Show ();
 			box = new VBox ();
 			
@@ -260,7 +258,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		{
 		}
 		
-		public override object GetContent (Type type)
+//		public override object GetContent (Type type)
+		public override T GetContent<T> ()
 		{
 //			if (type == typeof(IEditableTextBuffer)) {
 //				// Intercept the IPositionable interface, since we need to
@@ -271,18 +270,18 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 //					return null;
 //			}
 //			
-			object ob = base.GetContent (type);
+			object ob = base.GetContent<T> ();
 			if (ob != null)
-				return ob;
+				return (T) ob;
 			else if (content != null)
-				return content.GetContent (type);
+				return content.GetContent<T> ();
 			else
 				return null;
 		}
 
 		public void JumpTo (int line, int column)
 		{
-			IEditableTextBuffer ip = (IEditableTextBuffer) content.GetContent (typeof(IEditableTextBuffer));
+			IEditableTextBuffer ip = (IEditableTextBuffer) content.GetContent<IEditableTextBuffer> ();
 			if (ip != null) {
 				ShowPage (0);
 				ip.SetCaretTo (line, column);

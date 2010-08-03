@@ -592,7 +592,7 @@ namespace Stetic
 			);
 		}
 		
-		internal void NotifyChanged ()
+		internal void NotifyChanged (string rootWidgetName)
 		{
 			GuiDispatch.InvokeSync (
 				delegate {
@@ -600,10 +600,14 @@ namespace Stetic
 						Changed (this, EventArgs.Empty);
 				
 					// TODO: Optimize
-					foreach (ProjectItemInfo it in widgets)
-						it.NotifyChanged ();
-					foreach (ProjectItemInfo it in groups)
-						it.NotifyChanged ();
+					foreach (ProjectItemInfo it in widgets) {
+						if (it.Name == rootWidgetName)
+							it.NotifyChanged ();
+					}
+					foreach (ProjectItemInfo it in groups) {
+						if (it.Name == rootWidgetName)
+							it.NotifyChanged ();
+					}
 				}
 			);
 		}

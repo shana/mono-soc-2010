@@ -881,7 +881,7 @@ namespace Stetic {
 		{
 			if (loading)
 				return;
-			NotifyChanged ();
+			NotifyChanged (args.Wrapper.RootWrapperName);
 			if (ObjectChanged != null)
 				ObjectChanged (this, args);
 		}
@@ -890,7 +890,7 @@ namespace Stetic {
 		{
 			if (loading)
 				return;
-			NotifyChanged ();
+			NotifyChanged (args.WidgetWrapper.RootWrapperName);
 			OnWidgetNameChanged (args, args.WidgetWrapper.IsTopLevel);
 		}
 		
@@ -1130,11 +1130,11 @@ namespace Stetic {
 			OnComponentTypesChanged (null, null);
 		}
 		
-		void NotifyChanged ()
+		void NotifyChanged (string rootWidgetName)
 		{
 			Modified = true;
 			if (frontend != null)
-				frontend.NotifyChanged ();
+				frontend.NotifyChanged (rootWidgetName);
 			if (Changed != null)
 				Changed (this, EventArgs.Empty);
 		}
@@ -1147,7 +1147,7 @@ namespace Stetic {
 		
 		protected virtual void OnWidgetAdded (Stetic.Wrapper.WidgetEventArgs args)
 		{
-			NotifyChanged ();
+			NotifyChanged (args.WidgetWrapper.RootWrapperName);
 			if (WidgetAdded != null)
 				WidgetAdded (this, args);
 		}

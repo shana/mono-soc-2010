@@ -353,7 +353,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 					FileService.NotifyFileChanged (fileName);
 				}
 				else
-					ProjectDomService.Parse (project, fileName, "", ((StringWriter)fileStream).ToString ());
+					ProjectDomService.Parse (project, fileName, ((StringWriter)fileStream).ToString ());
 			}
 
 			return fileName;

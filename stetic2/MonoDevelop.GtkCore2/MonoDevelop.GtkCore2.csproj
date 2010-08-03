@@ -66,16 +66,7 @@
     <Reference Include="NRefactory, Version=2.1.1.0, Culture=neutral, PublicKeyToken=efe927acf176eea2">
       <Package>monodevelop</Package>
     </Reference>
-    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0fc9c7cce479da56">
-      <Package>monodevelop</Package>
-    </Reference>
-    <Reference Include="MonoDevelop.Core, Version=2.4.0.0, Culture=neutral">
-      <Package>monodevelop</Package>
-    </Reference>
-    <Reference Include="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral">
-      <Package>monodevelop</Package>
-    </Reference>
-    <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral">
+    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9307d64546e0580d">
       <Package>monodevelop</Package>
     </Reference>
   </ItemGroup>

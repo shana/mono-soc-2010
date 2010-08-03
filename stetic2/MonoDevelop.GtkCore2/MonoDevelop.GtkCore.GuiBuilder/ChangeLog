@@ -1,3 +1,11 @@
+2010-08-04  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* CodeBinder.cs: Bump Api
+	* GuiBuilderWindow.cs:
+	* GuiBuilderService.cs:
+	* CombinedDesignView.cs:
+	* ActionGroupDisplayBinding.cs: 
+
 2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* GuiBuilderProject.cs: When Updatinglibraries don't save 
