@@ -16,7 +16,6 @@ namespace Stetic {
 		bool modified;
 		Gtk.Widget selection;
 		string id;
-		//string fileName;
 		string folderName;
 		XmlDocument tempDoc;
 		bool loading;
@@ -50,7 +49,6 @@ namespace Stetic {
 		public event SignalChangedEventHandler SignalChanged;
 		
 		public event Wrapper.WidgetEventHandler SelectionChanged;
-		//public event EventHandler ModifiedChanged;
 		public event ProjectChangedEventHandler Changed;
 		
 		// Fired when the project has been reloaded, due for example to
@@ -141,7 +139,6 @@ namespace Stetic {
 		}
 		
 		public string TargetGtkVersion {
-//			get { return targetGtkVersion != null ? targetGtkVersion : "2.4"; }
 			get { return targetGtkVersion ?? string.Empty; }
 			set {
 				if (TargetGtkVersion == value)
@@ -438,7 +435,6 @@ namespace Stetic {
 					loading = true;
 					ObjectReader reader = new ObjectReader (this, FileFormat.Native);
 					Wrapper.Container wrapper = Stetic.ObjectWrapper.ReadObject (reader, data.XmlData, null) as Wrapper.Container;
-					//wrapper.RootWrapperName = data.Name;
 					data.Widget = wrapper.Wrapped;
 				} finally {
 					loading = false;
