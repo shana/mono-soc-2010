@@ -1,3 +1,8 @@
+2010-08-05  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* WidgetDesigner.cs:
+	* ProjectBackend.cs: 
+
 2010-08-05  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 	Remove ModifiedChanged event, 
 	change Changed event to ProjectChangedEventHandler (pass name of changed widget)
