@@ -53,7 +53,6 @@ namespace Stetic {
 		ContainerUndoRedoManager undoManager;
 		UndoQueue undoQueue;
 		
-		public event EventHandler ModifiedChanged;
 		public event EventHandler RootWidgetChanged;
 		public event Stetic.Wrapper.WidgetEventHandler SelectionChanged;
 		
@@ -71,8 +70,7 @@ namespace Stetic {
 			rootWidget.Select ();
 			undoManager.RootObject = rootWidget;
 			
-			this.project.ModifiedChanged += new EventHandler (OnModifiedChanged);
-			this.project.Changed += new EventHandler (OnChanged);
+			this.project.Changed += new ProjectChangedEventHandler (OnChanged);
 			this.project.ProjectReloaded += new EventHandler (OnProjectReloaded);
 			this.project.ProjectReloading += new EventHandler (OnProjectReloading);
 //			this.project.WidgetMemberNameChanged += new Stetic.Wrapper.WidgetNameChangedHandler (OnWidgetNameChanged);
@@ -151,8 +149,7 @@ namespace Stetic {
 		{
 			project.ComponentTypesChanged -= OnSourceProjectLibsChanged;
 			project.ProjectReloaded -= OnSourceProjectReloaded;
-			project.ModifiedChanged -= new EventHandler (OnModifiedChanged);
-			project.Changed -= new EventHandler (OnChanged);
+			project.Changed -= new ProjectChangedEventHandler (OnChanged);
 			project.ProjectReloaded -= OnProjectReloaded;
 			project.ProjectReloading -= OnProjectReloading;
 //			project.WidgetMemberNameChanged -= new Stetic.Wrapper.WidgetNameChangedHandler (OnWidgetNameChanged);
@@ -193,14 +190,11 @@ namespace Stetic {
 			}
 		}
 		
-		void OnModifiedChanged (object s, EventArgs a)
+		void OnChanged (object s, ProjectChangedEventArgs a)
 		{
-			if (frontend != null)
-				frontend.NotifyModifiedChanged ();
-		}
-		
-		void OnChanged (object s, EventArgs a)
-		{
+			if (a.ChangedTopLevelName != RootWidget.Name)
+				return;
+			
 			if (frontend != null)
 				frontend.NotifyChanged ();
 		}
