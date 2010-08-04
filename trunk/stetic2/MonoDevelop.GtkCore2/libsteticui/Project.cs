@@ -274,12 +274,6 @@ namespace Stetic
 				else
 					return modified;
 			}
-			set {
-				if (backend != null)
-					backend.Modified = value;	
-				else
-					modified = true;
-			}
 		}
 		
 		public IEnumerable<WidgetInfo> Widgets {

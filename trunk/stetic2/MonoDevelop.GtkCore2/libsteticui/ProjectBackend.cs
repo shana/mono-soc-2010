@@ -50,8 +50,8 @@ namespace Stetic {
 		public event SignalChangedEventHandler SignalChanged;
 		
 		public event Wrapper.WidgetEventHandler SelectionChanged;
-		public event EventHandler ModifiedChanged;
-		public event EventHandler Changed;
+		//public event EventHandler ModifiedChanged;
+		public event ProjectChangedEventHandler Changed;
 		
 		// Fired when the project has been reloaded, due for example to
 		// a change in the registry
@@ -718,39 +718,6 @@ namespace Stetic {
 			// Needed since ActionGroupCollection can't be made serializable
 			return ActionGroups.ToArray ();
 		}
-				
-		public void CopyWidgetToProject (string name, ProjectBackend other, string replacedName)
-		{
-			WidgetData wdata = GetWidgetData (name);
-			if (name == null)
-				throw new InvalidOperationException ("Component not found: " + name);
-			
-			XmlElement data;
-			if (wdata.Widget != null)
-				data = Stetic.WidgetUtils.ExportWidget (wdata.Widget);
-			else
-				data = (XmlElement) wdata.XmlData.Clone ();
-			
-			// If widget already exist, replace it
-			wdata = other.GetWidgetData (replacedName);
-			if (wdata == null) {
-				wdata = new WidgetData (name, data, null);
-				other.topLevels.Add (wdata);
-			} else {
-				if (wdata.Widget != null) {
-					// If a widget instance already exist, load the new data on it
-					Wrapper.Widget sw = Wrapper.Widget.Lookup (wdata.Widget);
-					sw.Read (new ObjectReader (other, FileFormat.Native), data);
-					sw.NotifyChanged ();
-					if (name != replacedName)
-						other.OnWidgetNameChanged (new Wrapper.WidgetNameChangedArgs (sw, replacedName, name), true);
-				} else {
-					wdata.SetXmlData (name, data);
-					if (name != replacedName)
-						other.OnWidgetNameChanged (new Wrapper.WidgetNameChangedArgs (null, replacedName, name), true);
-				}
-			}
-		}
 			
 		void CleanUndoData (XmlElement elem)
 		{
@@ -833,9 +800,6 @@ namespace Stetic {
 			set {
 				if (modified != value) {
 					modified = value;
-					if (frontend != null)
-						frontend.NotifyModifiedChanged ();
-					OnModifiedChanged (EventArgs.Empty);
 				}
 			}
 		}
@@ -1136,13 +1100,7 @@ namespace Stetic {
 			if (frontend != null)
 				frontend.NotifyChanged (rootWidgetName);
 			if (Changed != null)
-				Changed (this, EventArgs.Empty);
-		}
-		
-		protected virtual void OnModifiedChanged (EventArgs args)
-		{
-			if (ModifiedChanged != null)
-				ModifiedChanged (this, args);
+				Changed (this, new ProjectChangedEventArgs (rootWidgetName));
 		}
 		
 		protected virtual void OnWidgetAdded (Stetic.Wrapper.WidgetEventArgs args)
@@ -1182,4 +1140,16 @@ namespace Stetic {
 			}
 		}
 	}
+	
+	public class ProjectChangedEventArgs : EventArgs
+	{
+		public string ChangedTopLevelName { get; private set; }
+		
+		public ProjectChangedEventArgs (string changedTopLevel)
+		{
+			ChangedTopLevelName = changedTopLevel;
+		}
+	}
+	
+	public delegate void ProjectChangedEventHandler (object sender, ProjectChangedEventArgs args);
 }

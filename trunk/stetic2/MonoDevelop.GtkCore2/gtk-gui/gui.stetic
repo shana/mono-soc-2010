@@ -12,6 +12,8 @@
     <widget-library name="../../../../build/bin/Mono.TextEditor.dll" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll" />
+    <widget-library name="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="Mono.TextEditor, Version=1.0.0.0, Culture=neutral" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/MonoDevelop.GtkCore2.dll" internal="true" />
   </import>
   <widget class="Gtk.Bin" id="MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionsPanelWidget" design-size="503 22">

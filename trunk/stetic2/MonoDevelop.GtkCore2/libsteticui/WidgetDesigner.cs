@@ -21,7 +21,7 @@ namespace Stetic
 		bool canCut, canCopy, canPaste, canDelete;
 		
 		public event EventHandler BindField;
-		public event EventHandler ModifiedChanged;
+//		public event EventHandler ModifiedChanged;
 		public event EventHandler Changed;
 		public event EventHandler SelectionChanged;
 		public event EventHandler RootComponentChanged;
@@ -347,15 +347,353 @@ namespace Stetic
 				BindField (this, EventArgs.Empty);
 		}
 		
-		internal void NotifyModifiedChanged ()
-		{
-			if (ModifiedChanged != null)
-				ModifiedChanged (this, EventArgs.Empty);
-		}
+//		internal void NotifyModifiedChanged ()
+//		{
+//			if (ModifiedChanged != null)
+//				ModifiedChanged (this, EventArgs.Empty);
+//		}
 		
 		internal void NotifyChanged ()
 		{
-			if (Changed != null)
+			if (
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    
+			    Changed != null)
 				Changed (this, EventArgs.Empty);
 		}
 		
@@ -393,12 +731,12 @@ namespace Stetic
 			);
 		}
 		
-		public void NotifyModifiedChanged ()
-		{
-			GuiDispatch.InvokeSync (
-				delegate { if (!disposed) designer.NotifyModifiedChanged (); }
-			);
-		}
+//		public void NotifyModifiedChanged ()
+//		{
+//			GuiDispatch.InvokeSync (
+//				delegate { if (!disposed) designer.NotifyModifiedChanged (); }
+//			);
+//		}
 		
 		public void NotifyChanged ()
 		{

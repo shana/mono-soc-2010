@@ -138,7 +138,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			codeBinder = new CodeBinder (gproject.Project, new OpenDocumentFileProvider (), designer.RootComponent);
 			
 			designer.BindField += OnBindWidgetField;
-			designer.ModifiedChanged += OnWindowModifiedChanged;
+			designer.Changed += OnChanged;
 			designer.SignalAdded += OnSignalAdded;
 			designer.SignalRemoved += OnSignalRemoved;
 			designer.SignalChanged += OnSignalChanged;
@@ -194,7 +194,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			gproject.Unloaded -= OnDisposeProject;
 			designer.BindField -= OnBindWidgetField;
-			designer.ModifiedChanged -= OnWindowModifiedChanged;
+			designer.Changed -= OnChanged;
 			designer.SignalAdded -= OnSignalAdded;
 			designer.SignalRemoved -= OnSignalRemoved;
 			designer.SignalChanged -= OnSignalChanged;
@@ -292,7 +292,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				AddButton (GettextCatalog.GetString ("Actions"), actionsPage);
 		}
 		
-		void OnWindowModifiedChanged (object s, EventArgs args)
+		void OnChanged (object s, EventArgs args)
 		{
 			if (IsDirty)
 				OnContentChanged (args);
