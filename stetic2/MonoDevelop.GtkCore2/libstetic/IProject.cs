@@ -13,7 +13,7 @@ namespace Stetic
 		ProjectIconFactory IconFactory { get; }
 		string ImagesRootPath { get; }
 		string TargetGtkVersion { get; }
-		bool Modified { get; set; }
+//		bool Modified { get; set; }
 		IResourceProvider ResourceProvider { get; set; }
 
 		void PopupContextMenu (Stetic.Wrapper.Widget wrapper);

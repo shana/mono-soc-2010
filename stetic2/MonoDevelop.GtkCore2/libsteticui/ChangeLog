@@ -1,3 +1,10 @@
+2010-08-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Project.cs: Remove Modifies property
+	* ProjectBackend.cs: Add modifiedTopLevel list, handled on project loading, saving.
+	* libsteticui2.csproj:
+	* WidgetEditSession.cs: Use ProjectBackend.WasModified to determine if it was modified
+
 2010-08-05  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* WidgetDesigner.cs:

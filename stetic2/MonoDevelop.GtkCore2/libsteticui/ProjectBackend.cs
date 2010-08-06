@@ -33,7 +33,7 @@ namespace Stetic {
 		AssemblyResolver resolver;
 		string imagesRootPath;
 		string targetGtkVersion;
-		//version of stetic xml files
+		List<string> modifiedTopLevels;
 		
 		// The action collection of the last selected widget
 		Stetic.Wrapper.ActionGroupCollection oldTopActionCollection;
@@ -69,6 +69,7 @@ namespace Stetic {
 			iconFactory = new ProjectIconFactory ();
 			widgetLibraries = new ArrayList ();
 			internalLibs = new ArrayList ();
+			modifiedTopLevels = new List<string> ();
 		}
 		
 		public void Dispose ()
@@ -295,6 +296,7 @@ namespace Stetic {
 			doc.PreserveWhitespace = true;
 			XmlElement toplevel = doc.CreateElement ("stetic-interface");
 			doc.AppendChild (toplevel);
+			modifiedTopLevels.Clear ();
 			
 			ReadIconFactory (doc);
 			ReadActionGroups (doc);
@@ -436,6 +438,7 @@ namespace Stetic {
 					ObjectReader reader = new ObjectReader (this, FileFormat.Native);
 					Wrapper.Container wrapper = Stetic.ObjectWrapper.ReadObject (reader, data.XmlData, null) as Wrapper.Container;
 					data.Widget = wrapper.Wrapped;
+					data.Widget.Destroyed += (s,e) => data.Widget = null;
 				} finally {
 					loading = false;
 				}
@@ -512,22 +515,25 @@ namespace Stetic {
 			foreach (XmlElement toplevel in node.SelectNodes (splitElement)) {
 					
 					string id = toplevel.GetAttribute (idAttribute);
-					string componentFile = frontend.DesignInfo.GetComponentFile (id);
-					if (componentFile == null)
-						throw new InvalidOperationException ("Cannot find a component file for " + id);
-				
-					string xmlFile = frontend.DesignInfo.GetGtkxFile (componentFile);
-				
-					XmlDocument doc2 = new XmlDocument ();
-					doc2.PreserveWhitespace = true;
-					                     
-					XmlElement node2 = doc2.CreateElement ("stetic-interface");
-					doc2.AppendChild (node2);
-				
-					XmlNode wnode2 = doc2.ImportNode (toplevel, true);
-					node2.AppendChild (wnode2);
-				
-					WriteXmlFile (xmlFile, doc2);
+					if (modifiedTopLevels.Contains (id)) {
+						string componentFile = frontend.DesignInfo.GetComponentFile (id);
+						if (componentFile == null)
+							throw new InvalidOperationException ("Cannot find a component file for " + id);
+					
+						string xmlFile = frontend.DesignInfo.GetGtkxFile (componentFile);
+					
+						XmlDocument doc2 = new XmlDocument ();
+						doc2.PreserveWhitespace = true;
+						                     
+						XmlElement node2 = doc2.CreateElement ("stetic-interface");
+						doc2.AppendChild (node2);
+					
+						XmlNode wnode2 = doc2.ImportNode (toplevel, true);
+						node2.AppendChild (wnode2);
+					
+						WriteXmlFile (xmlFile, doc2);
+						modifiedTopLevels.Remove (id);
+					}
 			}	
 		}
 		
@@ -791,13 +797,18 @@ namespace Stetic {
 			set { id = value; }
 		}
 		
-		public bool Modified {
-			get { return modified; }
-			set {
-				if (modified != value) {
-					modified = value;
-				}
-			}
+//		public bool Modified {
+//			get { return modified; }
+//			set {
+//				if (modified != value) {
+//					modified = value;
+//				}
+//			}
+//		}
+		
+		public bool WasModified (string topLevel)
+		{
+			return modifiedTopLevels.Contains (topLevel);
 		}
 		
 		public AssemblyResolver Resolver {
@@ -1092,7 +1103,9 @@ namespace Stetic {
 		
 		void NotifyChanged (string rootWidgetName)
 		{
-			Modified = true;
+//			Modified = true;
+			if (!modifiedTopLevels.Contains (rootWidgetName))
+				modifiedTopLevels.Add (rootWidgetName);
 			if (frontend != null)
 				frontend.NotifyChanged (rootWidgetName);
 			if (Changed != null)

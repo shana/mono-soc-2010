@@ -267,14 +267,14 @@ namespace Stetic
 //			ProjectBackend.LoadStatus (status);
 //		}
 		
-		public bool Modified {
-			get {
-				if (backend != null)
-					return backend.Modified; 
-				else
-					return modified;
-			}
-		}
+//		public bool Modified {
+//			get {
+//				if (backend != null)
+//					return backend.Modified; 
+//				else
+//					return modified;
+//			}
+//		}
 		
 		public IEnumerable<WidgetInfo> Widgets {
 			get { return widgets; }
