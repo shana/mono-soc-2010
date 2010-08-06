@@ -259,6 +259,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		}
 		
 //		public override object GetContent (Type type)
+//		public override T GetContent<T> ()
 		public override T GetContent<T> ()
 		{
 //			if (type == typeof(IEditableTextBuffer)) {
@@ -270,13 +271,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 //					return null;
 //			}
 //			
-			object ob = base.GetContent<T> ();
-			if (ob != null)
-				return (T) ob;
-			else if (content != null)
-				return content.GetContent<T> ();
-			else
-				return null;
+			return  base.GetContent<T> () ?? content.GetContent<T> ();
 		}
 
 		public void JumpTo (int line, int column)

@@ -1,3 +1,7 @@
+2010-08-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* IProject.cs: Remove Modified property, add WasModified method which check state of a given top level
+
 2010-08-03  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* GladeUtils.cs: Set ObjectWrapper.RootWrapperName when reading from xml

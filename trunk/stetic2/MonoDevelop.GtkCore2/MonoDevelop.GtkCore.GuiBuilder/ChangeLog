@@ -1,3 +1,8 @@
+2010-08-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* GuiBuilderView.cs: Raise OnDirtyChanged after saving.
+	* CombinedDesignView.cs: Track Api Changes.
+
 2010-08-05  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* GuiBuilderView.cs: Remove ModifiedChanged handler

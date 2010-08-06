@@ -351,6 +351,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 			
 			gproject.Save (true);
+			OnDirtyChanged (EventArgs.Empty);
 		}
 		
 		public override bool IsDirty {
