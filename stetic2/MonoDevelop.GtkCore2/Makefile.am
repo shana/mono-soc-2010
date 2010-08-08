@@ -1,7 +1,7 @@
 SUBDIRS = libstetic libsteticui
 
-ADDIN_BUILD = $(top_builddir)/build/AddIns/MonoDevelop.GtkCore
-ASSEMBLY = $(ADDIN_BUILD)/MonoDevelop.GtkCore.dll
+ADDIN_BUILD = $(top_builddir)/build/AddIns/MonoDevelop.GtkCore2
+ASSEMBLY = $(ADDIN_BUILD)/MonoDevelop.GtkCore2.dll
 
 DEPS =  \
 	$(top_builddir)/build/AddIns/MonoDevelop.Deployment/MonoDevelop.Deployment.dll \
@@ -51,6 +51,8 @@ FILES =  \
 	MonoDevelop.GtkCore.GuiBuilder/PropertiesWidget.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxLoader.cs \
 	MonoDevelop.GtkCore.GuiBuilder/ToolboxProvider.cs \
+	MonoDevelop.GtkCore.NodeBuilders/GuiProjectFolder.cs \
+	MonoDevelop.GtkCore.NodeBuilders/GuiProjectFolderNodeBuilder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFileExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs \
@@ -102,7 +104,7 @@ $(ASSEMBLY): $(build_sources) $(build_resources) $(DEPS)
 	$(CSC) $(CSC_FLAGS) -debug -out:$@ -target:library \
 	$(build_resources:%=/resource:%) $(build_sources) $(REFS) $(build_deps)
 
-assemblydir = $(MD_ADDIN_DIR)/MonoDevelop.GtkCore
+assemblydir = $(MD_ADDIN_DIR)/MonoDevelop.GtkCore2
 assembly_DATA = $(ASSEMBLY) $(ASSEMBLY).mdb
 
 CLEANFILES = $(ASSEMBLY) $(ASSEMBLY).mdb

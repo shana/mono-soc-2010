@@ -25,8 +25,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-
-
 using System;
 using MonoDevelop.Projects;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
@@ -43,8 +41,9 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 	{
 		public override bool CanBuildNode (Type dataType)
 		{
-			return typeof(ProjectFolder).IsAssignableFrom (dataType);// ||
+			return typeof(ProjectFolder).IsAssignableFrom (dataType) && !(dataType is GuiProjectFolder);
 //			       typeof(DotNetProject).IsAssignableFrom (dataType);
+			return false;
 		}
 		
 		public override Type CommandHandlerType {
@@ -53,41 +52,15 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		
 		public override void GetNodeAttributes (ITreeNavigator treeNavigator, object dataObject, ref NodeAttributes attributes)
 		{
-//			if (treeNavigator.Options ["ShowAllFiles"])
-//				return;
-//
-//			ProjectFolder folder = dataObject as ProjectFolder;
-//			if (folder != null && folder.Project is DotNetProject) {
-//				GtkDesignInfo info = GtkDesignInfo.FromProject (folder.Project);
-//				if (info.GtkGuiFolder == folder.Path)
-//					attributes |= NodeAttributes.Hidden;
-//			}
-		}
-		
-		public override void BuildNode (ITreeBuilder treeBuilder, object dataObject, ref string label, ref Gdk.Pixbuf icon, ref Gdk.Pixbuf closedIcon)
-		{
-			ProjectFolder folder = dataObject as ProjectFolder;
+			if (dataObject is GuiProjectFolder)
+				return;
 			
-			if (folder != null) {
+			ProjectFolder folder = dataObject as ProjectFolder;
+			if (folder != null && folder.Project is DotNetProject) {
 				GtkDesignInfo info = GtkDesignInfo.FromProject (folder.Project);
-				if (info.GtkGuiFolder == folder.Path) {
-					icon = Context.GetIcon (Stock.OpenResourceFolder);
-					closedIcon = Context.GetIcon (Stock.ClosedResourceFolder);
-				}		
+				if (info.GtkGuiFolder == folder.Path)
+					attributes |= NodeAttributes.Hidden;
 			}
-		}
-		
-		
-		public override void BuildChildNodes (ITreeBuilder treeBuilder, object dataObject)
-		{
-//			ProjectFolder folder = dataObject as ProjectFolder;
-//			
-//			if (folder != null) {
-//				GtkDesignInfo info = GtkDesignInfo.FromProject (p);
-//				if (!info.GuiBuilderProject.HasError) {
-//					builder.AddChild (new StockIconsNode (p));
-//				}
-//			}
 		}
 	}
 	
@@ -140,57 +113,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		{
 			cinfo.Visible = CanAddWindow ();
 		}
-		
-		[CommandHandler (GtkCommands.ImportGladeFile)]
-		protected void OnImportGladeFile ()
-		{
-			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
-			GuiBuilderService.ImportGladeFile (project);
-		}
-		
-		[CommandUpdateHandler (GtkCommands.ImportGladeFile)]
-		protected void UpdateImportGladeFile (CommandInfo cinfo)
-		{
-			cinfo.Visible = CanAddWindow ();
-		}
-		
-		[CommandHandler (GtkCommands.EditIcons)]
-		protected void OnEditIcons ()
-		{
-			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
-			GuiBuilderProject gp = GtkDesignInfo.FromProject (project).GuiBuilderProject;
-			Stetic.Project sp = gp.SteticProject;
-			sp.EditIcons ();
-			gp.Save (true);
-		}
-		
-		[CommandUpdateHandler (GtkCommands.EditIcons)]
-		protected void UpdateEditIcons (CommandInfo cinfo)
-		{
-			cinfo.Visible = CanAddWindow ();
-		}
-		
-		[CommandHandler (GtkCommands.GtkSettings)]
-		protected void OnGtkSettings ()
-		{
-			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
-			IdeApp.ProjectOperations.ShowOptions (project, "SteticOptionsPanel");
-		}
-		
-		[CommandUpdateHandler (GtkCommands.EditIcons)]
-		protected void UpdateGtkSettings (CommandInfo cinfo)
-		{
-			cinfo.Visible = CanAddWindow ();
-		}
-		
-		[CommandHandler (ProjectCommands.AddFiles)]
-		public void OnAddFiles ()
-		{
-			//ProjectFile pf = (ProjectFile) ob;
-			throw new Exception("NO WAY!!!");
-		}
-		
-		
+			
 		bool CanAddWindow ()
 		{
 			DotNetProject project = CurrentNode.GetParentDataItem (typeof(Project), true) as DotNetProject;

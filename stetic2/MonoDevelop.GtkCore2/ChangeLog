@@ -1,3 +1,9 @@
+2010-08-09  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* Makefile.am:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore.addin.xml: Add GuiFolderBuilderNode extension
+
 2010-08-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* MonoDevelop.GtkCore2.csproj: 

@@ -37,7 +37,7 @@ using MonoDevelop.Core;
 using MonoDevelop.Ide.Gui.Pads;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
-
+using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.GtkCore.Dialogs;
 using MonoDevelop.GtkCore.GuiBuilder;
 using MonoDevelop.Ide;
@@ -112,8 +112,15 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		
 		public override void BuildChildNodes (ITreeBuilder builder, object dataObject)
 		{
-			if (GtkDesignInfo.HasDesignedObjects ((Project)dataObject))
-				builder.AddChild (new WindowsFolder ((Project)dataObject));
+			Project project = (Project)dataObject;
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			
+			if (GtkDesignInfo.HasDesignedObjects (project)) {
+				GuiProjectFolder folder = new GuiProjectFolder(info.GtkGuiFolder.FullPath, project, null);
+				
+				builder.AddChild (new WindowsFolder (project));
+				builder.AddChild (folder);
+			}
 		}
 		
 		public static void OnSupportChanged (Project p)

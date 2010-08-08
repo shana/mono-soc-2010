@@ -359,7 +359,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			return fileName;
 		}
 		
-		
 		public static Stetic.CodeGenerationResult GenerateSteticCode (IProgressMonitor monitor, DotNetProject project, ConfigurationSelector configuration)
 		{
 			if (generating || !GtkDesignInfo.HasDesignedObjects (project))
@@ -461,15 +460,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			if (provider == null)
 				throw new UserException ("Code generation not supported for language: " + project.LanguageName);
 			
-			string basePath = Path.GetDirectoryName (info.SteticGeneratedFile);
-			string ext = Path.GetExtension (info.SteticGeneratedFile);
-			
 			foreach (Stetic.SteticCompilationUnit unit in generationResult.Units) {
 				string fname;
 				if (unit.Name.Length == 0)
 					fname = info.SteticGeneratedFile;
 				else
-//					fname = Path.Combine (basePath, unit.Name) + ext;
 					fname = GetBuildCodeFileName (project, unit.Name);
 				StringWriter sw = new StringWriter ();
 				try {
@@ -479,6 +474,12 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 					string content = sw.ToString ();
 					content = FormatGeneratedFile (fname, content, provider);
 					File.WriteAllText (fname, content);
+					if (File.Exists (fname)) {
+					FileInfo file = new FileInfo (fname);
+					DateTime now = DateTime.Now;
+					file.LastWriteTime = now;
+					file.LastWriteTimeUtc = now;
+					}
 				} finally {
 					FileService.NotifyFileChanged (fname);
 				}

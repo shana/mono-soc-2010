@@ -2,7 +2,7 @@ using System;
 
 namespace Stetic
 {
-	//Provides access to informations menaged by ide
+	//Provides access to informations managed by ide
 	public interface IProjectDesignInfo
 	{
 		//Returns component source file for given component
@@ -15,6 +15,8 @@ namespace Stetic
 		//Search for all components source file folders 
 		string[] GetComponentFolders ();
 		
+		// Checks if code generation for a component is needed
+		bool ComponentNeedsCodeGeneration (string componentName);
 	}
 }
 

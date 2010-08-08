@@ -89,7 +89,10 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				string newGuiFolderName = project.BaseDirectory.Combine (guiFolderName);
 				gproject.ConvertProject (info.SteticFile, newGuiFolderName);
 				info.ConvertGtkFolder (guiFolderName, makeBackup);
-				info.UpdateGtkFolder ();
+				
+				IProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ();
+				ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
+				GuiBuilderService.GenerateSteticCode (monitor, project, configuration);
 			} finally {
 				gproject.Dispose ();
 			}
@@ -492,7 +495,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 		public Stetic.ActionGroupInfo GetActionGroup (string name)
 		{
-			return SteticProject.GetActionGroup (name);
+			return (SteticProject != null) ? SteticProject.GetActionGroup (name) : null;
 		}
 
 		public FilePath GetSourceCodeFile (Stetic.ProjectItemInfo obj)
