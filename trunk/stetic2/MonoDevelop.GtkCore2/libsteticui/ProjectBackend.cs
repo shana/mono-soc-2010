@@ -34,6 +34,8 @@ namespace Stetic {
 		string imagesRootPath;
 		string targetGtkVersion;
 		List<string> modifiedTopLevels;
+		//During project conversion flag is set
+		bool converting;
 		
 		// The action collection of the last selected widget
 		Stetic.Wrapper.ActionGroupCollection oldTopActionCollection;
@@ -449,8 +451,13 @@ namespace Stetic {
 		
 		public void ConvertProject (string oldSteticFileName, string newGuiFolderName)
 		{
-			LoadOldVersion (oldSteticFileName);
-			Save (newGuiFolderName);
+			converting = true;
+			try {
+				LoadOldVersion (oldSteticFileName);
+				Save (newGuiFolderName);
+			} finally {
+				converting = false;
+			}
 		}
 		
 		public void Save (string folderName)
@@ -515,7 +522,7 @@ namespace Stetic {
 			foreach (XmlElement toplevel in node.SelectNodes (splitElement)) {
 					
 					string id = toplevel.GetAttribute (idAttribute);
-					if (modifiedTopLevels.Contains (id)) {
+					if (modifiedTopLevels.Contains (id) || converting) {
 						string componentFile = frontend.DesignInfo.GetComponentFile (id);
 						if (componentFile == null)
 							throw new InvalidOperationException ("Cannot find a component file for " + id);
@@ -532,7 +539,8 @@ namespace Stetic {
 						node2.AppendChild (wnode2);
 					
 						WriteXmlFile (xmlFile, doc2);
-						modifiedTopLevels.Remove (id);
+						if (modifiedTopLevels.Contains (id))
+							modifiedTopLevels.Remove (id);
 					}
 			}	
 		}
@@ -797,18 +805,14 @@ namespace Stetic {
 			set { id = value; }
 		}
 		
-//		public bool Modified {
-//			get { return modified; }
-//			set {
-//				if (modified != value) {
-//					modified = value;
-//				}
-//			}
-//		}
-		
 		public bool WasModified (string topLevel)
 		{
 			return modifiedTopLevels.Contains (topLevel);
+		}
+		
+		public bool ComponentNeedsCodeGeneration (string topLevel)
+		{
+			return frontend.DesignInfo.ComponentNeedsCodeGeneration (topLevel);
 		}
 		
 		public AssemblyResolver Resolver {
@@ -1103,7 +1107,6 @@ namespace Stetic {
 		
 		void NotifyChanged (string rootWidgetName)
 		{
-//			Modified = true;
 			if (!modifiedTopLevels.Contains (rootWidgetName))
 				modifiedTopLevels.Add (rootWidgetName);
 			if (frontend != null)

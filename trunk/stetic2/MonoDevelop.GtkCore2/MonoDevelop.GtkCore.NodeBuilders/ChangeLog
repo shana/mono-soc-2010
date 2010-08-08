@@ -1,3 +1,11 @@
+2010-08-09  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* GuiProjectFolder.cs: Put gui project folder directly below References
+	in the project pad
+	* ProjectNodeBuilder.cs:
+	* GuiProjectFolderNodeBuilder.cs:
+	* ProjectFolderNodeBuilderExtension.cs: 
+
 2010-07-06  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* ProjectFileExtension.cs: Move cursor in entryFolder to the end.

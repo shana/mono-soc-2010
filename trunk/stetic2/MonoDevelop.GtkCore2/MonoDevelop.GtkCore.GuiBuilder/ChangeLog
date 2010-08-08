@@ -1,3 +1,10 @@
+2010-08-09  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* GuiBuilderProject.cs: Generate stetic code after a project converting
+	* GuiBuilderService.cs:
+	* GuiBuilderDisplayBinding.cs: Don't use component display binding for
+	generated partial files
+
 2010-08-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* GuiBuilderView.cs: Raise OnDirtyChanged after saving.

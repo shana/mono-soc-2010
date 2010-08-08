@@ -513,6 +513,22 @@ namespace MonoDevelop.GtkCore
 		{
 			return (GetComponentFile (componentName) != null);
 		}
+		
+		public bool ComponentNeedsCodeGeneration (string componentName)
+		{
+			string componentFile = GetComponentFile (componentName);
+			string gtkxFile = GetGtkxFile (componentFile);
+			string buildFile = GetBuildFile (componentFile);
+			FileInfo gtkxFileInfo = File.Exists (gtkxFile) ? new FileInfo (gtkxFile) : null;
+			FileInfo buildFileInfo = File.Exists (buildFile) ? new FileInfo (buildFile) : null;
+			
+			if (gtkxFileInfo == null)
+				return false;
+			if (buildFileInfo == null)
+			//file does not exist
+				return true;
+			return gtkxFileInfo.LastWriteTime > buildFileInfo.LastWriteTime;
+		}
 
 		void UpdateObjectsFile ()
 		{

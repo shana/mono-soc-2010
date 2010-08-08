@@ -17,12 +17,17 @@ namespace Stetic
 			foreach (ProjectBackend gp in projects) {
 			
 				// Generate top levels
-				foreach (Gtk.Widget w in gp.Toplevels)
-					GenerateWidgetCode (globalUnit, globalNs, options, units, w, warnings);
+				foreach (Gtk.Widget w in gp.Toplevels) {
+					Stetic.Wrapper.Widget wwidget = Stetic.Wrapper.Widget.Lookup (w);
+					if (gp.ComponentNeedsCodeGeneration (wwidget.Name))
+						GenerateWidgetCode (globalUnit, globalNs, options, units, w, warnings);
+				}
 					
 				// Generate global action groups
-				foreach (Wrapper.ActionGroup agroup in gp.ActionGroups)
-					GenerateGlobalActionGroupCode (globalUnit, globalNs, options, units, agroup, warnings);
+				foreach (Wrapper.ActionGroup agroup in gp.ActionGroups) {
+					if (gp.ComponentNeedsCodeGeneration (agroup.Name))
+						GenerateGlobalActionGroupCode (globalUnit, globalNs, options, units, agroup, warnings);
+				}
 			}
 		}
 		

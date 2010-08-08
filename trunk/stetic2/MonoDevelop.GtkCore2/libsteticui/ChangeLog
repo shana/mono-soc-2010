@@ -1,3 +1,11 @@
+2010-08-09  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* Project.cs: Add ComponentNeedsCodeGeneration method
+	* ProjectBackend.cs:
+	* IProjectDesignInfo.cs:
+	* CodeGeneratorPartialClass.cs: Only generate code for components that
+	have been changed
+
 2010-08-07  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Project.cs: Remove Modifies property

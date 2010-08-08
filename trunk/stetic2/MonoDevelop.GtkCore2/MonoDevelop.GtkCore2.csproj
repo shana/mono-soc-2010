@@ -69,9 +69,6 @@
     <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9307d64546e0580d">
       <Package>monodevelop</Package>
     </Reference>
-    <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral">
-      <Package>monodevelop</Package>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\core\MonoDevelop.Core\MonoDevelop.Core.csproj">
@@ -202,6 +199,8 @@
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\ProjectFileExtension.cs" />
     <Compile Include="MonoDevelop.GtkCore.Dialogs\ProjectConversionDialog.cs" />
     <Compile Include="gtk-gui\MonoDevelop.GtkCore.Dialogs.ProjectConversionDialog.cs" />
+    <Compile Include="MonoDevelop.GtkCore.NodeBuilders\GuiProjectFolder.cs" />
+    <Compile Include="MonoDevelop.GtkCore.NodeBuilders\GuiProjectFolderNodeBuilder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Mono.Addins.targets" />

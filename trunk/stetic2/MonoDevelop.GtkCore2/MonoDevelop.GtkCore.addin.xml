@@ -43,6 +43,7 @@
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/Ide/Pads/ProjectPad">
+		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.GuiProjectFolderNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFolderNodeBuilderExtension"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFileNodeBuilderExtension"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectNodeBuilder"/>
@@ -103,16 +104,15 @@
 		</Condition>
 	</Extension>
 	
-	<Extension path = "/MonoDevelop/GtkCore/ContextMenu/ProjectPad.UserInterfaceFolder">
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.AddNewDialog" />
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.AddNewWindow" />
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.AddNewWidget" />
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.AddNewActionGroup" />
-		<SeparatorItem />
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.EditIcons" />
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.ImportGladeFile" />
-		<SeparatorItem />
-		<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.GtkSettings" />
+	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
+		<Condition id="ItemType" value="Project|MonoDevelop.GtkCore.NodeBuilders.GuiProjectFolder">
+			<ItemSet id = "Gtk" _label = "_Gtk" insertafter="AddSectionEnd">
+				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.EditIcons"/>
+				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.ImportGladeFile" />
+				<SeparatorItem />
+				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.GtkSettings" />
+			</ItemSet>
+		</Condition>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/GtkCore/ContextMenu/ProjectPad.Component">

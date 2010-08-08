@@ -46,6 +46,9 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		{
 			if (excludeThis) return false;
 			
+			if (fileName.Contains ("generated"))
+				return false;
+			
 			if (GetWindow (fileName) == null)
 				return false;
 			
