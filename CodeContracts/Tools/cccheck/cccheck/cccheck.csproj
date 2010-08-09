@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{FCBC25F2-2C42-48CB-86C5-DBBA95240702}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>cccheck</RootNamespace>
+    <AssemblyName>cccheck</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\Libs\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Ast\Expr.cs" />
+    <Compile Include="Ast\ExprAdd.cs" />
+    <Compile Include="Ast\ExprLoadLength.cs" />
+    <Compile Include="Ast\ExprBinaryOp.cs" />
+    <Compile Include="Ast\ExprBinaryOpArithmetic.cs" />
+    <Compile Include="Ast\ExprBinaryOpComparison.cs" />
+    <Compile Include="Ast\ExprBlock.cs" />
+    <Compile Include="Ast\ExprBox.cs" />
+    <Compile Include="Ast\ExprCall.cs" />
+    <Compile Include="Ast\ExprCompareEqual.cs" />
+    <Compile Include="Ast\ExprCompareGreaterThan.cs" />
+    <Compile Include="Ast\ExprCompareLessThan.cs" />
+    <Compile Include="Ast\ExprConv.cs" />
+    <Compile Include="Ast\ExprLoadArg.cs" />
+    <Compile Include="Ast\ExprLoadConstant.cs" />
+    <Compile Include="Ast\ExprLoadLocal.cs" />
+    <Compile Include="Ast\ExprNop.cs" />
+    <Compile Include="Ast\ExprReturn.cs" />
+    <Compile Include="Ast\ExprStoreLocal.cs" />
+    <Compile Include="Ast\ExprSub.cs" />
+    <Compile Include="Ast\ExprType.cs" />
+    <Compile Include="Ast\Sn.cs" />
+    <Compile Include="CheckVisitor.cs" />
+    <Compile Include="Decompiler\Decompile.cs" />
+    <Compile Include="Decompiler\ExprGen.cs" />
+    <Compile Include="Decompiler\ModuleInfo.cs" />
+    <Compile Include="Environment.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="FindMethodCallsVisitor.cs" />
+    <Compile Include="IntervalDomain.cs" />
+    <Compile Include="IntervalMethodCall.cs" />
+    <Compile Include="MapToIntervalDomainVisitor.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Visitors\CompileVisitor.cs" />
+    <Compile Include="Visitors\ExprVisitor.cs" />
+    <Compile Include="Visitors\InstructionExtentVisitor.cs" />
+    <Compile Include="Visitors\SourcePositionVisitor.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
