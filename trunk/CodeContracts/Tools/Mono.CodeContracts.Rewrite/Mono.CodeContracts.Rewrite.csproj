@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A8CB9414-D1CC-4190-89D6-F70C352C8333}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mono.CodeContracts.Rewrite</RootNamespace>
+    <AssemblyName>Mono.CodeContracts.Rewrite</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>.\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>.\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>.\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Mono.CodeContracts.Rewrite.AstVisitors\CompileVisitor.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.AstVisitors\ExprVisitor.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.AstVisitors\InstructionExtentVisitor.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.AstVisitors\SourcePositionVisitor.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\Expr.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprAdd.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprBinaryOp.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprBinaryOpArithmetic.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprBinaryOpComparison.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprBlock.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprBox.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprCall.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprCompareEqual.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprCompareGreaterThan.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprCompareLessThan.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprConv.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprLoadArg.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprLoadConstant.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprNop.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprReturn.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprSub.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\ExprType.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Ast\Sn.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite.Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\AssemblyRef.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\ConditionTextExtractor.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\ContractRequiresInfo.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\ContractsRuntime.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\Decompile.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\ExprGen.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\MethodInfo.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\PerformRewrite.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\Rewriter.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\RewriterOptions.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\RewriterResults.cs" />
+    <Compile Include="Mono.CodeContracts.Rewrite\TransformContractsVisitor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
