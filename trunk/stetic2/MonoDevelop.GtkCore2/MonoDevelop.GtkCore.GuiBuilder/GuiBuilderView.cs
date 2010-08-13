@@ -79,7 +79,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		{
 			gproject = window.Project;
 			GtkDesignInfo info = GtkDesignInfo.FromProject (gproject.Project);
-			gproject.SteticProject.ImagesRootPath = FileService.AbsoluteToRelativePath (info.GtkGuiFolder, gproject.Project.BaseDirectory);
+			gproject.SteticProject.ImagesRootPath = FileService.AbsoluteToRelativePath (info.SteticFolder, gproject.Project.BaseDirectory);
 			gproject.UpdateLibraries ();
 			LoadDesigner ();
 		}

@@ -53,11 +53,16 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		{
 			if (excludeThis)
 				return false;
+			
+			if (fileName.Contains ("generated"))
+				return false;
+			
 			if (!IdeApp.Workspace.IsOpen)
 				return false;
 			
 			if (GetActionGroup (fileName) == null)
 				return false;
+			
 			
 			excludeThis = true;
 			var db = DisplayBindingService.GetDefaultBindingForUri (fileName);

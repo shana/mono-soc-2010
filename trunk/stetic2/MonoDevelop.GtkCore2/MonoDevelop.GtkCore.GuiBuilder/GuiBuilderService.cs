@@ -258,13 +258,21 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 		public static string GetBuildCodeFileName (Project project, string componentName)
 		{
+			return GetBuildCodeFileName (project, componentName, string.Empty);
+		}
+		
+		public static string GetBuildCodeFileName (Project project, string componentName, string nameSpace)
+		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 			string componentFile = info.GetComponentFile (componentName);
-			if (componentFile == null)
-				throw new UserException ("Cannot find component file for " + componentName);	
 			
-			string buildFile = info.GetBuildFile (componentFile);
-			return buildFile;
+			if (componentFile == null) {
+				if (nameSpace == "Stetic") {
+					return info.GetBuildFileInSteticFolder (componentName);
+				} else
+					throw new UserException ("Cannot find component file for " + componentName);
+			} else
+				return info.GetBuildFile (componentFile);
 		}
 		
 		public static string GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, bool saveToFile, bool overwrite)
@@ -404,7 +412,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			info.GuiBuilderProject.UpdateLibraries ();
 			
 			ArrayList projectFolders = new ArrayList ();
-			projectFolders.Add (info.GtkGuiFolder.FullPath);
+			projectFolders.Add (info.SteticFolder.FullPath);
 			
 			generating = true;
 			Stetic.CodeGenerationResult generationResult = null;
@@ -439,8 +447,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 					Stetic.GenerationOptions options = new Stetic.GenerationOptions ();
 					options.UseGettext = info.GenerateGettext;
 					options.GettextClass = info.GettextClass;
-					options.UsePartialClasses = project.UsePartialTypes;
-					options.GenerateSingleFile = false;
 					generationResult = SteticApp.GenerateProjectCode (options, info.GuiBuilderProject.SteticProject);
 				} catch (Exception ex) {
 					generatedException = ex;
@@ -465,7 +471,10 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				if (unit.Name.Length == 0)
 					fname = info.SteticGeneratedFile;
 				else
-					fname = GetBuildCodeFileName (project, unit.Name);
+					fname = GetBuildCodeFileName (project, 
+					                              unit.Name, 
+					                              (unit.Namespace != null) ? unit.Namespace.Name : string.Empty);
+				
 				StringWriter sw = new StringWriter ();
 				try {
 					foreach (CodeNamespace ns in unit.Namespaces)
@@ -474,12 +483,12 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 					string content = sw.ToString ();
 					content = FormatGeneratedFile (fname, content, provider);
 					File.WriteAllText (fname, content);
-					if (File.Exists (fname)) {
-					FileInfo file = new FileInfo (fname);
-					DateTime now = DateTime.Now;
-					file.LastWriteTime = now;
-					file.LastWriteTimeUtc = now;
-					}
+//					if (File.Exists (fname)) {
+//					FileInfo file = new FileInfo (fname);
+//					DateTime now = DateTime.Now;
+//					file.LastWriteTime = now;
+//					file.LastWriteTimeUtc = now;
+//					}
 				} finally {
 					FileService.NotifyFileChanged (fname);
 				}
@@ -599,8 +608,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			Stetic.GenerationOptions options = new Stetic.GenerationOptions ();
 			options.UseGettext = useGettext;
 			options.GettextClass = gettextClass;
-			options.UsePartialClasses = usePartialClasses;
-			options.GenerateSingleFile = false;
 			
 			return app.GenerateProjectCode (options, projects);
 		}

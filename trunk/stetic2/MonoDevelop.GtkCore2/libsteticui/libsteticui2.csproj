@@ -107,7 +107,6 @@
     <Compile Include="CecilWidgetLibrary.cs" />
     <Compile Include="CodeGenerationResult.cs" />
     <Compile Include="CodeGenerator.cs" />
-    <Compile Include="CodeGeneratorInternalClass.cs" />
     <Compile Include="CodeGeneratorPartialClass.cs" />
     <Compile Include="Component.cs" />
     <Compile Include="ComponentEventHandler.cs" />

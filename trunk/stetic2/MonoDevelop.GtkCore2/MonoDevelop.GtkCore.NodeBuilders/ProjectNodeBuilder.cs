@@ -73,7 +73,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 				GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 				
 				if (info.OldVersion) {
-					ProjectConversionDialog dialog = new ProjectConversionDialog (project);
+					ProjectConversionDialog dialog = new ProjectConversionDialog (project, info.SteticFolderName);
 					
 					try
 					{
@@ -116,7 +116,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 			
 			if (GtkDesignInfo.HasDesignedObjects (project)) {
-				GuiProjectFolder folder = new GuiProjectFolder(info.GtkGuiFolder.FullPath, project, null);
+				GuiProjectFolder folder = new GuiProjectFolder(info.SteticFolder.FullPath, project, null);
 				
 				builder.AddChild (new WindowsFolder (project));
 				builder.AddChild (folder);

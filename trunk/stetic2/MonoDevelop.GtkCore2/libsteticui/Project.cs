@@ -169,6 +169,9 @@ namespace Stetic
 				backend.Load (folderName);
 			
 			foreach (string basePath in DesignInfo.GetComponentFolders ()) {
+				if (!Directory.Exists (basePath))
+					continue;
+				
 				DirectoryInfo dir = new DirectoryInfo (basePath);
 				
 				foreach (FileInfo file in dir.GetFiles ()) {

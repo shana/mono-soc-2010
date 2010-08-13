@@ -34,7 +34,8 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 				return;
 			
 			ProjectFile pf = (ProjectFile) dataObject;
-			if (pf.FilePath.Extension == ".gtkx")
+			GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
+			if (info.HideGtkxFiles && pf.FilePath.Extension == ".gtkx")
 				attributes |= NodeAttributes.Hidden;
 		}
 		

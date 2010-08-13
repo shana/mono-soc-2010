@@ -17,12 +17,12 @@ namespace MonoDevelop.GtkCore.Dialogs
 		public bool MakeBackup { get; private set; }
 		
 		
-		public ProjectConversionDialog (Project project)
+		public ProjectConversionDialog (Project project, string guiFolderName)
 		{
 			this.Build ();
 			
 			labelProject.LabelProp = string.Format ("<b><big>{0}</big></b>", project.Name);
-			entryFolder.Text = "Gui";
+			entryFolder.Text = guiFolderName;
 			entryFolder.Position = -1;
 			
 			buttonConvert.Clicked += HandleButtonConvertClicked;
