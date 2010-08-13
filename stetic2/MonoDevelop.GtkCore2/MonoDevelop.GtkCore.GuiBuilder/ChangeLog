@@ -1,3 +1,11 @@
+2010-08-13  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* GuiBuilderView.cs:
+	* GuiBuilderProject.cs:
+	* GuiBuilderService.cs:
+	* GuiBuilderDisplayBinding.cs:
+	* ActionGroupDisplayBinding.cs: 
+
 2010-08-09  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* GuiBuilderProject.cs: Generate stetic code after a project converting

@@ -89,6 +89,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				string newGuiFolderName = project.BaseDirectory.Combine (guiFolderName);
 				gproject.ConvertProject (info.SteticFile, newGuiFolderName);
 				info.ConvertGtkFolder (guiFolderName, makeBackup);
+				info.UpdateGtkFolder ();
+				folderName = newGuiFolderName;
 				
 				IProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ();
 				ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
@@ -235,6 +237,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			get {
 				Load ();
 				return gproject;
+			
 			}
 		}
 		
@@ -524,7 +527,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 		public IType FindClass (string className, bool getUserClass)
 		{
-			FilePath gui_folder = GtkDesignInfo.FromProject (project).GtkGuiFolder;
+			FilePath gui_folder = GtkDesignInfo.FromProject (project).SteticFolder;
 			ProjectDom ctx = GetParserContext ();
 
 			if (ctx == null)
@@ -538,7 +541,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 						// Return this class only if it is declared outside the gtk-gui
 						// folder. Generated partial classes will be ignored.
 						foreach (IType part in cls.Parts) {
-							if (part.CompilationUnit != null && !part.CompilationUnit.FileName.IsNullOrEmpty && !part.CompilationUnit.FileName.IsChildPathOf (gui_folder)) {
+							if (part.CompilationUnit != null && !part.CompilationUnit.FileName.IsNullOrEmpty && !part.CompilationUnit.FileName.FileName.Contains ("generated")) {
 								return part;
 							}
 						}
@@ -652,23 +655,29 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				return files;
 
 			IDotNetLanguageBinding binding = LanguageBindingService.GetBindingPerLanguageName (project.LanguageName) as IDotNetLanguageBinding;
-			string path = Path.Combine (guiFolder, binding.GetFileName ("generated"));
-			if (!System.IO.File.Exists (path)) {
-				// Generate an empty build class
-				CodeDomProvider provider = binding.GetCodeDomProvider ();
-				if (provider == null)
-					throw new UserException ("Code generation not supported for language: " + project.LanguageName);
-				GuiBuilderService.SteticApp.GenerateProjectCode (path, "Stetic", provider, null);
+			CodeDomProvider provider = binding.GetCodeDomProvider ();
+				
+			if (provider == null)
+				throw new UserException ("Code generation not supported for language: " + project.LanguageName);
+//			string path = Path.Combine (guiFolder, binding.GetFileName ("generated"));
+//			if (!System.IO.File.Exists (path)) {
+//				GuiBuilderService.SteticApp.GenerateProjectCode (path, "Stetic", provider, null);
+//			}
+//			files.Add (path);
+//
+//			if (Windows != null) {
+//				foreach (GuiBuilderWindow win in Windows)
+//					files.Add (GuiBuilderService.GenerateSteticCodeStructure (project, win.RootWidget, true, false));
+//			}
+//					
+//			foreach (Stetic.ActionGroupInfo ag in SteticProject.ActionGroups)
+//				files.Add (GuiBuilderService.GenerateSteticCodeStructure (project, ag, true, false));
+			
+			string extension = "generated." + provider.FileExtension;
+			foreach (string file in Directory.GetFiles (guiFolder)) {
+				if (file.Contains (extension))
+					files.Add (file);		
 			}
-			files.Add (path);
-
-			if (Windows != null) {
-				foreach (GuiBuilderWindow win in Windows)
-					files.Add (GuiBuilderService.GenerateSteticCodeStructure (project, win.RootWidget, true, false));
-			}
-					
-			foreach (Stetic.ActionGroupInfo ag in SteticProject.ActionGroups)
-				files.Add (GuiBuilderService.GenerateSteticCodeStructure (project, ag, true, false));
 
 			return files;
 		}

@@ -58,7 +58,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			ProjectFolder folder = dataObject as ProjectFolder;
 			if (folder != null && folder.Project is DotNetProject) {
 				GtkDesignInfo info = GtkDesignInfo.FromProject (folder.Project);
-				if (info.GtkGuiFolder == folder.Path)
+				if (info.SteticFolder == folder.Path)
 					attributes |= NodeAttributes.Hidden;
 			}
 		}

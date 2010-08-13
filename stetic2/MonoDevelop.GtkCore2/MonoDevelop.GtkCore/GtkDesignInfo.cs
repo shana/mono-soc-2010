@@ -29,6 +29,8 @@
 
 using System;
 using System.IO;
+using System.CodeDom;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
@@ -51,18 +53,22 @@ namespace MonoDevelop.GtkCore
 		IDotNetLanguageBinding binding;
 		ProjectResourceProvider resourceProvider;
 		ReferenceManager referenceManager;
+		string langExtension;
 		
-		[ItemProperty (DefaultValue=true)]
+		[ItemProperty (DefaultValue = true)]
 		bool generateGettext = true;
 		
-		[ItemProperty (DefaultValue="Mono.Unix.Catalog")]
+		[ItemProperty (DefaultValue = "Mono.Unix.Catalog")]
 		string gettextClass = "Mono.Unix.Catalog";
 		
-		[ItemProperty (DefaultValue="Gui")]
-		string gtkguiFolderName = "Gui";
+		[ItemProperty (DefaultValue = "Stetic")]
+		string steticFolderName = "Stetic";
 		
-		[ItemProperty (DefaultValue=false)]
+		[ItemProperty (DefaultValue = false)]
 		bool wasConverted;
+		
+		[ItemProperty (DefaultValue = true)]
+		bool hideGtkxFiles = true;
 		
 		GtkDesignInfo ()
 		{
@@ -91,8 +97,15 @@ namespace MonoDevelop.GtkCore
 					referenceManager = null;
 				}
 				project = value;
+				
 				if (project != null) {
 					binding = LanguageBindingService.GetBindingPerLanguageName (project.LanguageName) as IDotNetLanguageBinding;
+					
+					CodeDomProvider provider = binding.GetCodeDomProvider ();
+					if (provider == null)
+						throw new UserException ("Code generation not supported for language: " + project.LanguageName);
+					langExtension = "." + provider.FileExtension;
+					
 					project.FileAddedToProject += OnFileEvent;
 					project.FileChangedInProject += OnFileEvent;
 					project.FileRemovedFromProject += OnFileEvent;
@@ -130,7 +143,7 @@ namespace MonoDevelop.GtkCore
 //							UpdateGtkFolder ();
 //							ProjectNodeBuilder.OnSupportChanged (project);
 //						}
-						builderProject = new GuiBuilderProject (project, GtkGuiFolder.FullPath.FullPath);
+						builderProject = new GuiBuilderProject (project, SteticFolder.FullPath.FullPath);
 					} else
 						builderProject = new GuiBuilderProject (project, null);
 				}
@@ -167,20 +180,22 @@ namespace MonoDevelop.GtkCore
 		}
 		
 		FilePath ObjectsFile {
-			get { return GtkGuiFolder.Combine ("objects.xml"); }
+			get { return SteticFolder.Combine ("objects.xml"); }
 		}
 		
+		[Obsolete]
 		public FilePath SteticGeneratedFile {
-			get { return GtkGuiFolder.Combine (binding.GetFileName ("generated")); }
+			get { return SteticFolder.Combine (binding.GetFileName ("generated")); }
 		}
 		
+		[Obsolete]
 		public FilePath SteticFile {
-			get { return GtkGuiFolder.Combine ("gui.stetic"); }
+			get { return SteticFolder.Combine ("gui.stetic"); }
 		}
 		
-		public FilePath GtkGuiFolder {
+		public FilePath SteticFolder {
 //			get { return project.BaseDirectory.Combine ("gtk-gui"); }
-			get { return project.BaseDirectory.Combine (!wasConverted ? "gtk-gui" : gtkguiFolderName); }
+			get { return project.BaseDirectory.Combine (!wasConverted ? "gtk-gui" : steticFolderName); }
 		}
 		
 		public bool GenerateGettext {
@@ -198,9 +213,14 @@ namespace MonoDevelop.GtkCore
 			set { gettextClass = value; }
 		}
 		
-		public string GtkGuiFolderName {
-			get { return gtkguiFolderName; }
-			set { gtkguiFolderName = value; }
+		public string SteticFolderName {
+			get { return steticFolderName; }
+			set { steticFolderName = value; }
+		}
+		
+		public bool HideGtkxFiles { 
+			get { return hideGtkxFiles; }
+			set { hideGtkxFiles = value; }
 		}
 		
 		public static bool HasDesignedObjects (Project project)
@@ -208,8 +228,7 @@ namespace MonoDevelop.GtkCore
 			if (project == null)
 				return false;
 
-			//string stetic_file = Path.Combine (Path.Combine (project.BaseDirectory, "gtk-gui"), "gui.stetic");
-			return SupportsDesigner (project);// && File.Exists (stetic_file);
+			return SupportsDesigner (project);
 		}
 
 		public static bool SupportsDesigner (Project project)
@@ -266,7 +285,7 @@ namespace MonoDevelop.GtkCore
 			bool projectModified = false;
 
 			// Remove all project files which are not in the generated list
-			foreach (ProjectFile pf in project.Files.GetFilesInPath (GtkGuiFolder)) {
+			foreach (ProjectFile pf in project.Files.GetFilesInPath (SteticFolder)) {
 				if (remaining_files.Contains (pf.FilePath))
 					continue;
 
@@ -276,14 +295,14 @@ namespace MonoDevelop.GtkCore
 			}
 
 			if (remaining_files.Count == 0)
-				FileService.DeleteDirectory (GtkGuiFolder);
+				FileService.DeleteDirectory (SteticFolder);
 
 			return projectModified;
 		}
 
 		public void ConvertGtkFolder (string guiFolderName, bool makeBackup)
 		{	
-			foreach (ProjectFile pf in project.Files.GetFilesInPath (GtkGuiFolder)) {
+			foreach (ProjectFile pf in project.Files.GetFilesInPath (SteticFolder)) {
 				FilePath path = pf.FilePath;
 				
 				if (path != SteticGeneratedFile) {
@@ -294,23 +313,24 @@ namespace MonoDevelop.GtkCore
 				}
 			}
 			
-			string oldGuiFolder = GtkGuiFolder.FullPath;
+			string oldGuiFolder = SteticFolder.FullPath;
 			string oldSteticFile = SteticFile;
 			string oldGeneratedFile = SteticGeneratedFile;
-			GtkGuiFolderName = guiFolderName;
+			SteticFolderName = guiFolderName;
 			wasConverted = true;
 			
-			if (!Directory.Exists (GtkGuiFolder))
-				FileService.CreateDirectory (GtkGuiFolder);
+			if (!Directory.Exists (SteticFolder))
+				FileService.CreateDirectory (SteticFolder);
 			
 			if (makeBackup && File.Exists (oldSteticFile)) {
-				string backupFile = GtkGuiFolder.Combine ("old.stetic");
+				string backupFile = SteticFolder.Combine ("old.stetic");
 				FileService.MoveFile (oldSteticFile, backupFile);
 			}
 			
 			if (File.Exists (oldGeneratedFile))
-				FileService.MoveFile (oldGeneratedFile, SteticGeneratedFile);
-			
+//				FileService.MoveFile (oldGeneratedFile, SteticGeneratedFile);
+				FileService.DeleteFile (oldGeneratedFile);
+				
 			FileService.DeleteDirectory (oldGuiFolder);
 		}
 		
@@ -322,7 +342,7 @@ namespace MonoDevelop.GtkCore
 			// This method synchronizes the current gtk project configuration info
 			// with the needed support files in the gtk-gui folder.
 
-			FileService.CreateDirectory (GtkGuiFolder);
+			FileService.CreateDirectory (SteticFolder);
 			bool projectModified = false;
 			
 			foreach (string filename in GetComponentsFiles ()) {
@@ -331,11 +351,11 @@ namespace MonoDevelop.GtkCore
 	
 				string componentFile = GetComponentFileFromGtkx (filename);
 				
-				if (componentFile != null) {
+				if (componentFile != null && File.Exists (componentFile)) { 
 					pf.DependsOn = componentFile;	
 				
 					string buildFile = GetBuildFileFromGtkx (filename);
-					if (buildFile != null) {
+					if (buildFile != null && File.Exists (buildFile)) {
 						ProjectFile pf2 = project.AddFile (buildFile, BuildAction.Compile);
 						pf2.ResourceId = Path.GetFileName (buildFile);
 						pf2.DependsOn = componentFile;
@@ -345,7 +365,7 @@ namespace MonoDevelop.GtkCore
 				projectModified = true;
 			}
 			
-			StringCollection files = GuiBuilderProject.GenerateFiles (GtkGuiFolder);
+			StringCollection files = GuiBuilderProject.GenerateFiles (SteticFolder);
 			foreach (string filename in files) {
 				if (!project.IsFileInProject (filename)) {
 					project.AddFile (filename, BuildAction.Compile);
@@ -411,6 +431,7 @@ namespace MonoDevelop.GtkCore
 //			return true;
 //		}
 		
+	
 		public string GetComponentFile (string componentName)
 		{
 			IType type = GuiBuilderProject.FindClass (componentName);
@@ -427,7 +448,7 @@ namespace MonoDevelop.GtkCore
 					return componentFile;
 				}
 			}
-				
+			
 			return null;
 		}
 		
@@ -435,17 +456,25 @@ namespace MonoDevelop.GtkCore
 		{	
 			if (componentFile != null) {
 				string buildFile = componentFile.Replace 
-					(Path.GetExtension (SteticGeneratedFile), ".generated" + Path.GetExtension (SteticGeneratedFile));
+					(Path.GetExtension (SteticGeneratedFile), ".generated" + langExtension);
 				return buildFile;
 			}
 			
 			return null;
 		}
 		
+		public string GetBuildFileInSteticFolder (string componentName)
+		{
+			string name = string.Format ("{0}.generated{1}", componentName, langExtension);
+			string buildFile = Path.Combine (SteticFolder, name);
+			
+			return buildFile;
+		}
+		
 		public string GetGtkxFile (string componentFile)
 		{
 			if (componentFile != null) {
-				string gtkxFile = componentFile.Replace (Path.GetExtension (SteticGeneratedFile), ".gtkx");
+				string gtkxFile = componentFile.Replace (langExtension, ".gtkx");
 				return gtkxFile;
 			}
 			
@@ -454,13 +483,17 @@ namespace MonoDevelop.GtkCore
 		
 		public string GetComponentFileFromGtkx (string gtkxFile)
 		{
-			string componentFile = gtkxFile.Replace (".gtkx", Path.GetExtension (SteticGeneratedFile));
-			return componentFile;
+			if (gtkxFile != null) { 
+				string componentFile = gtkxFile.Replace (".gtkx", langExtension);
+				return componentFile;
+			}
+			
+			return null;
 		}
 		
 		public string GetBuildFileFromGtkx (string gtkxFile)
 		{
-			string buildFile = gtkxFile.Replace (".gtkx", ".generated" + Path.GetExtension (SteticGeneratedFile));
+			string buildFile = gtkxFile.Replace (".gtkx", ".generated" + langExtension);
 			return buildFile;
 		}
 		
@@ -521,7 +554,7 @@ namespace MonoDevelop.GtkCore
 			string buildFile = GetBuildFile (componentFile);
 			FileInfo gtkxFileInfo = File.Exists (gtkxFile) ? new FileInfo (gtkxFile) : null;
 			FileInfo buildFileInfo = File.Exists (buildFile) ? new FileInfo (buildFile) : null;
-			
+			Console.WriteLine(gtkxFile);
 			if (gtkxFileInfo == null)
 				return false;
 			if (buildFileInfo == null)

@@ -21,7 +21,6 @@ FILES =  \
 	CecilWidgetLibrary.cs \
 	CodeGenerationResult.cs \
 	CodeGenerator.cs \
-	CodeGeneratorInternalClass.cs \
 	CodeGeneratorPartialClass.cs \
 	Component.cs \
 	ComponentEventHandler.cs \

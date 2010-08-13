@@ -1,3 +1,13 @@
+2010-08-13  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* Project.cs: 
+	* Makefile.am:
+	* CodeGenerator.cs:
+	* libsteticui2.csproj:
+	* ActionGroupEditSession.cs: 
+	* CodeGeneratorPartialClass.cs:
+	* CodeGeneratorInternalClass.cs: Remove class
+
 2010-08-09  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* Project.cs: Add ComponentNeedsCodeGeneration method
