@@ -139,10 +139,6 @@ namespace MonoDevelop.GtkCore
 			get {
 				if (builderProject == null) {
 					if (SupportsDesigner (project)) {
-//						if (!File.Exists (SteticFile)) {
-//							UpdateGtkFolder ();
-//							ProjectNodeBuilder.OnSupportChanged (project);
-//						}
 						builderProject = new GuiBuilderProject (project, SteticFolder.FullPath.FullPath);
 					} else
 						builderProject = new GuiBuilderProject (project, null);
@@ -328,7 +324,6 @@ namespace MonoDevelop.GtkCore
 			}
 			
 			if (File.Exists (oldGeneratedFile))
-//				FileService.MoveFile (oldGeneratedFile, SteticGeneratedFile);
 				FileService.DeleteFile (oldGeneratedFile);
 				
 			FileService.DeleteDirectory (oldGuiFolder);

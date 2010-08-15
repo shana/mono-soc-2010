@@ -60,18 +60,20 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 					break;
 				case GtkComponentType.IconFactory :
 					icon = ImageService.GetPixbuf ("md-gtkcore-iconfactory", Gtk.IconSize.Menu);
+					label = "Stock icons";
 					break;
 				}	
 			}
 		}
 		
+		//override 
 		public override bool HasChildNodes (ITreeBuilder builder, object dataObject)
 		{
 			return base.HasChildNodes (builder, dataObject);
 		}
 	}
 	
-	public class ComponentCommandHandler : ProjectFileNodeCommandHandler
+	public class ComponentCommandHandler : NodeCommandHandler
 	{
 		/*public override void ActivateItem ()
 		{
@@ -101,5 +103,42 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			base.ActivateItem ();
 		}
 		*/
+		
+		[CommandHandler (GtkCommands.GenerateCode)]
+		protected void OnGenerateCode ()
+		{
+			ProjectFile pf = CurrentNode.DataItem as ProjectFile;
+			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			GuiBuilderProject gproject = info.GuiBuilderProject;
+			
+			gproject.GenerateCode (pf.FilePath);
+		}
+		
+		[CommandUpdateHandler (GtkCommands.GenerateCode)]
+		protected void UpdateGenerateCode (CommandInfo cinfo)
+		{
+			ProjectFile pf = CurrentNode.DataItem as ProjectFile;
+			
+			if (pf.DependsOn == null && pf.HasChildren)
+				cinfo.Visible = pf.IsComponentFile ();
+			else
+				cinfo.Visible = false;
+		}	
+		
+		[CommandUpdateHandler (EditCommands.Copy)]
+		[CommandUpdateHandler (EditCommands.Delete)]
+		[CommandUpdateHandler (EditCommands.Rename)]
+		protected void UpdateDisabledCommands (CommandInfo cinfo)
+		{
+			//disable operations for generated files in designer folder
+			cinfo.Visible = false;//(CurrentNode.GetParentDataItem (typeof (GuiProjectFolder), true) == null);
+		}
+		
+		public override DragOperation CanDragNode ()
+		{
+			return DragOperation.None;
+		}
+		
 	}
 }

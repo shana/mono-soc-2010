@@ -73,6 +73,8 @@ RES =  \
 	gtk-gui/gui.stetic \
 	gui.glade \
 	icons/actiongroup.png \
+	icons/gtk-logo.png \
+	icons/gtkx.png \
 	icons/image-x-generic.png \
 	icons/widget.png \
 	MonoDevelop.GtkCore.addin.xml \

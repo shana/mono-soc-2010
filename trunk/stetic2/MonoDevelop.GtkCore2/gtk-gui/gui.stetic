@@ -41,10 +41,11 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Dialog" id="MonoDevelop.GtkCore.Dialogs.ProjectConversionDialog" design-size="391 302">
+  <widget class="Gtk.Dialog" id="MonoDevelop.GtkCore.Dialogs.ProjectConversionDialog" design-size="532 308">
     <property name="MemberName" />
-    <property name="Title" translatable="yes">GTK# Project Conversion</property>
+    <property name="Title" translatable="yes">Project Name</property>
     <property name="WindowPosition">CenterOnParent</property>
+    <property name="Modal">True</property>
     <property name="SkipTaskbarHint">True</property>
     <property name="Buttons">1</property>
     <property name="HelpButton">False</property>
@@ -53,14 +54,23 @@
         <property name="MemberName" />
         <property name="BorderWidth">2</property>
         <child>
-          <widget class="Gtk.VBox" id="vbox2">
+          <widget class="Gtk.HBox" id="hbox">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Label" id="labelProject">
+              <widget class="Gtk.Alignment" id="alignmentLogo">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">&lt;b&gt;&lt;big&gt;Project Name&lt;/big&gt;&lt;/b&gt;</property>
-                <property name="UseMarkup">True</property>
+                <property name="Yscale">0</property>
+                <property name="Xalign">1</property>
+                <property name="Yalign">0.15</property>
+                <child>
+                  <widget class="Gtk.Image" id="imageLogo">
+                    <property name="MemberName" />
+                    <property name="WidthRequest">180</property>
+                    <property name="Yalign">0</property>
+                    <property name="Pixbuf">resource:gtk-logo.png</property>
+                  </widget>
+                </child>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -70,46 +80,14 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="labelInfo">
-                <property name="MemberName" />
-                <property name="Xalign">0</property>
-                <property name="Yalign">0</property>
-                <property name="LabelProp" translatable="yes">This project has been created in the previous
-version of GTK# addin and must be converted. 
-
-Following changes will be made :
-	- split gui.stetic into separate .gtkx files
-	- remove gtk-gui folder.
-	- create GUI folder for icon factory
-	  and global action groups </property>
-                <property name="Wrap">True</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.HSeparator" id="hseparator1">
-                <property name="MemberName" />
-              </widget>
-              <packing>
-                <property name="Position">2</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.HBox" id="hbox1">
+              <widget class="Gtk.VBox" id="vbox2">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.Label" id="labelFolder">
+                  <widget class="Gtk.Label" id="labelProject">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">GUI folder name:</property>
+                    <property name="LabelProp" translatable="yes">&lt;b&gt;&lt;big&gt;GTK# Project Conversion&lt;/big&gt;&lt;/b&gt;</property>
+                    <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -119,40 +97,96 @@ Following changes will be made :
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Entry" id="entryFolder">
+                  <widget class="Gtk.Label" id="labelInfo">
                     <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="IsEditable">True</property>
-                    <property name="InvisibleChar">●</property>
+                    <property name="Xalign">0</property>
+                    <property name="Yalign">0</property>
+                    <property name="LabelProp" translatable="yes">This project has been created in the previous
+version of GTK# addin and must be converted. 
+
+&lt;b&gt;Following changes will be made :&lt;/b&gt;
+	- split gui.stetic into separate .gtkx files
+	- split generated.cs into separate helper classes
+	- remove gtk-gui folder.
+	- create a designer folder for stock icons
+	  and generated helper classes.</property>
+                    <property name="UseMarkup">True</property>
+                    <property name="Wrap">True</property>
                   </widget>
                   <packing>
                     <property name="Position">1</property>
                     <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder />
+                  <widget class="Gtk.HSeparator" id="hseparator1">
+                    <property name="MemberName" />
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.HBox" id="hbox1">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="labelFolder">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Designer folder name:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Entry" id="entryFolder">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="IsEditable">True</property>
+                        <property name="InvisibleChar">●</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.CheckButton" id="checkBackup">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Label" translatable="yes">Make a backup before converting</property>
+                    <property name="Active">True</property>
+                    <property name="DrawIndicator">True</property>
+                    <property name="HasLabel">True</property>
+                    <property name="UseUnderline">True</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">4</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
                 </child>
               </widget>
               <packing>
-                <property name="Position">3</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.CheckButton" id="checkBackup">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Label" translatable="yes">Make a backup before converting</property>
-                <property name="Active">True</property>
-                <property name="DrawIndicator">True</property>
-                <property name="HasLabel">True</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">4</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
