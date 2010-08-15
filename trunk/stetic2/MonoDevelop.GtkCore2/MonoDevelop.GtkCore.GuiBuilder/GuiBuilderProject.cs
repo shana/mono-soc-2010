@@ -91,11 +91,15 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				info.ConvertGtkFolder (guiFolderName, makeBackup);
 				info.UpdateGtkFolder ();
 				folderName = newGuiFolderName;
-				
 				IProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ();
-				ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
-				GuiBuilderService.GenerateSteticCode (monitor, project, configuration);
-				monitor.ReportSuccess ("Converting was succesfull");
+				try {
+					ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
+					Generator generator = new Generator ();
+					generator.Run (monitor, project, configuration);
+					monitor.ReportSuccess ("Converting was succesfull");
+				} finally {
+					monitor.Dispose ();
+				}
 			} finally {
 				gproject.Dispose ();
 			}
@@ -112,8 +116,13 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				fi.LastWriteTime = DateTime.Now;
 				
 				IProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ();
-				ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
-				GuiBuilderService.GenerateSteticCode (monitor, project, configuration);
+				try {
+					ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
+					Generator generator = new Generator ();
+					generator.Run (monitor, project, configuration);
+				} finally {
+					monitor.Dispose ();
+				}
 			}
 		}
 		
@@ -391,6 +400,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		void OnFileRemoved (object sender, ProjectFileEventArgs args)
 		{
 			ArrayList toDelete = new ArrayList ();
+			ArrayList toDeleteGroups = new ArrayList ();
 
 			ParsedDocument doc = ProjectDomService.GetParsedDocument (ProjectDomService.GetProjectDom (args.Project), args.ProjectFile.Name);
 			if (doc == null || doc.CompilationUnit == null)
@@ -398,12 +408,22 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 
 			foreach (IType t in doc.CompilationUnit.Types) {
 				GuiBuilderWindow win = GetWindowForClass (t.FullName);
-				if (win != null)
+				if (win != null) {
 					toDelete.Add (win);
+					continue;
+				}
+				
+				Stetic.ActionGroupInfo group = GetActionGroup (t.FullName);
+				if (group != null) {
+					toDeleteGroups.Add (group);
+				}
 			}
-			
+	
 			foreach (GuiBuilderWindow win in toDelete)
 				Remove (win);
+			
+			foreach (Stetic.ActionGroupInfo group in toDeleteGroups)
+				RemoveActionGroup (group);
 		}
 
 		void OnGroupsChanged (object s, EventArgs a)

@@ -19,14 +19,28 @@ namespace Stetic
 				// Generate top levels
 				foreach (Gtk.Widget w in gp.Toplevels) {
 					Stetic.Wrapper.Widget wwidget = Stetic.Wrapper.Widget.Lookup (w);
-					if (gp.ComponentNeedsCodeGeneration (wwidget.Name))
-						GenerateWidgetCode (globalNs, options, units, w, warnings);
+					string topLevelName = wwidget.Name;
+					if (gp.ComponentNeedsCodeGeneration (topLevelName)) {
+						//designer file for widget could be changed beyond stetic process 
+						//and we nead update wrapper before code generation
+						//during reloading wrappered widget w could be changed;
+						Gtk.Widget currentw = w;
+						if (gp.ReloadTopLevel (topLevelName)) {
+							currentw = gp.GetWidget (topLevelName);
+						}
+						GenerateWidgetCode (globalNs, options, units, currentw, warnings);
+					}
 				}
 					
 				// Generate global action groups
 				foreach (Wrapper.ActionGroup agroup in gp.ActionGroups) {
-					if (gp.ComponentNeedsCodeGeneration (agroup.Name))
+					string groupName = agroup.Name;
+					if (gp.ComponentNeedsCodeGeneration (groupName)) {
+						//designer file for action group could be changed beyond stetic process 
+						//and we nead update wrapper
+						gp.ReloadActionGroup (groupName);
 						GenerateGlobalActionGroupCode (globalNs, options, units, agroup, warnings);
+					}
 				}
 			}
 		}

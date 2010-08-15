@@ -53,6 +53,12 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			return typeof(DotNetProject).IsAssignableFrom (dataType);
 		}
 		
+		public override Type CommandHandlerType {
+			get {
+				return typeof (GuiProjectFolderCommandHandler);
+			}
+		}
+		
 		protected override void Initialize ()
 		{
 			lock (typeof (ProjectNodeBuilder))

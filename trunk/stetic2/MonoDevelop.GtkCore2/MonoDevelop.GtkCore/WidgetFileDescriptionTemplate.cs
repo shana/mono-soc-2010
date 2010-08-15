@@ -125,7 +125,8 @@ namespace MonoDevelop.GtkCore
 				XmlDocument doc = new XmlDocument ();
 				doc.LoadXml (content);
 				
-				gproject.SteticProject.AddNewActionGroup (doc.DocumentElement);
+				Stetic.Project sproject = gproject.SteticProject;
+				sproject.AddNewActionGroup (doc.DocumentElement);
 				gproject.Save (false);
 				IdeApp.ProjectOperations.Save (project);
 				return true;

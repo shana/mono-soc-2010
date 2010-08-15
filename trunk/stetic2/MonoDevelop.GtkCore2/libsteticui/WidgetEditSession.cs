@@ -216,7 +216,7 @@ namespace Stetic {
 		
 		void OnProjectReloaded (object s, EventArgs a)
 		{
-			Gtk.Widget topWidget = project.GetTopLevel (sourceWidget);
+			Gtk.Widget topWidget = project.GetWidget (sourceWidget);
 			
 			if (topWidget != null) {
 				rootWidget = Stetic.Wrapper.Container.Lookup (topWidget);
