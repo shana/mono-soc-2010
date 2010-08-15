@@ -7,7 +7,7 @@ namespace Stetic
 		//string FileName { get; }
 		string FolderName { get; }
 		Gtk.Widget[] Toplevels { get; }
-		Gtk.Widget GetTopLevel (string name);
+		Gtk.Widget GetWidget (string name);
 		Gtk.Widget Selection { get; set; }
 		Wrapper.ActionGroupCollection ActionGroups { get; }
 		ProjectIconFactory IconFactory { get; }

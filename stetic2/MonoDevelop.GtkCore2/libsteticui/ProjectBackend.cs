@@ -403,9 +403,7 @@ namespace Stetic {
 			loading = true;
 
 			try {
-//				string fn = fileName;
 				Close ();
-//				fileName = fn;
 				
 				XmlNode node = doc.SelectSingleNode ("/stetic-interface");
 				if (node == null)
@@ -447,6 +445,48 @@ namespace Stetic {
 			}
 			
 			return data.Widget;
+		}
+		
+		public bool ReloadTopLevel (string topLevelName)
+		{
+			XmlElement topLevelElem = ReadDesignerFile (topLevelName, "widget");
+			if (topLevelName != null) {
+				WidgetData data = GetWidgetData (topLevelName);
+			
+				if (data != null) {
+					//Stetic.Wrapper.Widget ww = Stetic.Wrapper.Widget.Lookup (data.Widget);
+					data.SetXmlData (topLevelName, topLevelElem);
+					GetWidget (data);
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		public void ReloadActionGroup (string groupName)
+		{
+			
+		}
+		
+		XmlElement ReadDesignerFile (string componentName, string elementName)
+		{
+			string gtkxFile = GetDesignerFileName (componentName);
+			if (gtkxFile != null) {
+				XmlDocument wdoc = new XmlDocument ();
+				wdoc.PreserveWhitespace = true;
+				wdoc.Load (gtkxFile);
+		
+				XmlNode wnode = wdoc.SelectSingleNode ("/stetic-interface");
+				foreach (XmlElement toplevel in wnode.SelectNodes (elementName)) {
+					return toplevel;
+				}
+				
+				string msg = string.Format (@"Cannot find /stetic-interface/{0} element in {1} file.", 
+				                             elementName, gtkxFile);
+				throw new InvalidOperationException (msg);
+			}
+			
+			return null;
 		}
 		
 		public void ConvertProject (string oldSteticFileName, string newGuiFolderName)
@@ -523,26 +563,29 @@ namespace Stetic {
 					
 					string id = toplevel.GetAttribute (idAttribute);
 					if (modifiedTopLevels.Contains (id) || converting) {
-						string componentFile = frontend.DesignInfo.GetComponentFile (id);
-						if (componentFile == null)
-							throw new InvalidOperationException ("Cannot find a component file for " + id);
-					
-						string xmlFile = frontend.DesignInfo.GetGtkxFile (componentFile);
-					
-						XmlDocument doc2 = new XmlDocument ();
-						doc2.PreserveWhitespace = true;
-						                     
-						XmlElement node2 = doc2.CreateElement ("stetic-interface");
-						doc2.AppendChild (node2);
-					
-						XmlNode wnode2 = doc2.ImportNode (toplevel, true);
-						node2.AppendChild (wnode2);
-					
-						WriteXmlFile (xmlFile, doc2);
-						if (modifiedTopLevels.Contains (id))
-							modifiedTopLevels.Remove (id);
+						string xmlFile = GetDesignerFileName (id);
+						if (xmlFile != null) {
+							XmlDocument doc2 = new XmlDocument ();
+							doc2.PreserveWhitespace = true;
+							                     
+							XmlElement node2 = doc2.CreateElement ("stetic-interface");
+							doc2.AppendChild (node2);
+						
+							XmlNode wnode2 = doc2.ImportNode (toplevel, true);
+							node2.AppendChild (wnode2);
+						
+							WriteXmlFile (xmlFile, doc2);
+							if (modifiedTopLevels.Contains (id))
+								modifiedTopLevels.Remove (id);
+						}
 					}
 			}	
+		}
+		
+		private string GetDesignerFileName (string componentName)
+		{
+			string componentFile = frontend.DesignInfo.GetComponentFile (componentName);			
+			return frontend.DesignInfo.GetGtkxFile (componentFile);
 		}
 		
 		void WriteXmlFile (string xmlFile, XmlDocument doc)
@@ -643,7 +686,7 @@ namespace Stetic {
 		
 		public Wrapper.Container GetTopLevelWrapper (string name, bool throwIfNotFound)
 		{
-			Gtk.Widget w = GetTopLevel (name);
+			Gtk.Widget w = GetWidget (name);
 			if (w != null) {
 				Wrapper.Container ww = Wrapper.Container.Lookup (w);
 				if (ww != null)
@@ -697,6 +740,9 @@ namespace Stetic {
 			
 			if (frontend != null)
 				frontend.NotifyWidgetRemoved (data.Name);
+			
+			if (modifiedTopLevels.Contains (name))
+				modifiedTopLevels.Remove (name);
 		}
 		
 		public Stetic.Wrapper.ActionGroup AddNewActionGroup (string name)
@@ -704,6 +750,7 @@ namespace Stetic {
 			Stetic.Wrapper.ActionGroup group = new Stetic.Wrapper.ActionGroup ();
 			group.Name = name;
 			ActionGroups.Add (group);
+			this.modifiedTopLevels.Add (name);
 			return group;
 		}
 		
@@ -715,12 +762,16 @@ namespace Stetic {
 			Stetic.Wrapper.ActionGroup group = new Stetic.Wrapper.ActionGroup ();
 			group.Read (or, doc.DocumentElement);
 			ActionGroups.Add (group);
+			this.modifiedTopLevels.Add (group.Name);
 			return group;
 		}
 		
 		public void RemoveActionGroup (Stetic.Wrapper.ActionGroup group)
 		{
 			ActionGroups.Remove (group);
+			string name = group.Name;
+			if (modifiedTopLevels.Contains (name))
+				modifiedTopLevels.Remove (name);
 		}
 		
 		public Wrapper.ActionGroup[] GetActionGroups ()
@@ -844,6 +895,7 @@ namespace Stetic {
 			
 			if (!loading) {
 				Stetic.Wrapper.Widget ww = Stetic.Wrapper.Widget.Lookup (widget);
+				
 				if (ww == null)
 					throw new InvalidOperationException ("Widget not wrapped");
 				if (frontend != null)
@@ -958,7 +1010,7 @@ namespace Stetic {
 			}
 		}
 		
-		public Gtk.Widget GetTopLevel (string name)
+		public Gtk.Widget GetWidget (string name)
 		{
 			WidgetData w = GetWidgetData (name);
 			if (w != null)

@@ -1,3 +1,8 @@
+2010-08-15  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* DND.cs:
+	* IProject.cs: 
+
 2010-08-13  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* GeneratorContext.cs: 

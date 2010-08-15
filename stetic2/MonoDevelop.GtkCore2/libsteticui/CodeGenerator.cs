@@ -125,26 +125,10 @@ namespace Stetic
 			foreach (Signal signal in wrapper.Signals) {
 				SignalDescriptor descriptor = signal.SignalDescriptor;
 				
-				CodeExpression createDelegate;
-				
-//				if (options.UsePartialClasses) {
-					createDelegate =
-						new CodeDelegateCreateExpression (
-							new CodeTypeReference (descriptor.HandlerTypeName, CodeTypeReferenceOptions.GlobalReference),
-							new CodeThisReferenceExpression (),
-							signal.Handler);
-				
-//				} else {
-//					createDelegate =
-//						new CodeMethodInvokeExpression (
-//							new CodeTypeReferenceExpression (new CodeTypeReference (typeof(Delegate), CodeTypeReferenceOptions.GlobalReference)),
-//							"CreateDelegate",
-//							new CodeTypeOfExpression (descriptor.HandlerTypeName),
-//							targetObjectVar,
-//							new CodePrimitiveExpression (signal.Handler));
-//					
-//					createDelegate = new CodeCastExpression (descriptor.HandlerTypeName.ToGlobalTypeRef (), createDelegate);
-//				}
+				CodeExpression createDelegate = new CodeDelegateCreateExpression (
+						new CodeTypeReference (descriptor.HandlerTypeName, CodeTypeReferenceOptions.GlobalReference),
+						new CodeThisReferenceExpression (),
+						signal.Handler);
 				
 				CodeAttachEventStatement cevent = new CodeAttachEventStatement (
 					new CodeEventReferenceExpression (
