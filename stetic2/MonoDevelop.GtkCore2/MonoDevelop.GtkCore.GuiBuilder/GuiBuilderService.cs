@@ -455,8 +455,23 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 			
 			if (generatedException != null) {
-				LoggingService.LogError ("GUI code generation failed", generatedException);
-				throw new UserException ("GUI code generation failed: " + generatedException.Message);
+				string msg = string.Empty;
+				
+				if (generatedException.InnerException != null) {
+					msg = string.Format("{0}\n{1}\nInner Exception {2}\n{3}",
+				                        generatedException.Message,
+				                        generatedException.StackTrace,
+					                    generatedException.InnerException.Message,
+					                    generatedException.InnerException.StackTrace);
+				} else {
+					msg = string.Format("{0}\n{1}",
+				                        generatedException.Message,
+				                        generatedException.StackTrace);
+				}
+				                           
+//				LoggingService.LogError ("GUI code generation failed", generatedException);
+				LoggingService.LogError ("GUI code generation failed: " + msg);
+				throw new UserException ("GUI code generation failed: " + msg);
 			}
 			
 			if (generationResult == null)

@@ -42,6 +42,9 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 					}
 				}
 			}
+			if (pf.Name.Contains ("IconFactory.gtkx"))
+				return GtkComponentType.IconFactory;
+			
 			return GtkComponentType.None;
 		}
 	}

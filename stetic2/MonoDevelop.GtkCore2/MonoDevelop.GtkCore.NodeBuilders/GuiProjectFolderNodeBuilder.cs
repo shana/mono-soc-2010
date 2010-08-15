@@ -27,6 +27,7 @@
 using System;
 using MonoDevelop.Components.Commands;
 using MonoDevelop.Core;
+using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
@@ -108,11 +109,68 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			cinfo.Visible = CanAddWindow ();
 		}
 		
+		[CommandUpdateHandler (EditCommands.Delete)]
+		[CommandUpdateHandler (EditCommands.Rename)]
+		[CommandUpdateHandler (ProjectCommands.AddNewFiles)]
+		[CommandUpdateHandler (ProjectCommands.AddFiles)]
+		[CommandUpdateHandler (ProjectCommands.AddSolutionFolder)]
+		[CommandUpdateHandler (ProjectCommands.AddItem)]
+		[CommandUpdateHandler (ProjectCommands.NewFolder)]
+		protected void UpdateDisabledCommands (CommandInfo cinfo)
+		{
+			cinfo.Visible = false;
+			cinfo.Enabled = false;
+		}
+		
 		bool CanAddWindow ()
 		{
 			DotNetProject project = CurrentNode.GetParentDataItem (typeof(Project), true) as DotNetProject;
 			return GtkDesignInfo.SupportsDesigner (project);
 		}
+		
+		public override DragOperation CanDragNode ()
+		{
+			return DragOperation.None;
+		}
+		
+		public override bool CanDeleteItem ()
+		{
+			return false;
+		}
+		
+		public override bool CanDropMultipleNodes (object[] dataObjects, DragOperation operation)
+		{
+			return false;
+		}
+		
+		public override bool CanDropMultipleNodes (object[] dataObjects, DragOperation operation, DropPosition position)
+		{
+			return false;
+		}
+		
+		public override bool CanDeleteMultipleItems ()
+		{
+			return false;
+		}
+		
+		public override bool CanDropNode (object dataObject, DragOperation operation)
+		{
+			return false;
+		}
+		
+		public override bool CanDropNode (object dataObject, DragOperation operation, DropPosition position)
+		{
+			return false;
+		}
+		
+		public override void RenameItem (string newName)
+		{		
+			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			info.SteticFolderName = newName;
+			
+			base.RenameItem (newName);
+		} 
 	}
 }
 

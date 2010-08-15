@@ -95,8 +95,25 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				IProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ();
 				ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
 				GuiBuilderService.GenerateSteticCode (monitor, project, configuration);
+				monitor.ReportSuccess ("Converting was succesfull");
 			} finally {
 				gproject.Dispose ();
+			}
+		}
+		
+		public void GenerateCode (string componentFile)
+		{
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			string gtkxFile = info.GetGtkxFile (componentFile);
+			if (gtkxFile != null && File.Exists (gtkxFile)) {
+				
+				Save (false);
+				FileInfo fi = new FileInfo (gtkxFile);
+				fi.LastWriteTime = DateTime.Now;
+				
+				IProgressMonitor monitor = IdeApp.Workbench.ProgressMonitors.GetBuildProgressMonitor ();
+				ConfigurationSelector configuration = IdeApp.Workspace.ActiveConfiguration;
+				GuiBuilderService.GenerateSteticCode (monitor, project, configuration);
 			}
 		}
 		
@@ -541,6 +558,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 						// Return this class only if it is declared outside the gtk-gui
 						// folder. Generated partial classes will be ignored.
 						foreach (IType part in cls.Parts) {
+							if (part.CompilationUnit.FileName.FullPath.IsChildPathOf (gui_folder))
+								continue;
 							if (part.CompilationUnit != null && !part.CompilationUnit.FileName.IsNullOrEmpty && !part.CompilationUnit.FileName.FileName.Contains ("generated")) {
 								return part;
 							}

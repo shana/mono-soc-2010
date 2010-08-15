@@ -75,7 +75,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		[CommandUpdateHandler (MonoDevelop.GtkCore.GtkCommands.AddNewDialog)]
 		public void UpdateAddNewDialogToProject (CommandInfo cinfo)
 		{
-			cinfo.Visible = CanAddWindow ();
+			cinfo.Visible = CanAddWindow () && !(CurrentNode.DataItem is GuiProjectFolder);
 		}
 		
 		[CommandHandler (MonoDevelop.GtkCore.GtkCommands.AddNewWindow)]
@@ -87,7 +87,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		[CommandUpdateHandler (MonoDevelop.GtkCore.GtkCommands.AddNewWindow)]
 		public void UpdateAddNewWindowToProject (CommandInfo cinfo)
 		{
-			cinfo.Visible = CanAddWindow ();
+			cinfo.Visible = CanAddWindow () && !(CurrentNode.DataItem is GuiProjectFolder);
 		}
 		
 		[CommandHandler (MonoDevelop.GtkCore.GtkCommands.AddNewWidget)]
@@ -99,8 +99,8 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		[CommandUpdateHandler (MonoDevelop.GtkCore.GtkCommands.AddNewWidget)]
 		public void UpdateAddNewWidgetToProject (CommandInfo cinfo)
 		{
-			cinfo.Visible = CanAddWindow ();
-		}
+			cinfo.Visible = CanAddWindow () && !(CurrentNode.DataItem is GuiProjectFolder);
+		} 
 		
 		[CommandHandler (MonoDevelop.GtkCore.GtkCommands.AddNewActionGroup)]
 		public void AddNewActionGroupToProject()
@@ -111,7 +111,18 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		[CommandUpdateHandler (MonoDevelop.GtkCore.GtkCommands.AddNewActionGroup)]
 		public void UpdateAddNewActionGroupToProject(CommandInfo cinfo)
 		{
-			cinfo.Visible = CanAddWindow ();
+			cinfo.Visible = CanAddWindow () && !(CurrentNode.DataItem is GuiProjectFolder);
+		}
+		
+		public override bool CanDropMultipleNodes (object[] dataObjects, DragOperation operation, DropPosition position)
+		{
+			return false;
+			
+			foreach (object dataObject in dataObjects) 
+				if (dataObjects is GuiProjectFolder)
+					return false;
+			
+			return base.CanDropMultipleNodes (dataObjects, operation, position);
 		}
 			
 		bool CanAddWindow ()

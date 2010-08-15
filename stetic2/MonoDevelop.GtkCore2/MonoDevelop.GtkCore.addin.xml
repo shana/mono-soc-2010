@@ -20,6 +20,7 @@
 		<Addin id="Core" version="2.4"/>
 		<Addin id="Ide" version="2.4"/>
 		<Addin id="DesignerSupport" version="2.4"/>
+		<Addin id="XmlEditor" version="2.4"/>
 	</Dependencies>
 	
 	<ExtensionPoint path = "/MonoDevelop/GtkCore/ContextMenu/ProjectPad.ActionGroup">
@@ -88,9 +89,13 @@
 		<Command id = "MonoDevelop.GtkCore.GtkCommands.ImportGladeFile"
 				_label = "Import Glade file..." />
 		<Command id = "MonoDevelop.GtkCore.GtkCommands.EditIcons"
+				 icon = "md-gtkcore-iconfactory"
 				_label = "Edit Project Icons..." />
 		<Command id = "MonoDevelop.GtkCore.GtkCommands.GtkSettings"
-				_label = "GTK# support settings..." />
+				_label = "GTK# support settings..." 
+				 icon = "md-gtkcore-gtk-logo"/>
+		<Command id = "MonoDevelop.GtkCore.GtkCommands.GenerateCode"
+				_label = "Generate code..."/>
 		</Category>
 	</Extension>
 	
@@ -106,12 +111,14 @@
 	
 	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
 		<Condition id="ItemType" value="Project|MonoDevelop.GtkCore.NodeBuilders.GuiProjectFolder">
-			<ItemSet id = "Gtk" _label = "_Gtk" insertafter="AddSectionEnd">
-				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.EditIcons"/>
+			
+				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.EditIcons" insertafter="AddSectionEnd"/>
 				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.ImportGladeFile" />
-				<SeparatorItem />
-				<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.GtkSettings" />
-			</ItemSet>
+			
+			<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.GtkSettings" />
+		</Condition>
+		<Condition id="ItemType" value="ProjectFile">
+			<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.GenerateCode" insertafter="BuildSectionEnd"/>
 		</Condition>
 	</Extension>
 	
@@ -145,7 +152,8 @@
 			<Section id = "SteticOptionsPanel"
 			             _label = "GTK# Settings"
 			             fill="true"
-			             class = "MonoDevelop.GtkCore.Dialogs.WidgetBuilderOptionPanel"/>
+			             class = "MonoDevelop.GtkCore.Dialogs.WidgetBuilderOptionPanel"
+			             icon = "md-gtkcore-gtk-logo"/>
 		</Condition>
 	</Extension>
 	
@@ -159,6 +167,14 @@
 		<StockIcon stockid = "md-gtkcore-widget" resource = "widget.png" />
 		<StockIcon stockid = "md-gtkcore-actiongroup" resource = "actiongroup.png" />
 		<StockIcon stockid = "md-gtkcore-iconfactory" resource = "image-x-generic.png" />
+		<StockIcon stockid = "md-gtkcore-gtkx" resource = "gtkx.png" />
+		<StockIcon stockid = "md-gtkcore-gtk-logo" resource = "gtk-logo.png"/>
+	</Extension>
+	
+	<Extension path = "/MonoDevelop/Core/MimeTypes">
+		<MimeType id="text/x-gtkx" _description="Gtk# designer file" icon="gtk-page-setup" isText="true">
+			<File pattern="*.gtkx" />
+		</MimeType>
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/ProjectModel/ProjectServiceExtensions">
@@ -182,7 +198,7 @@
 	</Extension>
 
 	<Extension path = "/MonoDevelop/Ide/GlobalOptionsDialog/Preferences/Style">
-		<Panel _label = "GTK# Designer" class = "MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionPanel" />
+		<Panel _label = "GTK# Designer" class = "MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionPanel"  />
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/XmlEditor/XmlFileExtensions">
