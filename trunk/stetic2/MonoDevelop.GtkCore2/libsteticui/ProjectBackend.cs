@@ -310,6 +310,9 @@ namespace Stetic {
 		
 		public void LoadOldVersion (string fileName)
 		{
+			if (!File.Exists (fileName))
+				return;
+			
 			XmlDocument doc = new XmlDocument ();
 			doc.PreserveWhitespace = true;
 			doc.Load (fileName);

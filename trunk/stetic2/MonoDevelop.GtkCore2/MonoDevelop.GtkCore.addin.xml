@@ -49,7 +49,6 @@
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFolderNodeBuilderExtension"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFileNodeBuilderExtension"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectNodeBuilder"/>
-		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.WindowsFolderNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.StockIconsNodeBuilder"/>
 		<NodeBuilder class = "MonoDevelop.GtkCore.NodeBuilders.ProjectFileNodeBuilderExtension" />
 	</Extension>

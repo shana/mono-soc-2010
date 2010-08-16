@@ -531,6 +531,9 @@ namespace Stetic
 		{
 			try {
 				lock (components) {
+					if (cbackend == null)
+						return null;
+					
 					Component c = (Component) components [cbackend];
 					if (c != null)
 						return c;

@@ -1,3 +1,9 @@
+2010-08-17  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* Makefile.am:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore.addin.xml: 
+
 2010-08-16  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* MonoDevelop.GtkCore.addin.xml: 

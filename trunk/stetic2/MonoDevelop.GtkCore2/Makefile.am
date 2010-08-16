@@ -58,8 +58,6 @@ FILES =  \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs \
 	MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs \
 	MonoDevelop.GtkCore.NodeBuilders/StockIconsNodeBuilder.cs \
-	MonoDevelop.GtkCore.NodeBuilders/WindowsFolder.cs \
-	MonoDevelop.GtkCore.NodeBuilders/WindowsFolderNodeBuilder.cs \
 	MonoDevelop.GtkCore/Counters.cs \
 	MonoDevelop.GtkCore/GtkCoreService.cs \
 	MonoDevelop.GtkCore/GtkDesignInfo.cs \
