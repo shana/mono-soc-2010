@@ -44,6 +44,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 			return res;
 		}
+		
+		
 	}
 	
 	class Generator

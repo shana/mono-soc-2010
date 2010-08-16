@@ -1,3 +1,9 @@
+2010-08-16  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* ProjectNodeBuilder.cs:
+	* GuiProjectFolderNodeBuilder.cs:
+	* ProjectFolderNodeBuilderExtension.cs: 
+
 2010-08-15  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* ProjectNodeBuilder.cs:

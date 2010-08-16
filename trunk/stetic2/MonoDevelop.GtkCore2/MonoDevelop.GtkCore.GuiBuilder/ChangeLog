@@ -1,3 +1,13 @@
+2010-08-16  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* GuiBuilderView.cs:
+	* ActionGroupView.cs:
+	* GuiBuilderProject.cs:
+	* GuiBuilderService.cs:
+	* GuiBuilderDisplayBinding.cs:
+	* ActionGroupDisplayBinding.cs:
+	* GtkProjectServiceExtension.cs: 
+
 2010-08-15  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* GuiBuilderProject.cs: 

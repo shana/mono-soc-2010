@@ -151,10 +151,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			designer.Save ();
 			
 			string newBuildFile = GuiBuilderService.GetBuildCodeFileName (project.Project, groupInfo.Name);
-			if (oldBuildFile != newBuildFile)
+			if (oldBuildFile != newBuildFile && oldBuildFile != null && newBuildFile != null)
 				FileService.MoveFile (oldBuildFile, newBuildFile);
 
 			project.Save (true);
+			OnDirtyChanged (EventArgs.Empty);
 		}
 		
 		public override void Dispose ()

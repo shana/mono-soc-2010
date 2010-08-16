@@ -269,28 +269,33 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			if (componentFile == null) {
 				if (nameSpace == "Stetic") {
 					return info.GetBuildFileInSteticFolder (componentName);
-				} else
-					throw new UserException ("Cannot find component file for " + componentName);
+				} 
+//					else
+//						throw new UserException ("Cannot find component file for " + componentName);
 			} else
-				return info.GetBuildFile (componentFile);
+				return info.GetBuildFileFromComponent (componentFile);
+			
+			return null;
 		}
 		
-		public static string GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, bool saveToFile, bool overwrite)
+		public static void GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, bool saveToFile, bool overwrite)
 		{
-			return GenerateSteticCodeStructure (project, item, null, null, saveToFile, overwrite);
+			GenerateSteticCodeStructure (project, item, null, null, saveToFile, overwrite);
 		}
 		
-		public static string GenerateSteticCodeStructure (DotNetProject project, Stetic.Component component, Stetic.ComponentNameEventArgs args, bool saveToFile, bool overwrite)
+		public static void GenerateSteticCodeStructure (DotNetProject project, Stetic.Component component, Stetic.ComponentNameEventArgs args, bool saveToFile, bool overwrite)
 		{
-			return GenerateSteticCodeStructure (project, null, component, args, saveToFile, overwrite);
+			GenerateSteticCodeStructure (project, null, component, args, saveToFile, overwrite);
 		}
 		
-		static string GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, Stetic.Component component, Stetic.ComponentNameEventArgs args, bool saveToFile, bool overwrite)
+		static void GenerateSteticCodeStructure (DotNetProject project, Stetic.ProjectItemInfo item, Stetic.Component component, Stetic.ComponentNameEventArgs args, bool saveToFile, bool overwrite)
 		{
 			// Generate a class which contains fields for all bound widgets of the component
 			
 			string name = item != null ? item.Name : component.Name;
 			string fileName = GetBuildCodeFileName (project, name);
+			if (fileName == null)
+				return;
 			
 			string ns = "";
 			int i = name.LastIndexOf ('.');
@@ -300,7 +305,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 			
 			if (saveToFile && !overwrite && File.Exists (fileName))
-				return fileName;
+				return;
 			
 			if (item != null)
 				component = item.Component;
@@ -332,7 +337,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 			else {
 				if (!saveToFile)
-					return fileName;
+					return;
 				CodeNamespace cns = new CodeNamespace ();
 				cns.Comments.Add (new CodeCommentStatement ("Generated code for component " + component.Name));
 				cu.Namespaces.Add (cns);
@@ -363,8 +368,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				else
 					ProjectDomService.Parse (project, fileName, ((StringWriter)fileStream).ToString ());
 			}
-
-			return fileName;
 		}
 		
 		public static Stetic.CodeGenerationResult GenerateSteticCode (IProgressMonitor monitor, DotNetProject project, ConfigurationSelector configuration)
@@ -373,6 +376,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				return null;
 
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			info.CheckGtkFolder ();
 
 			DateTime last_gen_time = File.Exists (info.SteticGeneratedFile) ? File.GetLastWriteTime (info.SteticGeneratedFile) : DateTime.MinValue;
 			

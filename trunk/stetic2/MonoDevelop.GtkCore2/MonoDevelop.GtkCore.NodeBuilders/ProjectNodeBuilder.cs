@@ -103,13 +103,13 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			string fileName = pf.FilePath.FullPath.ToString ();
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 			
-			string buildFile = info.GetBuildFile (fileName);
+			string buildFile = info.GetBuildFileFromComponent (fileName);
 			if (!project.IsFileInProject(buildFile) && File.Exists (buildFile)) {
 				ProjectFile pf2 = project.AddFile (buildFile, BuildAction.Compile);
 				pf2.DependsOn = pf.FilePath.FileName;
 			}
 			
-			string gtkxFile = info.GetGtkxFile (fileName);
+			string gtkxFile = info.GetDesignerFileFromComponent (fileName);
 			if (!project.IsFileInProject(gtkxFile) && File.Exists (gtkxFile)) {
 				ProjectFile pf3 = project.AddFile (gtkxFile, BuildAction.EmbeddedResource);
 				pf3.DependsOn = pf.FilePath.FileName;
@@ -123,8 +123,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			
 			if (GtkDesignInfo.HasDesignedObjects (project)) {
 				GuiProjectFolder folder = new GuiProjectFolder(info.SteticFolder.FullPath, project, null);
-				
-				builder.AddChild (new WindowsFolder (project));
 				builder.AddChild (folder);
 			}
 		}

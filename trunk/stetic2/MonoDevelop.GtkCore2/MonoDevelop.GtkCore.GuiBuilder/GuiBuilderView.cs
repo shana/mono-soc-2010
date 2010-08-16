@@ -333,8 +333,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 				return;
 			
 			string oldBuildFile = GuiBuilderService.GetBuildCodeFileName (gproject.Project, window.RootWidget.Name);
-			
 			codeBinder.UpdateBindings (fileName);
+			
 			if (!ErrorMode) {
 				if (designer != null)
 					designer.Save ();
@@ -344,10 +344,11 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			string newBuildFile = GuiBuilderService.GetBuildCodeFileName (gproject.Project, window.RootWidget.Name);
 			
-			if (oldBuildFile != newBuildFile) {
+			if (oldBuildFile != newBuildFile && oldBuildFile != null && newBuildFile != null) {
 				if (System.IO.File.Exists (newBuildFile))
 					FileService.DeleteFile (newBuildFile);
-				FileService.MoveFile (oldBuildFile, newBuildFile);
+				if (System.IO.File.Exists (oldBuildFile))
+					FileService.MoveFile (oldBuildFile, newBuildFile);
 			}
 			
 			gproject.Save (true);

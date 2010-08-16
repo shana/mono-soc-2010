@@ -189,6 +189,14 @@ namespace MonoDevelop.GtkCore
 			get { return SteticFolder.Combine ("gui.stetic"); }
 		}
 		
+		public string BuildFileExtension {
+			get { return ".designer"; }
+		}
+		
+		public string DesignerFileExtension {
+			get { return ".gtkx"; }
+		}
+		
 		public FilePath SteticFolder {
 //			get { return project.BaseDirectory.Combine ("gtk-gui"); }
 			get { return project.BaseDirectory.Combine (!wasConverted ? "gtk-gui" : steticFolderName); }
@@ -276,10 +284,26 @@ namespace MonoDevelop.GtkCore
 			}
 		}
 		
+		public void CheckGtkFolder ()
+		{
+			foreach (string designerFile in GetDesignerFiles ()) {
+				string componentFile = GetComponentFileFromDesigner (designerFile);
+				if (componentFile != null) {
+					string buildFile = GetBuildFileFromComponent (componentFile);
+					if (buildFile != null) {
+						// if build file is missing, force to generate it again
+						if ((project.GetProjectFile (buildFile) == null) || !File.Exists (buildFile)) {
+							FileInfo fi = new FileInfo (designerFile);
+							fi.LastWriteTime = DateTime.Now;
+						}
+					}
+				}
+			}
+		}
+		
 		bool CleanGtkFolder (StringCollection remaining_files)
 		{
 			bool projectModified = false;
-
 			// Remove all project files which are not in the generated list
 			foreach (ProjectFile pf in project.Files.GetFilesInPath (SteticFolder)) {
 				if (remaining_files.Contains (pf.FilePath))
@@ -340,16 +364,16 @@ namespace MonoDevelop.GtkCore
 			FileService.CreateDirectory (SteticFolder);
 			bool projectModified = false;
 			
-			foreach (string filename in GetComponentsFiles ()) {
+			foreach (string filename in GetDesignerFiles ()) {
 				ProjectFile pf = project.AddFile (filename, BuildAction.EmbeddedResource);
 				pf.ResourceId = Path.GetFileName (filename);
 	
-				string componentFile = GetComponentFileFromGtkx (filename);
+				string componentFile = GetComponentFileFromDesigner (filename);
 				
 				if (componentFile != null && File.Exists (componentFile)) { 
 					pf.DependsOn = componentFile;	
 				
-					string buildFile = GetBuildFileFromGtkx (filename);
+					string buildFile = GetBuildFileFromComponent (componentFile);
 					if (buildFile != null && File.Exists (buildFile)) {
 						ProjectFile pf2 = project.AddFile (buildFile, BuildAction.Compile);
 						pf2.ResourceId = Path.GetFileName (buildFile);
@@ -434,11 +458,9 @@ namespace MonoDevelop.GtkCore
 			if (type != null) {
 				
 				foreach (IType part in type.Parts) {
-					string componentFile = part.CompilationUnit.FileName.FullPath.ToString ();
-//					if (!componentFile.Contains (".generated"))
-//						return componentFile;
-					if (componentFile.Contains (".generated"))
-						componentFile = componentFile.Replace (".generated", string.Empty);
+					string componentFile = part.CompilationUnit.FileName.FullPath;
+					if (componentFile.Contains (BuildFileExtension))
+						componentFile = componentFile.Replace (BuildFileExtension, string.Empty);
 					
 					return componentFile;
 				}
@@ -447,50 +469,80 @@ namespace MonoDevelop.GtkCore
 			return null;
 		}
 		
-		public string GetBuildFile (string componentFile)
-		{	
+//		public string GetBuildFile (string componentFile)
+//		{	
+//			if (componentFile != null) {
+//				string buildFile = componentFile.Replace 
+//					(Path.GetExtension (SteticGeneratedFile), BuildFileExtension + langExtension);
+//				return buildFile;
+//			}
+//			
+//			return null;
+//		}
+		
+		public string GetBuildFileInSteticFolder (string componentName)
+		{
+			string name = string.Format ("{0}{1}{2}", componentName, BuildFileExtension, langExtension);
+			string buildFile = Path.Combine (SteticFolder, name);
+			
+			return buildFile;
+		}
+
+		public string GetBuildFileFromComponent (string componentFile)
+		{
 			if (componentFile != null) {
+				ProjectFile pf = project.Files.GetFile (componentFile);
+				if (pf != null) {
+					foreach (var child in pf.DependentChildren) {
+						if (child.Name.Contains (BuildFileExtension))
+							return child.FilePath;
+					}
+				}
 				string buildFile = componentFile.Replace 
-					(Path.GetExtension (SteticGeneratedFile), ".generated" + langExtension);
+					(Path.GetExtension (SteticGeneratedFile), BuildFileExtension + langExtension);
 				return buildFile;
 			}
 			
 			return null;
 		}
 		
-		public string GetBuildFileInSteticFolder (string componentName)
-		{
-			string name = string.Format ("{0}.generated{1}", componentName, langExtension);
-			string buildFile = Path.Combine (SteticFolder, name);
-			
-			return buildFile;
-		}
-		
-		public string GetGtkxFile (string componentFile)
+		public string GetDesignerFileFromComponent (string componentFile)
 		{
 			if (componentFile != null) {
-				string gtkxFile = componentFile.Replace (langExtension, ".gtkx");
+				ProjectFile pf = project.Files.GetFile (componentFile);
+				if (pf != null) {
+					foreach (var child in pf.DependentChildren) {
+						if (child.Name.Contains (DesignerFileExtension))
+							return child.FilePath;
+					}
+				}
+				string gtkxFile = componentFile.Replace (langExtension, DesignerFileExtension);
 				return gtkxFile;
 			}
 			
 			return null;
 		}
 		
-		public string GetComponentFileFromGtkx (string gtkxFile)
+		public string GetComponentFileFromDesigner (string gtkxFile)
 		{
 			if (gtkxFile != null) { 
-				string componentFile = gtkxFile.Replace (".gtkx", langExtension);
+				ProjectFile pf = project.Files.GetFile (gtkxFile);
+				if (pf != null) {
+					if (pf.DependsOn != null)
+						return pf.DependsOn;
+				}
+				string componentFile = gtkxFile.Replace (DesignerFileExtension, langExtension);
 				return componentFile;
 			}
 			
 			return null;
 		}
 		
-		public string GetBuildFileFromGtkx (string gtkxFile)
-		{
-			string buildFile = gtkxFile.Replace (".gtkx", ".generated" + langExtension);
-			return buildFile;
-		}
+//		public string GetBuildFileFromDesigner (string gtkxFile)
+//		{
+//			string buildFile = gtkxFile.Replace (DesignerFileExtension, BuildFileExtension + langExtension);
+//			return buildFile;
+//		}
 		
 		
 		public string GetComponentFolder (string componentName)
@@ -522,7 +574,7 @@ namespace MonoDevelop.GtkCore
 			return folders.ToArray ();
 		}
 		
-		public string[] GetComponentsFiles ()
+		public string[] GetDesignerFiles ()
 		{
 			List<string> files = new List<string> ();
 			
@@ -530,7 +582,7 @@ namespace MonoDevelop.GtkCore
 				DirectoryInfo dir = new DirectoryInfo (folder);
 				
 				foreach (FileInfo file in dir.GetFiles ()) 
-					if (file.Extension == ".gtkx") 
+					if (file.Extension == DesignerFileExtension) 
 						files.Add (file.ToString ());
 			}
 			
@@ -545,16 +597,16 @@ namespace MonoDevelop.GtkCore
 		public bool ComponentNeedsCodeGeneration (string componentName)
 		{
 			string componentFile = GetComponentFile (componentName);
-			string gtkxFile = GetGtkxFile (componentFile);
-			string buildFile = GetBuildFile (componentFile);
+			string gtkxFile = GetDesignerFileFromComponent (componentFile);
+			string buildFile = GetBuildFileFromComponent (componentFile);
 			FileInfo gtkxFileInfo = File.Exists (gtkxFile) ? new FileInfo (gtkxFile) : null;
 			FileInfo buildFileInfo = File.Exists (buildFile) ? new FileInfo (buildFile) : null;
-			Console.WriteLine(gtkxFile);
 			if (gtkxFileInfo == null)
 				return false;
-			if (buildFileInfo == null)
 			//file does not exist
+			if (buildFileInfo == null)
 				return true;
+			
 			return gtkxFileInfo.LastWriteTime > buildFileInfo.LastWriteTime;
 		}
 
