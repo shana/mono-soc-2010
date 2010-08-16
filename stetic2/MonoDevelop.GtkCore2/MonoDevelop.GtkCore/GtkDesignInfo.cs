@@ -172,7 +172,7 @@ namespace MonoDevelop.GtkCore
 		}
 		
 		public bool OldVersion {
-			get { return project.IsFileInProject (SteticFile); }
+			get { return project.IsFileInProject (SteticFile) || wasConverted == false; }
 		}
 		
 		FilePath ObjectsFile {
@@ -350,7 +350,8 @@ namespace MonoDevelop.GtkCore
 			if (File.Exists (oldGeneratedFile))
 				FileService.DeleteFile (oldGeneratedFile);
 				
-			FileService.DeleteDirectory (oldGuiFolder);
+			if (Directory.Exists (oldGuiFolder))
+				FileService.DeleteDirectory (oldGuiFolder);
 		}
 		
 		public bool UpdateGtkFolder ()

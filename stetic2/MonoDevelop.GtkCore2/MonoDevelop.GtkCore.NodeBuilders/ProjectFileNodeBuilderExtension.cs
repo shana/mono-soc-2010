@@ -35,7 +35,10 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			
 			ProjectFile pf = (ProjectFile) dataObject;
 			GtkDesignInfo info = GtkDesignInfo.FromProject (pf.Project);
-			if (info.HideGtkxFiles && pf.FilePath.Extension == ".gtkx")
+			//Designer files in the designer folder like IconFactory.gtkx should be always visible
+			if (info.HideGtkxFiles && 
+			    pf.FilePath.Extension == ".gtkx" && 
+			    !pf.FilePath.IsChildPathOf (info.SteticFolder))
 				attributes |= NodeAttributes.Hidden;
 		}
 		

@@ -69,6 +69,15 @@
     <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9307d64546e0580d">
       <Package>monodevelop</Package>
     </Reference>
+    <Reference Include="MonoDevelop.Core, Version=2.4.0.0, Culture=neutral">
+      <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral">
+      <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral">
+      <Package>monodevelop</Package>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\core\MonoDevelop.Core\MonoDevelop.Core.csproj">
@@ -177,8 +186,6 @@
     <Compile Include="MonoDevelop.GtkCore.Dialogs\WidgetBuilderOptionPanel.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\ProjectNodeBuilder.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\ProjectFolderNodeBuilderExtension.cs" />
-    <Compile Include="MonoDevelop.GtkCore.NodeBuilders\WindowsFolderNodeBuilder.cs" />
-    <Compile Include="MonoDevelop.GtkCore.NodeBuilders\WindowsFolder.cs" />
     <Compile Include="MonoDevelop.GtkCore\WidgetFileDescriptionTemplate.cs" />
     <Compile Include="MonoDevelop.GtkCore.Dialogs\SelectRenamedClassDialog.cs" />
     <Compile Include="MonoDevelop.GtkCore.Dialogs\BindDesignDialog.cs" />
