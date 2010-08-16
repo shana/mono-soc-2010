@@ -140,9 +140,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			object dataItem = CurrentNode.DataItem;
 			
 			ProjectFolder folder = CurrentNode.GetParentDataItem (typeof(ProjectFolder), true) as ProjectFolder;
-			
-			if (project.UsePartialTypes)
-				id = "Partial" + id;
+			id = "Partial" + id;
 			
 			string path;
 			if (folder != null)

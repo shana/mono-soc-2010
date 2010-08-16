@@ -178,7 +178,12 @@ namespace Stetic {
 		}
 		
 		public bool Modified {
-			get { return project.WasModified (RootWidget.Name); }
+			get { 
+				if (project == null || RootWidget == null)
+					return false;
+				
+				return project.WasModified (RootWidget.Name); 
+			}
 		}
 		
 		public UndoQueue UndoQueue {

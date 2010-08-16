@@ -585,7 +585,7 @@ namespace Stetic {
 		private string GetDesignerFileName (string componentName)
 		{
 			string componentFile = frontend.DesignInfo.GetComponentFile (componentName);			
-			return frontend.DesignInfo.GetGtkxFile (componentFile);
+			return frontend.DesignInfo.GetDesignerFileFromComponent (componentFile);
 		}
 		
 		void WriteXmlFile (string xmlFile, XmlDocument doc)
@@ -960,6 +960,12 @@ namespace Stetic {
 				frontend.NotifyWidgetNameChanged (Component.GetSafeReference (args.WidgetWrapper), args.OldName, args.NewName, isTopLevel);
 			if (args.WidgetWrapper != null && WidgetNameChanged != null)
 				WidgetNameChanged (this, args);
+			
+			if (modifiedTopLevels.Contains (args.OldName))
+				modifiedTopLevels.Remove (args.OldName);
+			
+			if (!modifiedTopLevels.Contains (args.NewName))
+				modifiedTopLevels.Add (args.NewName);
 		}
 		
 		void OnSignalAdded (object sender, SignalEventArgs args)

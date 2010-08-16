@@ -116,6 +116,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		[CommandUpdateHandler (ProjectCommands.AddSolutionFolder)]
 		[CommandUpdateHandler (ProjectCommands.AddItem)]
 		[CommandUpdateHandler (ProjectCommands.NewFolder)]
+		[CommandUpdateHandler ("MonoDevelop.Refactoring.RefactoryCommands.Rename")]
 		protected void UpdateDisabledCommands (CommandInfo cinfo)
 		{
 			cinfo.Visible = false;

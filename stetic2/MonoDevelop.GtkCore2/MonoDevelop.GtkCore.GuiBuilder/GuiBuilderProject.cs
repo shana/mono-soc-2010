@@ -108,7 +108,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		public void GenerateCode (string componentFile)
 		{
 			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
-			string gtkxFile = info.GetGtkxFile (componentFile);
+			string gtkxFile = info.GetDesignerFileFromComponent (componentFile);
 			if (gtkxFile != null && File.Exists (gtkxFile)) {
 				
 				Save (false);
@@ -564,7 +564,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 		public IType FindClass (string className, bool getUserClass)
 		{
-			FilePath gui_folder = GtkDesignInfo.FromProject (project).SteticFolder;
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			FilePath gui_folder = info.SteticFolder;
 			ProjectDom ctx = GetParserContext ();
 
 			if (ctx == null)
@@ -580,7 +581,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 						foreach (IType part in cls.Parts) {
 							if (part.CompilationUnit.FileName.FullPath.IsChildPathOf (gui_folder))
 								continue;
-							if (part.CompilationUnit != null && !part.CompilationUnit.FileName.IsNullOrEmpty && !part.CompilationUnit.FileName.FileName.Contains ("generated")) {
+							if (part.CompilationUnit != null && !part.CompilationUnit.FileName.IsNullOrEmpty && !part.CompilationUnit.FileName.FileName.Contains (info.BuildFileExtension)) {
 								return part;
 							}
 						}
@@ -711,8 +712,8 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 //					
 //			foreach (Stetic.ActionGroupInfo ag in SteticProject.ActionGroups)
 //				files.Add (GuiBuilderService.GenerateSteticCodeStructure (project, ag, true, false));
-			
-			string extension = "generated." + provider.FileExtension;
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			string extension = string.Format("{0}.{1}",info.BuildFileExtension, provider.FileExtension);
 			foreach (string file in Directory.GetFiles (guiFolder)) {
 				if (file.Contains (extension))
 					files.Add (file);		

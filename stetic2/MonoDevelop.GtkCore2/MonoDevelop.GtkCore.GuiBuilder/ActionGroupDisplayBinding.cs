@@ -51,10 +51,13 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 		public override bool CanCreateContentForUri (string fileName)
 		{
+			Project project = IdeApp.Workspace.GetProjectContainingFile (fileName);
+			GtkDesignInfo info = GtkDesignInfo.FromProject ((DotNetProject) project);
+			
 			if (excludeThis)
 				return false;
 			
-			if (fileName.Contains ("generated"))
+			if (fileName.Contains (info.BuildFileExtension))
 				return false;
 			
 			if (!IdeApp.Workspace.IsOpen)

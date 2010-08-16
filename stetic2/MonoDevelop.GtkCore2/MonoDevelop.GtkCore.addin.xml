@@ -21,6 +21,7 @@
 		<Addin id="Ide" version="2.4"/>
 		<Addin id="DesignerSupport" version="2.4"/>
 		<Addin id="XmlEditor" version="2.4"/>
+		<Addin id="Refactoring" version="2.4"/>
 	</Dependencies>
 	
 	<ExtensionPoint path = "/MonoDevelop/GtkCore/ContextMenu/ProjectPad.ActionGroup">

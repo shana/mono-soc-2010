@@ -10,7 +10,7 @@ namespace Stetic
 		bool HasComponentFile (string componentFile);
 		
 		//Returns gtkx file name for given component file
-		string GetGtkxFile (string componentFile);
+		string GetDesignerFileFromComponent (string componentFile);
 
 		//Search for all components source file folders 
 		string[] GetComponentFolders ();
