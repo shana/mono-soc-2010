@@ -123,7 +123,7 @@ namespace MonoDevelop.GtkCore.Dialogs
 			this.entryFolder.CanFocus = true;
 			this.entryFolder.Name = "entryFolder";
 			this.entryFolder.IsEditable = true;
-			this.entryFolder.InvisibleChar = '●';
+			
 			this.hbox1.Add (this.entryFolder);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.entryFolder]));
 			w8.Position = 1;
