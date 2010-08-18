@@ -104,9 +104,6 @@
     <Reference Include="MonoDevelop.Deployment.Linux, Version=2.4.0.0, Culture=neutral">
       <Package>monodevelop-core-addins</Package>
     </Reference>
-    <Reference Include="MonoDevelop.GtkCore, Version=2.4.0.0, Culture=neutral">
-      <Package>monodevelop-core-addins</Package>
-    </Reference>
     <Reference Include="MonoDevelop.VBNetBinding, Version=2.4.0.0, Culture=neutral">
       <Package>monodevelop-core-addins</Package>
     </Reference>
