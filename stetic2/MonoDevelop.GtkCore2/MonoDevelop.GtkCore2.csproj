@@ -208,7 +208,7 @@
       <LogicalName>gtk-logo.png</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="MonoDevelop.GtkCore2.addin.xml">
-      <LogicalName>MonoDevelop.GtkCore.addin.xml</LogicalName>
+      <LogicalName>MonoDevelop.GtkCore2.addin.xml</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
