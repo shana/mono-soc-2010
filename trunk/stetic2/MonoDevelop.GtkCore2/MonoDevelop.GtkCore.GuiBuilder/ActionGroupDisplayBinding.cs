@@ -178,8 +178,13 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			project.AddFile (cls.CompilationUnit.FileName, BuildAction.Compile);
 			IdeApp.ProjectOperations.Save (project);
 			
+#if TRUNK
 			// Make sure the database is up-to-date
 			ProjectDomService.Parse (project, cls.CompilationUnit.FileName);
+#else 
+			ProjectDomService.Parse (project, cls.CompilationUnit.FileName, null);
+			
+#endif
 			return cls;
 		}
 		

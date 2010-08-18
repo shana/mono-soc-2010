@@ -202,8 +202,12 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			Project.Project.AddFile (cls.CompilationUnit.FileName, BuildAction.Compile);
 			IdeApp.ProjectOperations.Save (Project.Project);
 			
+#if TRUNK
 			// Make sure the database is up-to-date
 			ProjectDomService.Parse (Project.Project, cls.CompilationUnit.FileName);
+#else 
+			ProjectDomService.Parse (Project.Project, cls.CompilationUnit.FileName, null);
+#endif
 		}
 		
 		void AddSignalsRec (CodeTypeDeclaration type, Stetic.Component comp)

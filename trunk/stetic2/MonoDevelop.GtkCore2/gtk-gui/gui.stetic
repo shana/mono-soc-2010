@@ -6,13 +6,28 @@
   </configuration>
   <import>
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <widget-library name="../../../../build/bin/MonoDevelop.Ide.dll" />
-    <widget-library name="../../../../build/AddIns/MonoDevelop.DesignerSupport/MonoDevelop.DesignerSupport.dll" />
-    <widget-library name="../../../../build/bin/Mono.TextEditor.dll" />
-    <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll" />
-    <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll" />
     <widget-library name="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral" />
     <widget-library name="Mono.TextEditor, Version=1.0.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Deployment, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.DesignerSupport, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.VersionControl, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.NUnit, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.XmlEditor, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.AspNet, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Gettext, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Deployment.Linux, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.GtkCore, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.VBNetBinding, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.CBinding, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.CSharpBinding, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Autotools, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.SourceEditor2, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Debugger, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Refactoring, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Moonlight, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="MonoDevelop.Debugger.Soft, Version=2.4.0.0, Culture=neutral" />
+    <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll" />
+    <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll" />
     <widget-library name="../../../../build/AddIns/MonoDevelop.GtkCore2/MonoDevelop.GtkCore2.dll" internal="true" />
   </import>
   <widget class="Gtk.Bin" id="MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionsPanelWidget" design-size="503 22">
