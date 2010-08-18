@@ -74,9 +74,7 @@ RES =  \
 	action.png \
 	missing.png
 
-DEPS =  \
-	../../../../build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll \
-	../../../../build/bin/Mono.Cecil.dll
+DEPS = ../../../../build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll
 
 REFS =  \
 	$(GLADE_SHARP_LIBS) \

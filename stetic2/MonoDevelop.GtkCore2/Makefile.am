@@ -4,13 +4,8 @@ ADDIN_BUILD = $(top_builddir)/build/AddIns/MonoDevelop.GtkCore2
 ASSEMBLY = $(ADDIN_BUILD)/MonoDevelop.GtkCore2.dll
 
 DEPS =  \
-	$(top_builddir)/build/AddIns/MonoDevelop.Deployment/MonoDevelop.Deployment.dll \
-	$(top_builddir)/build/AddIns/MonoDevelop.DesignerSupport/MonoDevelop.DesignerSupport.dll \
 	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll \
-	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll \
-	$(top_builddir)/build/bin/Mono.TextEditor.dll \
-	$(top_builddir)/build/bin/MonoDevelop.Core.dll \
-	$(top_builddir)/build/bin/MonoDevelop.Ide.dll
+	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll
 
 REFS =  \
 	$(GLADE_SHARP_LIBS) \
@@ -18,6 +13,7 @@ REFS =  \
 	$(GTK_SHARP_LIBS) \
 	$(MONO_ADDINS_LIBS) \
 	-pkg:monodevelop \
+	-pkg:monodevelop-core-addins \
 	-r:Mono.Posix \
 	-r:System \
 	-r:System.Core \
@@ -75,7 +71,7 @@ RES =  \
 	icons/gtkx.png \
 	icons/image-x-generic.png \
 	icons/widget.png \
-	MonoDevelop.GtkCore.addin.xml \
+	MonoDevelop.GtkCore2.addin.xml,MonoDevelop.GtkCore.addin.xml \
 	templates/ActionGroup.xft.xml \
 	templates/ActionGroupPartial.xft.xml \
 	templates/Dialog.xft.xml \
