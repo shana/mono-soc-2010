@@ -6,7 +6,7 @@
        url       = ""
        description = "Experimental GTK# visual designer developed during GSOC 2010 as a fork of stetic"
 	   category    = "IDE extensions"
-       version   = "2.4">
+       version   = "2.4.0.1">
 
 	<Runtime>
 		<Import assembly="libstetic2.dll"/>
