@@ -1,10 +1,10 @@
 <Addin id = "GtkCore2"
        namespace = "MonoDevelop"
-       name	= "GTK# Visual Designer (experimental)"
+       name	= "GTK# Visual Designer (GSOC)"
        author	 = "Lluis Sanchez Gual, Krzysztof Marecki"
        copyright = "X11"
        url       = ""
-       description = "Provides support for visual design of GTK# windows, dialogs and widgets."
+       description = "Experimental GTK# visual designer developed during GSOC 2010 as a fork of stetic"
 	   category    = "IDE extensions"
        version   = "2.4">
 
