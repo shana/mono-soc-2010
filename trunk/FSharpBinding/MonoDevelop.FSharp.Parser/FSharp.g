@@ -1,576 +1,891 @@
 grammar FSharp;
 
 options {
-	language=CSharp3;
+	language=CSharp2;
+	k = 1;
+	output = AST;
 }
+
+tokens {
+	DO_ = 'do!';
+	YIELD_ = 'yield!';
+	RETURN_ = 'return!';
+	LET_ = 'let!';
+	USER_ = 'user!';
+
+	ABSTRACT = 'abstract';
+	AND = 'and';
+	AS = 'as';
+	ASSERT = 'assert';
+	BASE = 'base';
+	BEGIN = 'begin';
+	CLASS = 'class';
+	DEFAULT = 'default';
+	DELEGATE = 'delegate';
+	DO = 'do';
+	DONE = 'done';
+	DOWNCAST = 'downcast';
+	DOWNTO = 'downto';
+	ELIF = 'elif';
+	ELSE = 'else';
+	END = 'end';
+	ENUM = 'enum';
+	EXCEPTION = 'exception';
+	EXTERN = 'extern';
+	FALSE = 'false';
+	FINALLY = 'finally';
+	FOR = 'for';
+	FUN = 'fun';
+	FUNCTION = 'function';
+	GLOBAL = 'global';
+	IF = 'if';
+	IN = 'in';
+	INHERIT = 'inherit';
+	INLINE = 'inline';
+	INTERFACE = 'interface';
+	INTERNAL = 'internal';
+	LAZY = 'lazy';
+	LET = 'let';
+	MATCH = 'match';
+	MEMBER = 'member';
+	MODULE = 'module';
+	MUTABLE = 'mutable';
+	NAMESPACE = 'namespace';
+	NEW = 'new';
+	NULL = 'null';
+	OF = 'of';
+	OPEN = 'open';
+	OR = 'or';
+	OVERRIDE = 'override';
+	PRIVATE = 'private';
+	PUBLIC = 'public';
+	REC = 'rec';
+	RETURN = 'return';
+	SIG = 'sig';
+	STATIC = 'static';
+	STRUCT = 'struct';
+	THEN = 'then';
+	TO = 'to';
+	TRUE = 'true';
+	TRY = 'try';
+	TYPE = 'type';
+	UNIT_VALUE = '()';
+	UNMANAGED = 'unmanaged';
+	UPCAST = 'upcast';
+	USE = 'use';
+	VAL = 'val';
+	VOID = 'void';
+	WHEN = 'when';
+	WHILE = 'while';
+	WITH = 'with';
+	YIELD = 'yield';
+	LPAREN = '(';
+	RPAREN = ')';	
+	VBAR = '|';
+	BAR_BAR	= '||';
+	UNDERSCORE = '_';
+	OP_QUESTION = '?';
+	
+	ABBREV;
+	ACCESS;
+	ACCESSORS;	
+	ACTIVE_PATTERN;
+	AND_PAT;
+	APP;
+	ARG;
+	ARGS;
+	ARG_NAME;
+	ARRAY;
+	AS_PAT;
+	ATTRIBUTE;
+	ATTRIBUTES;
+	ATTRIBUTE_TARGET;
+	ATTR_PAT;
+	CASE;
+	CONSTRAINT;
+	CONSTRAINTS;
+	CONSTRUCTION;
+	CONS_PAT;
+	EXPR;
+	FIELD;
+	FIN;
+	FUNC;
+	IDENT_BINDING;
+	IMPLEMENTATION;
+	INSTANCE;
+	LIST;
+	LONG_IDENT;
+	MEMBER_SIG;
+	MEMBER_SPEC;
+	MODULE_ABBREV;
+	NAME;
+	NAMED_PAT;
+	NOT_STRUCT;
+	OR_PAT;
+	PAT_BINDING;
+	PRE;
+	PREFIX;
+	PROPERTY;
+	RANGE;
+	RECORD;
+	RECURSE;
+	RULE;
+	SCRIPT_FRAG;
+	SHORT_COMP;
+	SLICE;
+	START;
+	STATIC_INVOKE;
+	STRUCT;
+	SUFFIX;
+	THIS;
+	TUPLE;
+	TUPLE_PAT;
+	TYPAR;
+	TYPARS;
+	TYPE_PAT;
+	TYPE_SPEC;
+	UNION;
+	USIG;
+	
+/*	AMP;
+	AMP_AMP;
+	MINUS;
+	MINUS_DOT;
+	PERCENT;
+	PLUS;
+	PLUS_DOT;*/
+}
+
+@namespace {AntlrParser}
+
+@members {
+	Boolean light = true;
+}
+
+op	:	LPAREN! opName RPAREN!
+	|	OP_MUL_NAME^;
+
+cmpOp	:	OP_LESS | OP_GREATER | OP_NE | '<' | '>';
 
 identOrOp
 	:	IDENT
-	|	'(' opName ')'
-	|	'(*)';
+	|	op;
 
-opName	:	SYMBOLIC_OP
+symbolicOp
+	:	OP_QLM
+	|	OP_QUESTION
+	|	OP_LESS	| OP_GREATER | OP_NE | OP_OR | OP_AND | OP_DOLLAR | OP_CONCAT
+	|	OP_TILDA | OP_PLUS | OP_MINUS | OP_EXP | OP_MUL | OP_DIV | OP_MOD
+	|	PLUS | MINUS | '<' | '>' | PREFIX_PLUS | PREFIX_MINUS | PREFIX_PERCENT | PREFIX_PLUS_DOT | PREFIX_MINUS_DOT
+	|	PREFIX_AMP | PREFIX_AMP_AMP;
+
+opName	:	symbolicOp
 	|	rangeOpName
 	|	activePatternOpName;
 
 rangeOpName
-	:	'..'
-	|	'..' '..';
+	:	DOT_DOT^ DOT_DOT?;
 
 activePatternOpName
-	:	'|' (IDENT '|') +
-	|	'|' (IDENT '|') + '_' '|';
+	:	VBAR (IDENT VBAR)+ (UNDERSCORE VBAR)? -> ^(ACTIVE_PATTERN IDENT+ UNDERSCORE?);
 
 longIdent
-	:	IDENT ('.' IDENT)*;
+	:	IDENT ('.' IDENT)* -> ^(LONG_IDENT IDENT+);
 
-longIdentOrOp
-	:	longIdent '.' identOrOp
-	|	identOrOp;
-
-const	:	SBYTE | INT16 | INT32 | INT64 | BYTE | UINT16 | UINT32 | UINT64 | INT
-	|	IEEE32 | IEEE64 | BIGNUM | CHAR | STRING | VERBATIM_STRING | BYTE_ARRAY
-	|	VERBATIM_BYTE_ARRAY | BYTE_CHAR | 'false' | 'true' | '()'; 
+constant	:	INTEGER | INT
+	|	IEEE | BIGNUM | CHAR | STRING | VERBATIM_STRING | BYTE_ARRAY
+	|	VERBATIM_BYTE_ARRAY | BYTE_CHAR | FALSE | TRUE | UNIT_VALUE; 
 
 infixOrPrefixOp
-	:	'+' | '-' | '+.' | '-.' | '%' | '&' | '&&';
+	:	PLUS | MINUS | PLUS_DOT | MINUS_DOT | PERCENT | AMP | AMP_AMP;
 
-prefixOp:	infixOrPrefixOp
-	|	'~'+
-	|	'!' SYMBOLIC_OP;
+prefixOp:	infixOrPrefixOp | prefixOnlyOp;
+
+// TODO: !symbolicOp ?????
+prefixOnlyOp
+	:	PREFIX_AMP | PREFIX_AMP_AMP | PREFIX_MINUS | PREFIX_MINUS_DOT
+	|	PREFIX_PLUS | PREFIX_PLUS_DOT | PREFIX_PERCENT
+	|	OP_TILDA
+	|	'!'^ symbolicOp;
 	
-infixOp	:	infixOrPrefixOp
-	|	'.'* '- + < > | & ^ * / % ' SYMBOLIC_OP
-	|	'!=' | '||' | '='
-	|	':=' | '::' | '$' | 'or' | '?';
+/*infixOp	:	infixOrPrefixOp
+	|	'.'* (OP_MINUS | OP_PLUS | OP_LESS | OP_GREATER | OP_OR | OP_AND | OP_CONCAT | OP_MUL | OP_DIV | OP_MOD)
+	|	'!=' | BAR_BAR | '='
+	|	':=' | '::' | '$' | OR | OP_QUESTION;*/
 
-type	:	'(' type ')'
-	|	type '->' type
-	|	type ('*' type)+
-	|	typar
-	|	longIdent
-	|	longIdent '<' types '>'
-	|	longIdent '<' '>'
-	|	type longIdent
-	|	type '[' ','* ']'
-	|	type 'lazy'
-	|	type 'when' constraints
-	|	typar ':>' type
-	|	'#' type;
+funcType:	tupleType (('->') => '->'^ funcType)?;
 
-types	:	type (',' type)*;
+tupleType
+	:	suffixType ( -> suffixType
+	|	('*' suffixType)+ -> ^(TUPLE suffixType+));
+
+// TODO: in not using longIdent alt here after inherit
+suffixType
+	:	constrainedType (((longIdent | '[') => arrayOrSuffix)+ -> ^(SUFFIX constrainedType arrayOrSuffix+)
+	|	(~'[' | EOF)=> -> constrainedType);
+
+arrayOrSuffix
+	:	('[' ','* ']') => '['^ ','* ']'!
+	|	(longIdent) => longIdent;
+
+constrainedType // first alt should not work in exprs
+	:	'#'+ (typar ((':>') => ':>' concreteType -> ^('#' ^(':>' typar concreteType))| -> ^('#' typar))
+	|	concreteType -> ^('#' concreteType))
+	|	typar ((':>') => ':>' concreteType -> ^(':>' typar concreteType)| -> typar)
+	|	concreteType;
+
+concreteType
+	:	LPAREN! type RPAREN!
+	|	longIdent ((('<' (funcType (',' funcType)*)? '>')) => '<' (funcType (',' funcType)*)? '>')?
+	-> ^(NAME longIdent funcType*);
+
+types	:	type (','! type)*;
 
 atomicType
-	:	'(' type ')'
-	|	typar
-	|	longIdent
-	|	longIdent '<' types '>'
-	|	'#' type;
+	:	'#'+ (LPAREN type RPAREN -> ^('#' type)
+	|	typar -> ^('#' typar)
+	|	longIdent (('<') => '<' types '>')? -> ^('#' ^(NAME longIdent types?)))
+	|	(LPAREN type RPAREN -> type
+	|	typar -> typar
+	|	longIdent (('<') => '<' types '>')? -> ^(NAME longIdent types?));
 
-typar	:	'_'
-	|	'\'' IDENT
-	|	'^' IDENT;
+type:	funcType;
+
+typar	:	UNDERSCORE
+	|	'\u0027'^ IDENT
+	|	'^'^ IDENT;
 
 constraint
-	:	typar ':>' type
-	|	typar ':' 'null'
-	|	staticTypars ':' '(' memberSig ')'
-	|	typar ':' '(' 'new' ':' 'unit' '->' '\'T' ')'
-	|	typar ':' 'struct'
-	|	typar ':' 'not' 'struct'
-	|	typar ':' 'enum' '<' type '>'
-	|	typar ':' 'unmanaged'
-	|	typar ':' 'delegate' '<' type ',' type '>';
+	:	(genericConstraint) => genericConstraint
+	|	staticTypars ':' LPAREN memberSig RPAREN -> ^(SIG staticTypars memberSig);
+
+genericConstraint
+	:	typar (':>'^ type
+	|	':'! (NULL^
+	|	LPAREN! NEW^ ':'! keyUnit! '->'! '\u0027T'! RPAREN!
+	|	STRUCT^
+	|	keyNot^ STRUCT
+	|	ENUM^ '<'! type '>'!
+	|	UNMANAGED^
+	|	DELEGATE^ '<'! type ','! type '>'!));
 
 constraints
-	:	constraint ('and' constraint)*;
+	:	constraint (AND constraint)* -> ^(CONSTRAINTS constraint+);
 
 typarDefn
 	:	attributes? typar;
 
 typarDefns
-	:	'<' typarDefn (',' typarDefn)* typarConstraints? '>';
+	:	'<'! typarDefn (','! typarDefn)* typarConstraints? '>'!;
 
 typarConstraints
-	:	'when' constraint ('and' constraint)*;
+	:	WHEN constraint (AND constraint)* -> ^(CONSTRAINT constraint)+;
 
 staticTypars
-	:	'^' IDENT
-	|	'(' '^' IDENT ('or' '^' IDENT)* ')';
+	:	'^'! IDENT
+	|	LPAREN '^' IDENT (OR '^' IDENT)* RPAREN -> IDENT+;
 
-expr	:	const
-	|	'(' expr ')'
-	|	'begin' expr 'end'
-	|	longIdentOrOp
-	|	expr '.' longIdentOrOp
-	|	expr expr
-	|	expr '(' expr ')'
-	|	expr '<' types '>'
-	|	expr infixOp expr
-	|	prefixOp expr
-	|	expr '.' '[' expr ']'
-	|	expr '.' '[' sliceRange ']'
-	|	expr '.' '[' sliceRange ',' sliceRange ']'
-	|	expr '<-' expr
-	|	expr (',' expr) +
-	|	'new' type expr
-	|	'{' 'new' baseCall objectMembers interfaceImpls '}'
-	|	'{' fieldBinds '}'
-	|	'{' expr 'with' fieldBinds '}'
-	|	'[' expr (';' expr)* ']'
-	|	'[|' expr (';' expr)* '|]'
-	|	expr '{' compOrRangeExpr '}'
-	|	'[' compOrRangeExpr ']'
-	|	'[|' compOrRangeExpr '|]'
-	|	'lazy' expr
-	|	'null'
-	|	expr ':' type
-	|	expr ':>' type
-	|	expr ':?' type
-	|	expr ':?>' type
-	|	'upcast' expr
-	|	'downcast' expr
-	|	'let' bindings 'in' expr
-	|	'let' 'rec' bindings 'in' expr
-	|	'use' bindings 'in' expr
-	|	'fun' argumentPats '->' expr
-	|	'function' rules
-	|	expr ';' expr
-	|	'match' expr 'with' rules
-	|	'try' expr 'with' rules
-	|	'try' expr 'finally' expr
-	|	'if' expr 'then' expr elifBranches? elseBranch?
-	|	'while' expr 'do' expr 'done'
-	|	'for' IDENT '=' expr 'to' expr 'do' expr 'done'
-	|	'for' pat 'in' exprOrRangeExpr 'do' expr 'done'
-	|	'assert' expr
-	|	'<@' expr '@>'
-	|	'<@@' expr '@@>'
-	|	'%' expr
-	|	'(' staticTypars ':' '(' memberSig ')' expr ')';
+semiExpr:	letExpr (';'^ semiExpr)?;
+
+letExpr:	LET REC? binding (AND binding)* IN letExpr -> ^(LET ^(RECURSE REC?) ^(LET binding*) letExpr)
+	|	USE binding (AND binding)* IN letExpr -> ^(USE ^(USE binding*) letExpr)
+	|	blockExpr -> blockExpr;
+
+blockExpr
+	:	FUN^ argumentPats '->'! letExpr
+	|	FUNCTION^ rules
+	|	MATCH^ expr WITH! rules
+	|	TRY^ expr (WITH rules |FINALLY letExpr) 
+	|	ifExpr;
+
+ifExpr	:	IF^ assignExpr THEN! assignExpr elifBranches? elseBranch?
+	|	assignExpr;
+
+assignExpr
+	:	commaExpr ((':='^ | '<-'^) assignExpr)?;
+
+commaExpr	:	orExpr (','^ orExpr) *;
+
+orExpr	:	andExpr ((BAR_BAR^ | OR^) andExpr)*;
+
+andExpr	:	castExpr ((AMP^ | AMP_AMP^) castExpr)*;
+
+castExpr
+	:	cmpExpr ((':>'^ | ':?>'^) type)?;
+
+cmpExpr	:	concatExpr ((cmpOp^ | EQ^ | OP_OR^ | OP_AND^ | OP_DOLLAR^) concatExpr)*;
+
+concatExpr	:	listExpr ((OP_CONCAT^ | '^'^) concatExpr)?;
+
+listExpr	:
+	typeTestExpr ('::'^ listExpr)?;
+
+typeTestExpr	:
+	infixPlusExpr (':?'^ type)?;
+
+infixPlusExpr	:	mulExpr ((OP_PLUS | OP_MINUS | PLUS | MINUS) => (OP_PLUS^ | OP_MINUS^ | PLUS^ | MINUS^) mulExpr)*;
+
+mulExpr	:	expExpr (('*'^ | PERCENT^ | OP_MUL^ | OP_DIV^ | OP_MOD^) expExpr)*;
+
+expExpr	:	appOpExpr (OP_EXP^ expExpr)?;
+
+
+appOpExpr
+	:	(LAZY^ | ASSERT^ | UPCAST^ | DOWNCAST^)* appExpr;
+
+// TODO: new can handle named types only
+// TODO: AST
+
+appExpr	:
+	prefixExpr ((prefixOnlyExpr) =>((prefixOnlyExpr) => prefixOnlyExpr)+ ('{' compOrRangeExpr '}')* -> ^(APP prefixExpr prefixOnlyExpr+ compOrRangeExpr*)
+	|	('{' compOrRangeExpr '}')+ -> ^(APP prefixExpr compOrRangeExpr+)
+	|	-> prefixExpr)
+	|	(NEW type) => NEW type prefixExpr (('{' compOrRangeExpr '}')+ -> ^(APP ^(NEW type prefixExpr) compOrRangeExpr+)
+	|	-> ^(NEW type prefixExpr));
+
+prefixExpr	:	prefixOp+ dotExpr -> ^(PREFIX dotExpr prefixOp+)
+	|	dotExpr;
+
+prefixOnlyExpr
+	:	prefixOnlyOp+ dotExpr -> ^(PREFIX dotExpr prefixOnlyOp+)
+	|	dotExpr;
+
+// TODO: ranges vs slice expressions
+dotExpr	:	callExpr ('.'^ (identOrOp | '['^ ((sliceRange) => sliceRange (',' sliceRange)? | expr) ']'!))*;
 	
-exprs	:	expr (',' expr)*;
+callExpr	:	typeExpr /*(LS_APP LPAREN expr RPAREN)**/;
+
+typeExpr	:	simpleExpr /*(LS_TYAPP '<' types '>')**/;
+
+newObjExpr
+	:	NEW^ baseCall objectMembers interfaceImpls;
+
+simpleExpr	
+	:	(identOrOp) => identOrOp
+	|	LPAREN ( (staticTypars) => staticTypars ':' LPAREN memberSig RPAREN expr RPAREN -> ^(STATIC_INVOKE expr memberSig staticTypars)
+			|	expr RPAREN -> expr) 
+	|	BEGIN! expr END!
+//	|	{light?} LS_BEGIN expr LS_END
+	|	'{'^ ((newObjExpr) => newObjExpr
+	|	(fieldBinds) => fieldBinds
+	|	expr WITH^ fieldBinds) '}'!
+	|	'[' (((compOrRangeExpr) => compOrRangeExpr -> ^(LIST compOrRangeExpr) | letExpr (';' letExpr)*) -> ^(LIST letExpr+) | -> LIST) ']'
+	|	'[|'(((compOrRangeExpr) => compOrRangeExpr -> ^(ARRAY compOrRangeExpr) | letExpr (';' letExpr)*) -> ^(ARRAY letExpr+) | -> ARRAY) '|]'
+	|	NULL
+	|	WHILE^ expr DO! expr DONE!
+	|	FOR ((IDENT '=') => IDENT '=' st=expr TO fin=expr DO act=expr DONE -> ^(FOR '=' IDENT $st $fin $act)
+	|	pat IN exprOrRangeExpr DO expr DONE -> ^(FOR IN pat exprOrRangeExpr expr))
+	|	'<@'^ expr '@>'!
+	|	'<@@'^ expr '@@>'!
+	|	constant;
+
+expr	:	semiExpr (':' type)?;
+	
+// exprs	:	expr (',' expr)*;
 
 exprOrRangeExpr
-	:	expr
-	|	rangeExpr;
+	:	(rangeExpr) => rangeExpr
+	|	letExpr;
 	
 elifBranches
 	:	elifBranch+;
 
 elifBranch
-	:	'elif' expr 'then' expr;
+	:	ELIF^ assignExpr THEN! assignExpr;
 
 elseBranch
-	:	'else' expr;
-	
-binding	:	'inline'? access? identOrOp typarDefns? argumentPats returnType? '=' expr
-	|	'mutable'? access? pat typarDefns? returnType? '=' expr;
+	:	ELSE^ assignExpr;
+
+// TODO: combine these options via namedPatOrOp	
+binding	:	(identBinding) => identBinding
+	|	patternBinding;
+
+identBinding
+	:	INLINE? access? identOrOp typarDefns? argumentPats returnType? '=' expr ->
+	^(IDENT_BINDING identOrOp ^(TYPAR typarDefns?) ^(ARGS argumentPats) expr returnType? INLINE? access?);
+
+patternBinding
+	:	MUTABLE? access? namedPat typarDefns? returnType? '=' expr ->
+	^(PAT_BINDING namedPat ^(TYPAR typarDefns?) expr returnType? MUTABLE? access?);
 
 returnType
-	:	type;
+	:	':'^ type;
 
-bindings:	binding ('and' binding)*;
+bindings:	binding (AND binding)* -> ^(AND binding+);
 
 argumentPats
 	:	atomicPat+;
 
 fieldBind
-	:	longIdent '=' expr;
+	:	longIdent '=' letExpr -> ^(FIELD longIdent letExpr);
 
 fieldBinds
-	:	fieldBind (';' fieldBind)*;
+	:	fieldBind (';' fieldBind)* -> fieldBind+;
 	
 objectConstruction
-	:	type expr
-	|	type;
+	:	type prefixExpr?;
 
-baseCall:	objectConstruction ('as' IDENT)?;
+baseCall:	objectConstruction (AS IDENT)?;
 
 interfaceImpls
 	:	interfaceImpl+;
 
 interfaceImpl
-	:	'interface' type objectMembers?;
+	:	INTERFACE^ type objectMembers?;
 
 objectMembers
-	:	'with' valOrMemberDefns 'end';
+	:	WITH^ valOrMemberDefns END!;
 	
 valOrMemberDefns
-	:	bindings
-	|	memberDefns;
+	:	(memberDefns) => memberDefns
+	|	bindings;
 
 memberDefns
 	:	memberDefn+;
 
 compOrRangeExpr
-	:	compExpr
-	|	shortCompExpr
-	|	rangeExpr;
+	:	(shortCompExpr) => shortCompExpr
+	|	(rangeExpr) => rangeExpr
+	|	compExpr;
 	
-compExpr:	'let!' pat '=' expr 'in' compExpr
-	|	'do!' expr 'in' compExpr
-	|	'user!' pat '=' expr 'in' compExpr
-	|	'yield!' expr
-	|	'yield' expr
-	|	'return!' expr
-	|	'return' expr
+compExpr:	LET_^ pat '='! expr IN! compExpr
+	|	DO_^ expr IN! compExpr
+	|	USER_^ pat '='! expr IN! compExpr
+	|	YIELD_^ expr
+	|	YIELD^ expr
+	|	RETURN_^ expr
+	|	RETURN^ expr
 	|	expr;
 
 shortCompExpr
-	:	'for' pat 'in' exprOrRangeExpr '->' expr;
+	:	FOR pat IN exprOrRangeExpr '->' expr -> ^(SHORT_COMP pat exprOrRangeExpr expr);
 
 rangeExpr
-	:	expr '..' expr
-	|	expr '..' expr '..' expr;
+	:	orExpr '..' orExpr ('..' orExpr)? -> ^(RANGE orExpr+);
 	
 sliceRange
-	:	expr '..'
-	|	'..' expr
-	|	expr '..' expr
-	|	'*';
+	:	beg=orExpr '..' fin=orExpr? -> ^(SLICE ^(START $beg) ^(FIN $fin)?)
+	|	'..' orExpr -> ^(SLICE ^(FIN orExpr))
+	|	'*' -> SLICE;
 	
-rule	:	pat patternGuard? '->' expr;
+rule	:	pat patternGuard? '->' ifExpr -> ^(RULE pat ifExpr patternGuard?);
 
 patternGuard
-	:	'when' expr;
+	:	WHEN! cmpExpr;
 
-pat	:	const
-	|	longIdent patParam? pat?
-	|	'_'
-	|	pat 'as' IDENT
-	|	pat '|' pat
-	|	pat '&' pat
-	|	pat '::' pat
-	|	pat ':' type
-	|	pat (',' pat)+
-	|	'(' pat ')'
+pat	:	attrPat;
+
+attrPat
+	:	attributes? asPat -> ^(ATTR_PAT asPat attributes?);
+
+asPat	:
+	orPat ((AS IDENT) => AS IDENT)* -> ^(AS_PAT orPat IDENT*);
+
+orPat	:
+	andPat (VBAR andPat)* -> ^(OR_PAT andPat+);
+
+andPat	:
+	tuplePat (AMP tuplePat)* -> ^(AND_PAT tuplePat+);
+
+tuplePat	:
+	consPat (',' consPat)* -> ^(TUPLE_PAT consPat+);
+
+consPat	:
+	typePat ('::' typePat)* -> ^(CONS_PAT typePat+);
+
+typePat	:
+	namedPat (':' type)* -> ^(TYPE_PAT namedPat type*);
+
+namedPat:	longIdent simplePat? -> ^(NAMED_PAT longIdent simplePat?)
+	|	simplePat;
+
+simplePat
+	:	constant
+	|	UNDERSCORE
+	|	LPAREN! pat RPAREN!
 	|	listPat
 	|	arrayPat
 	|	recordPat
-	|	':?'atomicType ('as'IDENT)
-	|	'null'
-	|	attributes pat;
+	|	':?'^ atomicType ((AS) => AS! IDENT)?
+	|	NULL;
 	
-listPat	:	'[' ']'
-	|	'[' pat (';' pat)* ']';
+listPat	:	'[' (pat (';' pat)*)? ']' -> ^(LIST pat+);
 	
 arrayPat
-	:	'[|' '|]'
-	|	'[|' pat (';' pat)* '|]';
+	:	'[|' (pat (';' pat)*)? '|]' -> ^(ARRAY pat+);
 	
 recordPat
-	:	'{' fieldPat (';' fieldPat)* '}';
+	:	'{' fieldPat (';' fieldPat)* '}' -> fieldPat+;
 
 atomicPat
-	:	const
+	:	constant
 	|	longIdent
 	|	listPat
 	|	recordPat
 	|	arrayPat
-	|	'('pat')'
-	|	':?' atomicType
-	|	'null'
-	|	'_';
+	|	LPAREN! pat RPAREN!
+	|	':?'^ atomicType
+	|	NULL
+	|	UNDERSCORE;
 	
-fieldPat:	longIdent '=' pat;
+fieldPat:	longIdent '=' pat -> ^(FIELD longIdent pat);
 
-patParam:	const
-	|	longIdent
+// http://research.microsoft.com/en-us/um/cambridge/projects/fsharp/manual/spec.html#_Toc264041966
+/* nonIdentPatParam
+	:	constant
 	|	'['patParam (';'patParam)* ']'
-	|	'('patParam (','patParam)* ')'
-	|	longIdent patParam
-	|	patParam ':' type
+	|	LPARENpatParam (','patParam)* RPAREN
 	|	'<@' expr '@>'
 	|	'<@@' expr '@@>'
-	|	'null';
+	|	NULL;
 
-pats	:	pat (',' pat)*;
+patParam:	(nonIdentPatParam
+	|	longIdent+ nonIdentPatParam?) (':' type)?; */
+
+// pats	:	pat (',' pat)*;
 
 fieldPats
-	:	fieldPat (';'fieldPat)*;
+	:	fieldPat (';'fieldPat)* -> fieldPat+;
 	
-rules	:	'|'? rule ('|' rule)*;
+rules	:	VBAR? rule (VBAR rule)* -> rule+;
 
 typeDefns
 	:	typeDefn+;
 
-typeDefn:	abbrevTypeDefn
+primaryConstrArgs
+	:	attributes? access? LPAREN tuplePat? RPAREN -> ^(NAME NEW ^(ATTRIBUTES attributes?) access? tuplePat?);
+
+typeDefn:	TYPE typeName primaryConstrArgs? asBinding? typeDefnBody -> ^(TYPE typeName typeDefnBody primaryConstrArgs? asBinding?);
+
+typeDefnBody
+	:	'='! ((abbrevTypeDefn) => abbrevTypeDefn
 	|	recordTypeDefn
+	|	(enumTypeDefn) => enumTypeDefn
 	|	unionTypeDefn
 	|	anonTypeDefn
 	|	classTypeDefn
 	|	structTypeDefn
 	|	interfaceTypeDefn
-	|	enumTypeDefn
-	|	delegateTypeDefn
+	|	delegateTypeDefn)
 	|	typeExtension;
 
-typeName:	attributes? access? IDENT typarDefns?;
+typeName:	attributes? access? IDENT typarDefns? -> ^(NAME IDENT ^(ATTRIBUTES attributes?) access? typarDefns?);
 
 abbrevTypeDefn
-	:	typeName '=' type;
+// TODO: no constr or as
+	:	type -> ^(ABBREV type);
 
 unionTypeDefn
-	:	typeName '=' unionTypeCases typeExtensionElements?;
+// TODO: no constr or as
+	:	unionTypeCases typeExtensionElements? -> ^(UNION unionTypeCases typeExtensionElements?);
 
 unionTypeCases
-	:	'|'? unionTypeCases ('|' unionTypeCase)*;
+	:	VBAR? unionTypeCase (VBAR unionTypeCase)* -> unionTypeCase+;
 
 unionTypeCase
-	:	attributes? unionTypeCaseData;
+	:	attributes? IDENT (OF tupleType
+	|	':' uncurriedSig)? -> ^(CASE IDENT ^(ATTRIBUTES attributes?) tupleType? uncurriedSig?);
 
 unionTypeCaseData
-	:	IDENT
-	|	IDENT 'of' type ('*' type)*
-	|	IDENT ':' uncurriedSig;
+	:	IDENT ( -> ^(CASE IDENT)
+	|	unionTypeCaseType -> ^(CASE IDENT unionTypeCaseType));
+
+unionTypeCaseType
+	:	OF^ tupleType
+	|	':'^ uncurriedSig;
 
 recordTypeDefn
-	:	typeName '=' '{' recordFields '}' typeExtensionElements?;
+// TODO: no constr or as
+	:	'{' recordFields '}' typeExtensionElements? -> ^(RECORD recordFields typeExtensionElements?);
 	
 recordFields
-	:	recordFields (';' recordField)*;
+	:	recordField (';' recordField)* -> ^(FIELD recordField)+;
 
 recordField
-	:	attributes? 'mutable'? access? IDENT ':' type;
+	:	attributes? MUTABLE? access? IDENT ':' type -> attributes? IDENT type MUTABLE? access?;
 
 anonTypeDefn
-	:	typeName primaryConstrArgs? asBinding? '=' 'begin' classTypeBody 'end';
+	:	BEGIN^ classTypeBody END!
+//	|	{light}? LS_BEGIN classTypeBody LS_END
+	;
 	
 classTypeDefn
-	:	typeName primaryConstrArgs? asBinding? '=' 'class' classTypeBody 'end';
+	:	CLASS^ classTypeBody END!;
 
-asBinding:'as' IDENT;
+asBinding:	AS^ IDENT;
 
+// TODO: switch to typeDefn after first typeDefn
 classTypeBody
-	:	classInheritsDecl? classLetBindings? typeDefnElements?;
+	:	classInheritsDecl? ((classLetBinding) => classLetBinding)* typeDefnElement*;
 
 classInheritsDecl
-	:	'inherit' type expr?;
+	:	INHERIT^ type prefixExpr?;
 
 classLetBindings
 	:	classLetBinding+;
 
 classLetBinding
-	:	attributes? 'static'? 'let' 'rec'? bindings
-	|	attributes? 'static'? 'do' expr;
+	:	attributes? STATIC? moduleLetBinding -> ^(LET ^(ATTRIBUTES attributes?) ^(INSTANCE STATIC?) moduleLetBinding);
 
 structTypeDefn
-	:	typeName primaryConstrArgs? asBinding? '=' 'struct' structTypeBody 'end';
+	:	STRUCT^ structTypeBody END!;
 
 structTypeBody
-	:	typeDefnElements;
+	:	typeDefnElement+;
 
 interfaceTypeDefn
-	:	typeName '=' 'interface' interfaceTypeBody 'end';
+// TODO: no constr or as
+	:	INTERFACE^ interfaceTypeBody END!;
 
 interfaceTypeBody
-	:	typeDefnElements;
+	:	typeDefnElement+;
 
 exceptionDefn
-	:	attributes? 'exception' unionTypeCaseData
-	|	attributes? 'exception' IDENT '=' longIdent;
+	:	EXCEPTION^ ((unionTypeCaseData) => unionTypeCaseData | IDENT '='! longIdent);
 
 enumTypeDefn
-	:	typeName '=' enumTypeCases;
+// TODO: no constr or as
+	:	enumTypeCases -> ^(ENUM enumTypeCases);
 
 enumTypeCases
-	:	'|'? enumTypeCase ('|' enumTypeCase)*;
+	:	VBAR? enumTypeCase (VBAR enumTypeCase)* -> ^(CASE enumTypeCase)+;
 
 enumTypeCase
-	:	IDENT '=' const;
+	:	IDENT '='! constant;
 
 delegateTypeDefn
-	:	typeName '=' delegateSignature;
+// TODO: no constr or as
+	:	delegateSignature;
 
 delegateSignature
-	:	'delegate' 'of' uncurriedSig;
+	:	DELEGATE^ OF! uncurriedSig;
 
 typeExtension
-	:	typeName typeExtensionElements;
+	:	typeExtensionElements;
 
 typeExtensionElements
-	:	'with' typeDefnElements 'end';
+	:	WITH^ typeDefnElement+ END!;
 
 typeDefnElement
 	:	memberDefn
-	|	interfaceImpl
-	|	interfaceSpec;
+	|	interfaceImpl;
 
-typeDefnElements:	typeDefnElement+;
-
-primaryConstrArgs:	attributes? access? '(' pat (',' pat)* ')';
-
-additionalConstrDefn:	attributes? access? 'new' pat asBinding '=' additionalConstrExpr;
+additionalConstrDefn
+	:	access? NEW pat asBinding '=' additionalConstrExpr -> pat asBinding ^(EXPR additionalConstrExpr) ^(ACCESS access?);
 
 additionalConstrExpr
-	:	expr ';' additionalConstrExpr
-	|	additionalConstrExpr 'then' expr
-	|	'if' expr 'then' additionalConstrExpr 'else' additionalConstrExpr
-	|	classLetBinding 'in' additionalConstrExpr
-	|	additionalConstrInitExpr;
+	:	(letExpr ';')* (additionalConstrInitExpr) => additionalConstrInitExpr (THEN expr)? ->
+	^(PRE letExpr*) ^(CONSTRUCTION additionalConstrInitExpr) ^(THEN expr)?;
 
 additionalConstrInitExpr
-	:	'{' classInheritsDecl fieldBinds '}'
-	|	'new' type expr;
-
-memberDefn
-	:	attributes? 'static'? 'member' access? memberBinding
-	|	attributes? 'abstract' 'member'? access? memberSig
-	|	attributes? 'override' access? memberBinding
-	|	attributes? 'default' access? memberBinding
-	|	attributes? 'static'? 'val' 'mutable'? access? IDENT ':' type
-	|	additionalConstrDefn;
+	:	'{' INHERIT type prefixExpr? (fieldBinds) => fieldBinds '}' -> ^(INHERIT type ^(EXPR prefixExpr?) fieldBinds)
+	|	NEW? type prefixExpr -> ^(NEW type prefixExpr);
 
 memberBinding
-	:	(IDENT '.')? binding
-	|	(IDENT '.')? IDENT 'with' bindings;
+	:	((identPrefix) => identPrefix)? ((IDENT WITH) => IDENT WITH bindings | binding) ->
+	^(THIS identPrefix?) ^(PROPERTY IDENT bindings)? binding?;
+
+memberDefn
+	:	attributes? ((stat=STATIC? (MEMBER memberBinding -> ^(MEMBER ^(ATTRIBUTES attributes?) memberBinding STATIC?)
+	|	VAL MUTABLE? access? IDENT ':' type -> ^(VAL ^(ATTRIBUTES attributes?) ^(STATIC $stat) IDENT type MUTABLE? access?)))
+	|	ABSTRACT MEMBER? access? memberSig -> ^(ABSTRACT ^(ATTRIBUTES attributes?) memberSig access?)
+	|	OVERRIDE memberBinding -> ^(OVERRIDE  ^(ATTRIBUTES attributes?) memberBinding)
+	|	DEFAULT memberBinding -> ^(DEFAULT ^(ATTRIBUTES attributes?) memberBinding)
+	|	additionalConstrDefn -> ^(NEW ^(ATTRIBUTES attributes?) additionalConstrDefn));
+
+memberDefnBody
+	:	;
+
+/*staticMemberBinding
+	:	binding
+	|	IDENT WITH bindings;*/
+
+identPrefix
+	:	IDENT '.'!;
 
 memberSig
-	: IDENT typarDefns? ':' curriedSig
-	| IDENT typarDefns? ':' curriedSig 'with' 'get'
-	| IDENT typarDefns? ':' curriedSig 'with' 'set'
-	| IDENT typarDefns? ':' curriedSig 'with' 'get' ',' 'set'
-	| IDENT typarDefns? ':' curriedSig 'with' 'set' ',' 'get';
+	: IDENT typarDefns? ':' curriedSig propSig? -> ^(MEMBER_SIG curriedSig ^(ACCESSORS propSig?) ^(TYPARS typarDefns?));
 
-curriedSig:	argsSpec ('->' argsSpec)* '->' type;
+propSig	:	WITH! 
+	(	keyGet (','! keySet)?
+	|	keySet (','! keyGet)?);
 
-uncurriedSig:	argsSpec '->' type;
+// TODO: last should be a type
+curriedSig:	argsSpec ('->' argsSpec)* -> ^(SIG ^(ARGS argsSpec)+);
 
-argsSpec:	argSpec ('*' argSpec)*;
+uncurriedSig:	argSpec ('*' argSpec)* '->' type -> ^(USIG type argSpec+);
 
-argSpec:	attributes? argNameSpec? type;
+argsSpec:	argSpec ('*' argSpec)* -> argSpec+;
 
-argNameSpec:	'?'? IDENT ':';
+argSpec:	attributes? ((argNameSpec) => argNameSpec)? suffixType -> ^(ARG suffixType ^(ARG_NAME argNameSpec?) ^(ATTRIBUTES attributes?));
 
-interfaceSpec:	'interface' type;
+argNameSpec:	OP_QUESTION? IDENT ':' -> IDENT OP_QUESTION?;
+
+interfaceSpec:	INTERFACE^ type;
 
 namespaceDeclGroup
-	:	'namespace' longIdent moduleElems
-	|	'namespace' 'global' moduleElems;
+	:	NAMESPACE^ (longIdent moduleElem+
+	|	GLOBAL moduleElem+);
 
-moduleDefn:	attributes? 'module' 'access'? IDENT '=' moduleDefnBody;
-
-moduleDefnBody:	'begin' moduleElems? 'end';
-
-moduleElems
-	:	moduleElem+;
+moduleDefn:	MODULE access? IDENT '=' BEGIN moduleElem+ END -> ^(MODULE ^(ACCESS access?) IDENT moduleElem+);
 
 moduleElem
-	:	moduleLetBinding
-	|	typeDefns
-	|	exceptionDefn
-	|	moduleDefn
-	|	moduleAbbrev
+	:	(moduleAbbrev) => moduleAbbrev
+	|	typeDefn
+	|	attributes? (exceptionDefn
+	|	moduleLetBinding
+	|	moduleDefn)
 	|	importDecl
 	|	compilerDirectiveDecl;
 
 moduleLetBinding
-	:	attributes? 'let' 'rec'? bindings
-	|	attributes? 'do' expr;
+	:	LET REC? binding (AND binding)* -> ^(LET ^(RECURSE REC?) binding*)
+	|	DO^ expr;
 
-importDecl:	'open' longIdent;
+importDecl:	OPEN^ longIdent;
 
-moduleAbbrev:	'module' IDENT '=' longIdent;
+moduleAbbrev:	MODULE IDENT '=' longIdent -> ^(MODULE_ABBREV IDENT longIdent);
 
-compilerDirectiveDecl:	'#' IDENT STRING+;
+compilerDirectiveDecl:	'#'^ IDENT STRING+;
 
 access
-	:	'private'
-	|	'internal'
-	|	'public';
+	:	PRIVATE
+	|	INTERNAL
+	|	PUBLIC;
 
 namespaceDeclGroupSpec
-	:	'namespace' longIdent moduleSpecElements
-	|	'module' longIdent moduleSpecElements
-	|	moduleSpecElements;
+	:	NAMESPACE^ longIdent moduleSpecElements
+	|	MODULE^ longIdent moduleSpecElements;
 
-moduleSpec:	'module' IDENT '=' moduleSpecBody;
+// moduleSpec:	MODULE IDENT '=' moduleSpecBody;
+
+funcValSpec
+	:	MUTABLE? curriedSig -> ^(FUNC curriedSig MUTABLE?);
 
 moduleSpecElement
-	:	'val' 'mutable'? curriedSig
-	|	'val' binding
-	|	'type' typeSpecs
-	|	'exception' IDENT 'of' type
-	|	moduleSpec
-	|	moduleAbbrev
+	:	VAL! ((funcValSpec) => funcValSpec
+	|	binding)
+	|	TYPE! typeSpecs
+	|	EXCEPTION^ IDENT OF! type
+	|	MODULE^ IDENT '='! (moduleSpecBody | longIdent)
 	|	importDecl;
 
-moduleSpecElements:	moduleSpecElement+;
+moduleSpecElements:	((moduleSpecElement) => moduleSpecElement)+;
 
-moduleSpecBody:	'begin' moduleSpecElements 'end';
+moduleSpecBody:	BEGIN! moduleSpecElements END!
+//	| {light}? LS_BEGIN moduleSpecElements LS_END
+	;
 
 typeSpec
-	:	abbrevTypeSpec
-	|	recordTypeSpec
+	:	typeName typeSpecSpec -> ^(TYPE_SPEC typeName typeSpecSpec);
+
+typeSpecSpec
+	:	typeExtensionSpec
+	|	'='! ((abbrevTypeSpec) => abbrevTypeSpec
+	|	(enumTypeSpec) => enumTypeSpec
 	|	unionTypeSpec
 	|	anonTypeSpec
 	|	classTypeSpec
 	|	structTypeSpec
 	|	interfaceTypeSpec
-	|	enumTypeSpec
 	|	delegateTypeSpec
-	|	typeExtensionSpec;
+	|	recordTypeSpec);
 
-typeSpecs:	typeSpec ('and' typeSpec)*;
+typeSpecs:	typeSpec (AND typeSpec)* -> typeSpec+;
 
 typeSpecElement
-	:	attributes? access? 'new' ':' uncurriedSig
-	|	attributes? 'member' access? memberSig
-	|	attributes? 'abstract' access? memberSig
-	|	attributes? 'override' memberSig
-	|	attributes? 'default' memberSig
-	|	attributes? 'static' 'member' access? memberSig
-	|	'interface' type;
+	:	attributes? mem=memberSpec -> ^(MEMBER_SPEC $mem ^(ATTRIBUTES attributes?))
+	|	INTERFACE^ type;
 
-abbrevTypeSpec:	typeName '=' type;
+memberSpec
+	:	access? NEW ':' uncurriedSig -> ^(NEW uncurriedSig access?)
+	|	MEMBER access? memberSig -> ^(MEMBER memberSig access?)
+	|	ABSTRACT access? memberSig -> ^(ABSTRACT memberSig access?)
+	|	OVERRIDE^ memberSig
+	|	DEFAULT^ memberSig
+	|	STATIC^ MEMBER! access? memberSig;
 
-unionTypeSpec:	typeName '=' unionTypeCases typeExtensionElementsSpec?;
+abbrevTypeSpec:	type;
 
-recordTypeSpec:	typeName '=' '{' recordFields '}' typeExtensionElementsSpec?;
+unionTypeSpec:	unionTypeCases typeExtensionElementsSpec?;
 
-anonTypeSpec:	typeName '=' 'begin' typeSpecElement+ 'end';
+recordTypeSpec:	'{'! recordFields '}'! typeExtensionElementsSpec?;
 
-classTypeSpec:	typeName '=' 'class' typeSpecElement+ 'end';
+anonTypeSpec:	BEGIN^ typeSpecElement+ END!;
 
-structTypeSpec:	typeName '=' 'struct' typeSpecElement+ 'end';
+classTypeSpec:	CLASS^ typeSpecElement+ END!;
 
-interfaceTypeSpec:	typeName '=' 'interface' typeSpecElement+ 'end';
+structTypeSpec:	STRUCT^ typeSpecElement+ END!;
 
-enumTypeSpec:	typeName '=' enumTypeCases;
+interfaceTypeSpec:	INTERFACE^ typeSpecElement+ END!;
 
-delegateTypeSpec:	typeName '=' delegateSignature;
+enumTypeSpec:	enumTypeCases;
 
-typeExtensionSpec:	typeName typeExtensionElementsSpec;
+delegateTypeSpec:	delegateSignature;
 
-typeExtensionElementsSpec:	'with' typeSpecElement+ 'end';
+typeExtensionSpec:	typeExtensionElementsSpec;
+
+typeExtensionElementsSpec:	WITH^ typeSpecElement+ END!;
 
 implementationFile
-	:	namespaceDeclGroup +
-	|	namedModule
-	|	anonymousModule;
+	:	((compilerDirectiveDecl) => compilerDirectiveDecl)* (namespaceDeclGroup+ -> ^(IMPLEMENTATION ^('#' compilerDirectiveDecl*) namespaceDeclGroup)
+	|	(MODULE longIdent ~('=' | DOT)) => namedModule -> ^(IMPLEMENTATION ^('#' compilerDirectiveDecl*) namedModule)
+	|	anonymousModule -> ^(IMPLEMENTATION ^('#' compilerDirectiveDecl*) anonymousModule));
 
 scriptFile:	implementationFile;
 
-signatureFile:	namespaceDeclGroupSpec+;
+signatureFile
+// TODO: if starts with MODULE then 1st alt
+	:	(MODULE | NAMESPACE) => namespaceDeclGroupSpec+
+	|	moduleSpecElements;
 
-namedModule:	'module' longIdent moduleElems;
+namedModule:	MODULE^ longIdent moduleElem+;
 
-anonymousModule:	moduleElems;
+anonymousModule:	moduleElem+ -> ^(MODULE moduleElem+);
 
-scriptFragment:	moduleElems;
+scriptFragment:	moduleElem+ -> ^(SCRIPT_FRAG moduleElem+);
 
-attribute:	(attributeTarget ':')? objectConstruction;
+attribute:	(attributeTarget ':')? objectConstruction -> ^(ATTRIBUTE ^(ATTRIBUTE_TARGET attributeTarget?) objectConstruction);
 
 attributeSet:	'[<' attribute (';' attribute)* '>]';
 
 attributes:	attributeSet+;
 
-attributeTarget:	'assembly' | 'module' | 'return' | 'field' | 'property' | 'param' | 'type' | 'constructor' | 'event';
+attributeTarget:	keyAssembly | MODULE | RETURN | keyField | keyProperty | keyParam | TYPE | keyConstructor | keyEvent;
+
+keyAssembly
+	:	{input.LT(1).getText().equals("assembly")}? IDENT;
+
+keyUnit
+	:	{input.LT(1).getText().equals("unit")}? IDENT;
+
+keyNot
+	:	{input.LT(1).getText().equals("not")}? IDENT;
+
+keyGet
+	:	{input.LT(1).getText().equals("get")}? IDENT;
+
+keySet
+	:	{input.LT(1).getText().equals("set")}? IDENT;
+
+keyField
+	:	{input.LT(1).getText().equals("field")}? IDENT;
+
+keyProperty
+	:	{input.LT(1).getText().equals("property")}? IDENT;
+
+keyParam
+	:	{input.LT(1).getText().equals("param")}? IDENT;
+
+keyConstructor
+	:	{input.LT(1).getText().equals("constructor")}? IDENT;
+
+keyEvent
+	:	{input.LT(1).getText().equals("event")}? IDENT;
 
 fragment
 Whitespace
-	:	' '+;
+	:	(' ' | '\t')+;
 
 fragment
 NewLine	:	'\n' | '\r' '\n';
@@ -579,14 +894,8 @@ fragment
 WhitespaceOrNewLine
 	:	Whitespace | NewLine;
 	
-BLOCK_COMMENT_START
-	:	'(*';
-
-BLOCK_COMMENT_END
-	:	'*)';
-
-END_OF_LINE_COMMENT
-	:	'//' (~('\r' | '\n'))*;
+WHITESPACE
+	:	WhitespaceOrNewLine {$channel=HIDDEN;};
 	
 IF_DIRECTIVE
 	:	'#if' Whitespace IdentText;
@@ -619,27 +928,27 @@ FormattingChar
 
 fragment
 IdentStartChar
-	:	LetterChar | '_';
+	:	LetterChar | UNDERSCORE;
 
 fragment
 IdentChar
-	:	LetterChar | ConnectingChar | CombiningChar | FormattingChar | Digit | '\'' | '_';
+	:	LetterChar | ConnectingChar | CombiningChar | FormattingChar | Digit | '\u0027';
 
 fragment
 IdentText
 	:	IdentStartChar IdentChar*;
 
-IDENT_KEYWORD
-	:	'abstract' | 'and' | 'as' | 'assert' | 'base' | 'begin' | 'class'
-	|	'default' | 'delegate' | 'do' | 'done' | 'downcast' | 'downto'
-	|	'elif' | 'else' | 'end' | 'exception' | 'extern' | 'false'
-	|	'finally' | 'for' | 'fun' | 'function' | 'global' | 'if' | 'in'
-	|	'inherit' | 'inline' | 'interface' | 'internal' | 'lazy' | 'let'
-	|	'match' | 'member' | 'module' | 'mutable' | 'namespace' | 'new'
-	|	'null' | 'of' | 'open' | 'or' | 'override' | 'private' | 'public'
-	|	'rec' | 'return' | 'sig' | 'static' | 'struct' | 'then' | 'to'
-	|	'true' | 'try' | 'type' | 'upcast' | 'use' | 'val' | 'void'
-	|	'when' | 'while' | 'with' | 'yield';
+/* IDENT_KEYWORD
+	:	ABSTRACT | AND | AS | ASSERT | BASE | BEGIN | CLASS
+	|	DEFAULT | DELEGATE | DO | DONE | DOWNCAST | DOWNTO
+	|	ELIF | ELSE | END | EXCEPTION | EXTERN | FALSE
+	|	FINALLY | FOR | FUN | FUNCTION | GLOBAL | IF | IN
+	|	INHERIT | INLINE | INTERFACE | INTERNAL | LAZY | LET
+	|	MATCH | MEMBER | MODULE | MUTABLE | NEW
+	|	NULL | OF | OPEN | OR | OVERRIDE | PRIVATE | PUBLIC
+	|	REC | RETURN | SIG | STATIC | STRUCT | THEN | TO
+	|	TRUE | TRY | TYPE | UPCAST | USE | VAL | VOID
+	|	WHEN | WHILE | WITH | YIELD; */
 
 RESERVED_KEYWORD
 	:	'atomic' | 'break' | 'checked' | 'component' | 'const' | 'constraint'
@@ -648,22 +957,22 @@ RESERVED_KEYWORD
 	|	'params' | 'process' | 'protected' | 'pure' | 'recursive' | 'sealed'
 	|	'tailcall' | 'trait' | 'virtual' | 'volatile';
 
-RESERVED_IDENT_FORMAT
-	:	IdentText ('!' | '#');
+/* RESERVED_IDENT_FORMAT
+	:	IdentText ('!' | '#'); */
 
 IDENT	:	IdentText
-	|	'``' ~('\n' | '\r' | '\r' | '`')+ | '`'~('\n' | '\r' | '\t' | '`') '``';
+	|	'``' ~('\n' | '\r' | '\t' | '`')+ | '`'~('\n' | '\r' | '\t' | '`') '``';
 	
 fragment
 EscapeChar
-	:	'\\' ('\\' | '\"' | '\'' | 'b' | 'n' | 'r' | 't');
+	:	'\\' ('\\' | '\"' | '\u0027' | 'b' | 'n' | 'r' | 't');
 
 fragment
 NonEscapeChars
-	:	'\\' ~('\\' | '\"' | '\'' | 'b' | 'n' | 'r' | 't');
+	:	'\\' ~('\\' | '\"' | '\u0027' | 'b' | 'n' | 'r' | 't');
 fragment
 SimpleChar
-	:	~('\n' | '\t' | '\r' | '\b' | '\'' | '\\' | '\"');
+	:	~('\n' | '\t' | '\r' | '\b' | '\u0027' | '\\' | '\"');
 
 fragment
 Ugraph	:	'\\' 'u' Hex Hex Hex Hex;
@@ -681,9 +990,9 @@ StringChar
 fragment
 StringElem
 	:	StringChar
-	|	'\'' NewLine Whitespace* StringElem;
+	|	'\u0027' NewLine Whitespace* StringElem;
 
-CHAR	:	'\'' CharChar '\'';
+CHAR	:	'\u0027' CharChar '\u0027';
 STRING	:	'\"' StringChar* '\"';
 
 fragment
@@ -698,7 +1007,7 @@ VERBATIM_STRING
 	:	'@"' VerbatimStringChar* '"';
 
 BYTE_CHAR
-	:	'\'' SimpleOrEscapeChar '\'B';
+	:	'\u0027' SimpleOrEscapeChar '\u0027B';
 
 BYTE_ARRAY
 	:	'\"' StringChar* '\"B';
@@ -707,7 +1016,7 @@ VERBATIM_BYTE_ARRAY
 	:	'@\"' VerbatimStringChar* '\"B';
 
 EOL_COMMENT
-	:	'//' ~('\n' | '\r')*;
+	:	'//' ~('\n' | '\r')* {$channel=HIDDEN;};
 
 MULTILINE_COMMENT
 	:	'(**)' {$channel=HIDDEN;}
@@ -720,20 +1029,78 @@ SimpleOrEscapeChar
 fragment
 Trigraph:	'\\' Digit Digit Digit;
 
-SYMBOLIC_KEYWORD
-	:	'let!' | 'use!' | 'do!' | 'yield!' | 'return!'
-	|	'->' | '<-' | '.' | ':' | '(' | ')' | '[<' | '>]' |'[|' | '|]' | '[' | ']'
-	|	'{' | '}' | '\'' | '#' | ':?>' | ':>' | '..' | ':=' | ';;' | ';' | '='
-	|	'_' | '??' | '?' | '(*)' | '<@@' | '<@' | '@@>' | '@>';
+OP_MUL_NAME
+	:	'(*)';
 
-RESERVED_SYMBOLS
-	:	'~' | '`';
-	
+/* SYMBOLIC_KEYWORD
+	:	'let!' | 'use!' | 'do!' | 'yield!' | 'return!'
+	|	'->' | '<-' | '.' | ':' | LPAREN | RPAREN | '[<' | '>]' |'[|' | '|]' | '[' | ']'
+	|	'{' | '}' | '\'' | '#' | ':?>' | ':>' | '..' | ':=' | ';;' | ';' | '='
+	|	UNDERSCORE | '??' | OP_QUESTION | OP_MUL_NAME | '<@@' | '<@' | '@@>' | '@>'; */
+
+/* RESERVED_SYMBOLS
+	:	'~' | '`';*/
+
 fragment
 FirstOpChar
 	:	'!' | '%' | '&' | '*' | '+' | '-' | '.' | '/' | '<' | '=' | '>' | '@' | '^' | '|' | '~';
 fragment
-OpChar	:	FirstOpChar | '?';
+OpChar	:	FirstOpChar | OP_QUESTION;
+
+PLUS	:	'+' Whitespace;
+
+PREFIX_PLUS
+	:	// ('+' ~(OpChar | Whitespace | '.')) => '+'
+	// |	
+	'+'
+	;
+
+MINUS	:	'-' Whitespace;
+
+PREFIX_MINUS
+	:	// ('-' ~(OpChar | Whitespace | '.')) => '-'
+	//|	
+	'-'
+	;
+
+PLUS_DOT:	'+.' Whitespace;
+
+PREFIX_PLUS_DOT
+	:	// ('+.' ~(OpChar | Whitespace)) => '+.'
+	//|	
+	'+.'
+	;
+
+MINUS_DOT
+	:	'-.' Whitespace;
+
+PREFIX_MINUS_DOT
+	:	// ('-.' ~(OpChar | Whitespace)) => '-.'
+	//|	
+	'-.'
+	;
+
+PERCENT	:	'%' Whitespace;
+
+PREFIX_PERCENT
+	:	// ('%' ~(OpChar | Whitespace)) => '%'
+	//|	
+	'%'
+	;
+AMP	:	'&' Whitespace;
+PREFIX_AMP
+	:	// ('&' ~(OpChar | Whitespace)) => '&'
+	//|	
+	'&'
+	;
+
+AMP_AMP	:	'&&' Whitespace;
+	
+PREFIX_AMP_AMP
+	:	// ('&&' ~(OpChar | Whitespace)) => '&&'
+	//|	
+	'&&'
+	;
 
 fragment
 QuoteOpLeft
@@ -741,19 +1108,12 @@ QuoteOpLeft
 fragment
 QuoteOpRight
 	:	'@@>' | '@>';
-	
-SYMBOLIC_OP
-	:	'?<-'
-	|	'?'
-	|	FirstOpChar OpChar*
-	|	QuoteOpLeft
-	|	QuoteOpRight;
 
 fragment
 Digit	:	'0' .. '9';
 
 fragment
-Hex : ('0'..'9'|'a'..'f'|'A'..'F') ;
+Hex : ('0'..'9' | 'a'..'f' | 'A'..'F') ;
 
 fragment
 Octal	:	'0' .. '7';
@@ -765,100 +1125,102 @@ fragment
 Int	:	Digit+;
 
 fragment
-XInt	:	Int	
-	|	('0' ('x' | 'X') Hex+ )
-	|	('0' ('o' | 'O') Octal+ )
-	|	('0' ('b' | 'B') Bit+ );
+XInt	:	Int
+	|	('0' ((('x' | 'X') Hex+ )
+	|	(('o' | 'O') Octal+ )
+	|	(('b' | 'B') Bit+ )));
+IEEE	:	Float ('f' | 'F')?
+	|	XInt ('lf' | 'LF');
+INTEGER	:	XInt ('y' | 'uy' | 's' | 'us' | 'l' | ('ul' | 'u') | 'L' | ('UL' | 'uL') | 'n' | 'un');
 
-SBYTE	:	XInt 'y';
-BYTE	:	XInt 'uy';
-INT16	:	XInt 's';
-UINT16	:	XInt 'us';
-INT32	:	XInt 'l';
-UINT32	:	XInt ('ul' | 'u');
-INT64	:	XInt 'L';
-UINT64	:	XInt ('UL' | 'uL');
-NATIVE_INT
-	:	XInt 'n';
-UNATIVE_INT
-	:	XInt 'un';
-IEEE32	:	Float ('f' | 'F')
-	|	XInt 'lf';
-IEEE64	:	Float
-	|	XInt 'LF';
 BIGNUM	:	Int ('Q' | 'R' | 'Z' | 'I' | 'N' | 'G');
 DECIMAL	:	(Float|Int) ('M' | 'm');
 INT	:	Int;
 
 fragment
 Float
-	:   Digit+ ('.' Digit*)? ('E'|'e') ('+'|'-')? Digit+
+	:   Digit+ ('.' Digit*)? ('E' | 'e') ('+' | '-')? Digit+
 	|   Digit+ '.' Digit*;
 
 fragment
-Hexgraph:	'\\' 'x' Hex Hex;
+Hexgraph:	'\\x' Hex Hex;
 
-DO	:	'do!';
-YIELD	:	'yield!';
-RETURN	:	'return!';
 MAXINT	:	Int '.' '.';
 
 COMMENT
-	:   '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
+	:   '//' ~('\n' | '\r')* '\r'? '\n' {$channel=HIDDEN;}
 	|   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;}
 	;
 
 HASH	:	'#';
-AMP	:	'&';
-AMP_AMP	:	'&' '&';
-BAR_BAR	:	'|' '|';
-QUOTE	:	'\'';
-LPAREN	:	'(';
-RPAREN	:	')';
 STAR	:	'*';
 COMMA	:	',';
-RARROW	:	'-' '>';
-QMARK	:	'?';
-QQMARK	:	'?' '?';
-DOT_DOT	:	'.' '.';
+RARROW	:	'->';
+QQMARK	:	'??';
+DOT_DOT	:	'..';
 DOT	:	'.';
-COLON	:	':';
 COLON_COLON
-	:	':' ':';
+	:	'::';
 COLON_GREATER
-	:	':' '>';
-GREATER_BAR_RBRACK
-	:	'>' '|' ']';
+	:	':>';
+
 COLON_QMARK_GREATER
-	:	':' '?' '>';
+	:	':?>';
 COLON_QMARK
-	:	':' '?';
-COLON_EQ:	':' '=';
-SEMICOLON_SEMICOLON
-	:	';' ';';
+	:	':?';
+COLON_EQ:	':=';
+COLON	:	':';
+
 SEMICOLON
 	:	';';
-LARROW	:	'<' '-';
+LARROW	:	'<-';
 EQ	:	'=';
 LBRACK	:	'[';
 LBRACK_BAR
-	:	'[' '|';
+	:	'[|';
 RBRACK	:	']';
 BAR_RBRACK
-	:	'|' ']';
-GREATER_RBRACK
-	:	'>' ']';
+	:	'|]';
 LBRACE	:	'{';
-BAR	:	'|';
 RBRACE	:	'}';
 DOLLAR	:	'$';
-SPERCENT:	'%';
-DPERCENT:	'%' '%';
-MINUS	:	'-';
+// SPERCENT:	PERCENT;
+// DPERCENT:	'%%';
 
+OP_QLM	:	'?<-';
+
+OP_LESS	:	'<' OpChar*;
+
+OP_GREATER
+	:	'>' OpChar*;
+
+OP_NE	:	'!=' OpChar*;
+
+OP_OR	:	'|' OpChar*;
+
+OP_AND	:	'&' OpChar*;
+
+OP_DOLLAR
+	:	'$' OpChar*;
+
+OP_CONCAT	:	'^' OpChar*;
+
+OP_TILDA:	'~'+;
+
+OP_PLUS	:	'+' OpChar*;
+
+OP_MINUS:	'-' OpChar*;
+
+OP_EXP	:	'**' OpChar*;
+
+OP_MUL	:	'*' OpChar*;
+
+OP_DIV	:	'/' OpChar*;
+
+OP_MOD	:	'%' OpChar*;
 
 fragment
-EXPONENT : ('e'|'E') ('+'|'-')? Digit+ ;
+EXPONENT : ('e' | 'E') ('+' | '-')? Digit+ ;
 
 fragment
 Space	:	' ';
@@ -871,7 +1233,7 @@ White	:	Space | Tab;
 
 fragment
 OperationChar
-	:	'!'|'$'|'%'|'&'|'*'|'+'|'-'|'.'|'/'|'<'|'='|'>'|'?'|'@'|'^'|'|'|'~'|':';
+	:	'!' | '$' | '%' | '&' | '*' | '+' | '-' | '.' | '/' | '<' | '=' | '>' | '?' | '@' | '^' | '|' | '~' | ':';
 	
 fragment
 NoOpChar:	'.' | '$';

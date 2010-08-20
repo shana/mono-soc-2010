@@ -1,0 +1,51 @@
+expr :=  
+    const	-- a constant value
+    ( expr )	-- block expression
+    begin expr end	-- block expression
+    long-ident-or-op	-- lookup expression
+    expr '.' long-ident-or-op	-- dot lookup expression
+    expr expr	-- application expression 
+    expr(expr)	-- high precedence application 
+    expr<types>	-- type application expression 
+    expr infix-op expr	-- infix application expression
+    prefix-op expr	-- prefix application expression
+    expr.[expr]	-- indexed lookup expression
+    expr.[slice-range]	-- slice expression (1D)
+    expr.[slice-range, slice-range]	-- slice expression (2D)
+    expr <- expr	-- assignment expression
+    expr , ... , expr	-- tuple expression
+    new type expr	-- simple object expression
+    { new base-call object-members interface-impls } -- object expression
+    { field-binds }	-- record expression
+    { expr with field-binds }	-- record cloning expression
+    [ expr ; ... ; expr ]	-- list expression
+    [| expr ; ... ; expr |]	-- array expression
+    expr { comp-or-range-expr }    	-- computation expression
+    [ comp-or-range-expr]	-- computed list expression
+    [| comp-or-range-expr |]	-- computed array expression
+    lazy expr	-- delayed expression
+    null	-- the "null" value for a reference type
+    expr : type	-- type annotation
+    expr :> type	-- static upcast coercion
+    expr :? type	-- dynamic type test
+    expr :?> type	-- dynamic downcast coercion
+    upcast expr	-- static upcast expression
+    downcast expr	-- dynamic downcast expression
+    let bindings in expr	–- binding expression
+    let rec bindings in expr	-- recursive binding expression
+    use bindings in expr	–- resource binding expression
+    fun argument-pats -> expr           -- function expression
+    function rules	-- matching function expression
+    expr ; expr	-- sequential execution expression
+    match expr with rules	-- match expression
+    try expr with rules	-- try/with expression
+    try expr finally expr	-- try/finally expression
+    if expr then expr elif-branchesopt else-branchopt -- conditional expression
+    while expr do expr done	-- while loop 
+    for ident = expr to expr do expr done       -- simple for loop
+      for pat in expr-or-range-expr do expr done  -- enumerable for loop
+    assert expr	-- assert expression
+    <@ expr @>	-- expression quotation
+    <@@ expr @@>	-- expression quotation
+    %expr 	-- expression splice
+    (static-typars : (member-sig) expr) -– static member invocation

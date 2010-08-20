@@ -1,0 +1,30 @@
+Infix operators, expressions and precedence order for ambiguity resolution
+
+	as                          %right
+	when                        %right
+	|                           %left
+	;                           %right
+	:							- type constraint
+	let                         %nonassoc 
+	function, fun, match, try   %nonassoc
+	if                          %nonassoc 
+	->                          %right 
+	:=                          %right
+	,                           %nonassoc
+	..							- slice
+	or ||                       %left
+	& &&                        %left
+	:> :?>                   %right
+	!=OP <OP >OP = |OP &OP $    %left
+	^OP                         %right 
+	::                          %right 
+	:?                          %nonassoc
+	-OP +OP                     %left   -- for infix uses of these symbols
+	*OP /OP %OP                 %left
+	**OP                        %right 
+	"f x" "lazy x" "assert x"   %left
+	"| rule"                    %right  -- pattern match rules
+	prefix-op		       %left   -- for prefix uses of these symbols
+	.                           %left
+	f(x)                        %left  -- high precedence application, see §15.2
+	f<types>                    %left  -- high precedence type application, see §15.3
