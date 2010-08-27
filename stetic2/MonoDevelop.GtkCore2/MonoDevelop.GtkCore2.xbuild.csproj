@@ -22,7 +22,6 @@
     <Execution>
       <Execution clr-version="Net_2_0" />
     </Execution>
-    <DefineConstants>TRUNK</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
@@ -65,20 +64,40 @@
     <Reference Include="MonoDevelop.Core, Version=2.4.0.0, Culture=neutral">
       <Package>monodevelop</Package>
     </Reference>
-    <Reference Include="MonoDevelop.DesignerSupport, Version=2.4.0.0, Culture=neutral">
-      <Package>monodevelop-core-addins</Package>
-    </Reference>
     <Reference Include="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral">
       <Package>monodevelop</Package>
     </Reference>
     <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral">
       <Package>monodevelop</Package>
     </Reference>
-    <Reference Include="MonoDevelop.Deployment, Version=2.4.0.0, Culture=neutral">
-      <Package>monodevelop-core-addins</Package>
-    </Reference>
     <Reference Include="Mono.Cecil, Version=0.6.9.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
       <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="NRefactory, Version=2.1.1.0, Culture=neutral, PublicKeyToken=efe927acf176eea2">
+      <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9307d64546e0580d">
+      <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="MonoDevelop.Deployment, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\AddIns\MonoDevelop.Deployment\MonoDevelop.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.DesignerSupport, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\AddIns\MonoDevelop.DesignerSupport\MonoDevelop.DesignerSupport.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\bin\Mono.TextEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\bin\MonoDevelop.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoDevelop.Ide, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\build\bin\MonoDevelop.Ide.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

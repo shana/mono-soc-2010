@@ -61,8 +61,8 @@ namespace MonoDevelop.GtkCore
 		[ItemProperty (DefaultValue = "Mono.Unix.Catalog")]
 		string gettextClass = "Mono.Unix.Catalog";
 		
-		[ItemProperty (DefaultValue = "Stetic")]
-		string steticFolderName = "Stetic";
+		[ItemProperty (DefaultValue = "Designer")]
+		string steticFolderName = "Designer";
 		
 		[ItemProperty (DefaultValue = false)]
 		bool wasConverted;
