@@ -13,7 +13,11 @@ REFS =  \
 	$(GTK_SHARP_LIBS) \
 	$(MONO_ADDINS_LIBS) \
 	-pkg:monodevelop \
-	-pkg:monodevelop-core-addins \
+	-r:../../../build/AddIns/MonoDevelop.Deployment/MonoDevelop.Deployment.dll \
+	-r:../../../build/AddIns/MonoDevelop.DesignerSupport/MonoDevelop.DesignerSupport.dll \
+	-r:../../../build/bin/Mono.TextEditor.dll \
+	-r:../../../build/bin/MonoDevelop.Core.dll \
+	-r:../../../build/bin/MonoDevelop.Ide.dll \
 	-r:Mono.Posix \
 	-r:System \
 	-r:System.Core \
