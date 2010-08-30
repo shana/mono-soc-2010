@@ -1,3 +1,7 @@
+2010-08-30  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* ProjectFileNodeBuilderExtension.cs: 
+
 2010-08-17  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* WindowsFolder.cs:

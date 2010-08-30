@@ -158,16 +158,6 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			foreach (Stetic.WidgetInfo ob in gproject.Widgets)
 				RegisterWindow (ob, false);
-				
-			// Monitor changes in the file
-//			lastSaveTime = System.IO.File.GetLastWriteTime (fileName);
-//			watcher = new FileSystemWatcher ();
-//			if (System.IO.File.Exists (fileName)) {
-//				watcher.Path = Path.GetDirectoryName (fileName);
-//				watcher.Filter = Path.GetFileName (fileName);
-//				watcher.Changed += (FileSystemEventHandler) DispatchService.GuiDispatch (new FileSystemEventHandler (OnSteticFileChanged));
-//				watcher.EnableRaisingEvents = true;
-//			}
 		}	
 	
 		void Unload ()
