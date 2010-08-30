@@ -451,7 +451,20 @@ namespace MonoDevelop.GtkCore
 //			return true;
 //		}
 		
-	
+		public void RenameComponentFile (ProjectFile pfComponent) 
+		{
+			foreach (ProjectFile pf in pfComponent.DependentChildren) {
+				if (pf.FilePath.FileName.Contains (BuildFileExtension)) {
+					FileService.RenameFile (pf.FilePath, 
+					                        GetBuildFileNameFromComponent (pfComponent.FilePath));
+				}
+				if (pf.FilePath.FileName.Contains (DesignerFileExtension)) {
+					FileService.RenameFile (pf.FilePath, 
+					                        GetDesignerFileNameFromComponent (pfComponent.FilePath));
+				}
+			}
+		}
+			         
 		public string GetComponentFile (string componentName)
 		{
 			IType type = GuiBuilderProject.FindClass (componentName);
@@ -499,12 +512,16 @@ namespace MonoDevelop.GtkCore
 							return child.FilePath;
 					}
 				}
-				string buildFile = componentFile.Replace 
-					(Path.GetExtension (SteticGeneratedFile), BuildFileExtension + langExtension);
-				return buildFile;
+				return GetBuildFileNameFromComponent (componentFile);
 			}
-			
 			return null;
+		}
+		
+		public string GetBuildFileNameFromComponent (string componentFile)
+		{
+			string buildFile = componentFile.Replace 
+					(langExtension, BuildFileExtension + langExtension);
+			return buildFile;
 		}
 		
 		public string GetDesignerFileFromComponent (string componentFile)
@@ -517,11 +534,15 @@ namespace MonoDevelop.GtkCore
 							return child.FilePath;
 					}
 				}
-				string gtkxFile = componentFile.Replace (langExtension, DesignerFileExtension);
-				return gtkxFile;
+				return GetDesignerFileNameFromComponent (componentFile);
 			}
-			
 			return null;
+		}
+		
+		public string GetDesignerFileNameFromComponent (string componentFile)
+		{
+			string gtkxFile = componentFile.Replace (langExtension, DesignerFileExtension);
+			return gtkxFile;
 		}
 		
 		public string GetComponentFileFromDesigner (string gtkxFile)

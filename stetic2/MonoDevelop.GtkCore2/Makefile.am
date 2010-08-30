@@ -4,8 +4,13 @@ ADDIN_BUILD = $(top_builddir)/build/AddIns/MonoDevelop.GtkCore2
 ASSEMBLY = $(ADDIN_BUILD)/MonoDevelop.GtkCore2.dll
 
 DEPS =  \
+	$(top_builddir)/build/AddIns/MonoDevelop.Deployment/MonoDevelop.Deployment.dll \
+	$(top_builddir)/build/AddIns/MonoDevelop.DesignerSupport/MonoDevelop.DesignerSupport.dll \
 	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libstetic2.dll \
-	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll
+	$(top_builddir)/build/AddIns/MonoDevelop.GtkCore2/libsteticui2.dll \
+	$(top_builddir)/build/bin/Mono.TextEditor.dll \
+	$(top_builddir)/build/bin/MonoDevelop.Core.dll \
+	$(top_builddir)/build/bin/MonoDevelop.Ide.dll
 
 REFS =  \
 	$(GLADE_SHARP_LIBS) \
@@ -13,11 +18,6 @@ REFS =  \
 	$(GTK_SHARP_LIBS) \
 	$(MONO_ADDINS_LIBS) \
 	-pkg:monodevelop \
-	-r:../../../build/AddIns/MonoDevelop.Deployment/MonoDevelop.Deployment.dll \
-	-r:../../../build/AddIns/MonoDevelop.DesignerSupport/MonoDevelop.DesignerSupport.dll \
-	-r:../../../build/bin/Mono.TextEditor.dll \
-	-r:../../../build/bin/MonoDevelop.Core.dll \
-	-r:../../../build/bin/MonoDevelop.Ide.dll \
 	-r:Mono.Posix \
 	-r:System \
 	-r:System.Core \

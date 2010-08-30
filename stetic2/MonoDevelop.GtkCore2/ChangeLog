@@ -1,3 +1,8 @@
+2010-08-30  Krzysztof Marecki  <freefirma@gmail.com>
+
+	* Makefile.am:
+	* MonoDevelop.GtkCore2.csproj: 
+
 2010-08-27  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* Makefile.am:

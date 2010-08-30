@@ -143,5 +143,18 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			return DragOperation.None;
 		}
 		
+		public override void RenameItem (string newName)
+		{
+			base.RenameItem (newName);
+			
+			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
+			if (project != null) {
+				ProjectFile pf = CurrentNode.DataItem as ProjectFile;
+				if (pf.IsComponentFile ()) {
+					GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+					info.RenameComponentFile (pf);
+				}
+			}
+		}
 	}
 }
