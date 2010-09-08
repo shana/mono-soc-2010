@@ -260,19 +260,22 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 		
 #if TRUNK
 		public override T GetContent<T> ()
-		{			
-			object ob = base.GetContent<T> ();
-			if (ob != null)
-				return (T) ob;
-			else if (content != null)
-				return content.GetContent<T> ();
-			else
-				return null;
+		{
+//			if (type == typeof(IEditableTextBuffer)) {
+//				// Intercept the IPositionable interface, since we need to
+//				// switch to the text editor when jumping to a line
+//				if (content.GetContent (type) != null)
+//					return this;
+//				else
+//					return null;
+//			}
+//			
+			return  base.GetContent<T> () ?? content.GetContent<T> ();
 		}
-		
+
 		public void JumpTo (int line, int column)
 		{
-			IEditableTextBuffer ip = (IEditableTextBuffer) content.GetContent<IEditableTextBuffer> ();
+			IEditableTextBuffer ip = content.GetContent<IEditableTextBuffer> ();
 			if (ip != null) {
 				ShowPage (0);
 				ip.SetCaretTo (line, column);

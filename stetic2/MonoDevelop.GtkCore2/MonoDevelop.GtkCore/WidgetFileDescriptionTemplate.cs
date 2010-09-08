@@ -49,6 +49,31 @@ namespace MonoDevelop.GtkCore
 			get { return "Widget"; }
 		}
 		
+#if TRUNK
+		
+		public override void Load (XmlElement filenode, FilePath baseDirectory)
+		{
+			foreach (XmlNode node in filenode.ChildNodes) {
+				XmlElement elem = node as XmlElement;
+				if (elem == null) continue;
+				
+				if (elem.Name == "SteticTemplate") {
+					if (steticTemplate != null)
+						throw new InvalidOperationException ("Widget templates can't contain more than one SteticTemplate element");
+					steticTemplate = elem;
+				} else if (fileTemplate == null) {
+					fileTemplate = FileDescriptionTemplate.CreateTemplate (elem, baseDirectory) as SingleFileDescriptionTemplate;
+					if (fileTemplate == null)
+						throw new InvalidOperationException ("Widget templates can only contain single-file and stetic templates.");
+				}
+			}
+			if (fileTemplate == null)
+				throw new InvalidOperationException ("File template not found in widget template.");
+			if (steticTemplate == null)
+				throw new InvalidOperationException ("Stetic template not found in widget template.");
+		}
+#else
+		
 		public override void Load (XmlElement filenode)
 		{
 			foreach (XmlNode node in filenode.ChildNodes) {
@@ -70,6 +95,7 @@ namespace MonoDevelop.GtkCore
 			if (steticTemplate == null)
 				throw new InvalidOperationException ("Stetic template not found in widget template.");
 		}
+#endif
 		
 		public override bool SupportsProject (Project project, string projectPath)
 		{
