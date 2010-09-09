@@ -64,9 +64,6 @@ namespace MonoDevelop.GtkCore
 		[ItemProperty (DefaultValue = "Designer")]
 		string steticFolderName = "Designer";
 		
-		[ItemProperty (DefaultValue = false)]
-		bool wasConverted;
-		
 		[ItemProperty (DefaultValue = true)]
 		bool hideGtkxFiles = true;
 		
@@ -171,8 +168,8 @@ namespace MonoDevelop.GtkCore
 			}
 		}
 		
-		public bool OldVersion {
-			get { return project.IsFileInProject (SteticFile) || wasConverted == false; }
+		public bool NeedsConversion {
+			get { return project.IsFileInProject (SteticFile); }
 		}
 		
 		FilePath ObjectsFile {
@@ -198,8 +195,13 @@ namespace MonoDevelop.GtkCore
 		}
 		
 		public FilePath SteticFolder {
-//			get { return project.BaseDirectory.Combine ("gtk-gui"); }
-			get { return project.BaseDirectory.Combine (!wasConverted ? "gtk-gui" : steticFolderName); }
+			get { 
+				FilePath oldfolder = project.BaseDirectory.Combine ("gtk-gui");
+				if (Directory.Exists (oldfolder))
+					return oldfolder;
+				
+				return project.BaseDirectory.Combine (steticFolderName); 
+			}
 		}
 		
 		public bool GenerateGettext {
@@ -337,8 +339,7 @@ namespace MonoDevelop.GtkCore
 			string oldSteticFile = SteticFile;
 			string oldGeneratedFile = SteticGeneratedFile;
 			SteticFolderName = guiFolderName;
-			wasConverted = true;
-			
+	
 			if (!Directory.Exists (SteticFolder))
 				FileService.CreateDirectory (SteticFolder);
 			
