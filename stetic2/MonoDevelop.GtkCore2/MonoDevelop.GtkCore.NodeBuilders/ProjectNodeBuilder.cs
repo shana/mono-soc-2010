@@ -78,7 +78,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			if (project is DotNetProject) {
 				GtkDesignInfo info = GtkDesignInfo.FromProject (project);
 				
-				if (info.OldVersion) {
+				if (info.NeedsConversion) {
 					ProjectConversionDialog dialog = new ProjectConversionDialog (project, info.SteticFolderName);
 					
 					try
