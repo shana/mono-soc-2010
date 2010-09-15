@@ -48,9 +48,7 @@ namespace MonoDevelop.GtkCore
 		public override string Name {
 			get { return "Widget"; }
 		}
-		
 #if TRUNK
-		
 		public override void Load (XmlElement filenode, FilePath baseDirectory)
 		{
 			foreach (XmlNode node in filenode.ChildNodes) {
@@ -73,7 +71,6 @@ namespace MonoDevelop.GtkCore
 				throw new InvalidOperationException ("Stetic template not found in widget template.");
 		}
 #else
-		
 		public override void Load (XmlElement filenode)
 		{
 			foreach (XmlNode node in filenode.ChildNodes) {
@@ -143,6 +140,8 @@ namespace MonoDevelop.GtkCore
 				
 				gproject.AddNewComponent (doc.DocumentElement);
 				gproject.Save (false);
+				//IdeApp.ProjectOperations.Save (project);
+				gproject.GenerateCode (fileName);
 				IdeApp.ProjectOperations.Save (project);
 				return true;
 			}
@@ -159,6 +158,7 @@ namespace MonoDevelop.GtkCore
 				sproject.AddNewActionGroup (doc.DocumentElement);
 				gproject.Save (false);
 				IdeApp.ProjectOperations.Save (project);
+				gproject.GenerateCode (fileName);
 				return true;
 			}
 			

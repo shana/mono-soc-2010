@@ -1,3 +1,14 @@
+2010-09-15  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* gtk-gui/gui.stetic:
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore2.addin.xml:
+	* MonoDevelop.GtkCore/GtkDesignInfo.cs:
+	* MonoDevelop.GtkCore/WidgetFileDescriptionTemplate.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectNodeBuilder.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs:
+
+
 2010-08-30  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* Makefile.am:
