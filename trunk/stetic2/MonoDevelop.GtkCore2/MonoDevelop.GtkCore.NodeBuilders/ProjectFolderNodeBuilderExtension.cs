@@ -2,9 +2,10 @@
 // ProjectFolderNodeBuilderExtension.cs
 //
 // Author:
-//   Lluis Sanchez Gual
+//   Lluis Sanchez Gual, Krzysztof Marecki
 //
 // Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+// Copyright (C) 2010 Krzysztof Marecki
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -116,8 +117,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		
 		public override bool CanDropMultipleNodes (object[] dataObjects, DragOperation operation, DropPosition position)
 		{
-			return false;
-			
 			foreach (object dataObject in dataObjects) 
 				if (dataObjects is GuiProjectFolder)
 					return false;
@@ -149,7 +148,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 				path = project.BaseDirectory;
 
 			IdeApp.ProjectOperations.CreateProjectFile (project, path, id);
-			
 			IdeApp.ProjectOperations.Save (project);
 			
 			ITreeNavigator nav = Tree.GetNodeAtObject (dataItem);

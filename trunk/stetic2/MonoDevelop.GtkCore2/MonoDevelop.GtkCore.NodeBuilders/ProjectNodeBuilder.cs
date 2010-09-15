@@ -2,9 +2,10 @@
 // ProjectNodeBuilder.cs
 //
 // Author:
-//   Lluis Sanchez Gual
+//   Lluis Sanchez Gual, Krzysztof Marecki
 //
 // Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+// Copyright (C) 2010 Krzysztof Marecki
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -25,7 +26,6 @@
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-
 using System;
 using System.Collections;
 using System.IO;
@@ -55,7 +55,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		
 		public override Type CommandHandlerType {
 			get {
-				return typeof (GuiProjectFolderCommandHandler);
+				return typeof (UserInterfaceCommandHandler);
 			}
 		}
 		

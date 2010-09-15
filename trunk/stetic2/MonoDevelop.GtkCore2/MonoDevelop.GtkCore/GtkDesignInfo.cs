@@ -469,9 +469,7 @@ namespace MonoDevelop.GtkCore
 		public string GetComponentFile (string componentName)
 		{
 			IType type = GuiBuilderProject.FindClass (componentName);
-			
 			if (type != null) {
-				
 				foreach (IType part in type.Parts) {
 					string componentFile = part.CompilationUnit.FileName.FullPath;
 					if (componentFile.Contains (BuildFileExtension))
@@ -479,6 +477,15 @@ namespace MonoDevelop.GtkCore
 					
 					return componentFile;
 				}
+			}
+			
+			//If ProjectDom does not exist, assume that project is being created
+			//and return component file path that is located in the project root folder
+			ProjectDom ctx = ProjectDomService.GetProjectDom (project);
+			if (ctx == null) {
+				string componentFile = Path.Combine (project.BaseDirectory, componentName + langExtension);
+				if (File.Exists (componentFile))
+					return componentFile;
 			}
 			
 			return null;
@@ -585,13 +592,15 @@ namespace MonoDevelop.GtkCore
 			List<string> folders = new List<string> ();
 			ProjectDom ctx = GuiBuilderProject.GetParserContext ();
 			
-			foreach (IType type in ctx.Types)
-				foreach (IType part in type.Parts) {
-					FilePath folder = part.CompilationUnit.FileName.ParentDirectory;
-					string folderName = folder.FullPath.ToString ();
-				
-					if (!folders.Contains (folderName))
-						folders.Add (folder);
+			if (ctx != null) {
+				foreach (IType type in ctx.Types)
+					foreach (IType part in type.Parts) {
+						FilePath folder = part.CompilationUnit.FileName.ParentDirectory;
+						string folderName = folder.FullPath.ToString ();
+					
+						if (!folders.Contains (folderName))
+							folders.Add (folder);
+				}
 			}
 			
 			return folders.ToArray ();
