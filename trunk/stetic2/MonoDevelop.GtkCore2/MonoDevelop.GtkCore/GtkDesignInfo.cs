@@ -4,8 +4,10 @@
 // Authors:
 //   Lluis Sanchez Gual
 //   Mike Kestner
+//   Krzysztof Marecki
 //
 // Copyright (C) 2006-2008 Novell, Inc (http://www.novell.com)
+// Copyright (C) 2010 Krzysztof Marecki
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -490,17 +492,6 @@ namespace MonoDevelop.GtkCore
 			
 			return null;
 		}
-		
-//		public string GetBuildFile (string componentFile)
-//		{	
-//			if (componentFile != null) {
-//				string buildFile = componentFile.Replace 
-//					(Path.GetExtension (SteticGeneratedFile), BuildFileExtension + langExtension);
-//				return buildFile;
-//			}
-//			
-//			return null;
-//		}
 		
 		public string GetBuildFileInSteticFolder (string componentName)
 		{
