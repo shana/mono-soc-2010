@@ -1,3 +1,8 @@
+2010-09-17  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+	Reorganizing project pad menu items.
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore2.addin.xml: 
+
 2010-09-15  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* gtk-gui/gui.stetic:

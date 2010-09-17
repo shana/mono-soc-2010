@@ -106,7 +106,7 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		[CommandUpdateHandler (GtkCommands.EditIcons)]
 		protected void UpdateGtkSettings (CommandInfo cinfo)
 		{
-			//cinfo.Visible = CanAddWindow ();
+			cinfo.Visible = CanAddWindow ();
 		}
 		
 		[CommandUpdateHandler (EditCommands.Delete)]

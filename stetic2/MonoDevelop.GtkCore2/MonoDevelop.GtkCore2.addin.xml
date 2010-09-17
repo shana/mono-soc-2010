@@ -1,6 +1,6 @@
 <Addin id = "GtkCore2"
        namespace = "MonoDevelop"
-       name	= "GTK# Visual Designer (GSOC 2010)"
+       name	= "GTK# Visual Designer (GSOC)"
        author	 = "Lluis Sanchez Gual, Krzysztof Marecki"
        copyright = "X11"
        url       = ""
@@ -110,7 +110,7 @@
 	</Extension>
 	
 	<Extension path = "/MonoDevelop/Ide/ContextMenu/ProjectPad">
-		<Condition id="ItemType" value="Project|MonoDevelop.GtkCore.NodeBuilders.GuiProjectFolder">
+		<Condition id="ItemType" value="MonoDevelop.GtkCore.NodeBuilders.GuiProjectFolder">
 			<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.EditIcons" insertafter="BuildSectionEnd"/>
 			<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.ImportGladeFile" />
 			<SeparatorItem/>
