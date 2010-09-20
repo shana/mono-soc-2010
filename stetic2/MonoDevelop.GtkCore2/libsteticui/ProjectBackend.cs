@@ -732,6 +732,11 @@ namespace Stetic {
 			doc.LoadXml (template);
 			Gtk.Widget widget = Stetic.WidgetUtils.ImportWidget (this, doc.DocumentElement);
 			AddWidget (widget);
+			
+			string name = widget.Name;
+			if (!modifiedTopLevels.Contains (name))
+				modifiedTopLevels.Add (name);
+			
 			return Component.GetSafeReference (ObjectWrapper.Lookup (widget));
 		}
 		
