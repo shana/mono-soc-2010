@@ -140,7 +140,6 @@ namespace MonoDevelop.GtkCore
 				
 				gproject.AddNewComponent (doc.DocumentElement);
 				gproject.Save (false);
-				//IdeApp.ProjectOperations.Save (project);
 				gproject.GenerateCode (fileName);
 				IdeApp.ProjectOperations.Save (project);
 				return true;
@@ -157,8 +156,8 @@ namespace MonoDevelop.GtkCore
 				Stetic.Project sproject = gproject.SteticProject;
 				sproject.AddNewActionGroup (doc.DocumentElement);
 				gproject.Save (false);
-				IdeApp.ProjectOperations.Save (project);
 				gproject.GenerateCode (fileName);
+				IdeApp.ProjectOperations.Save (project);
 				return true;
 			}
 			
