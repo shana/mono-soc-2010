@@ -734,9 +734,6 @@ namespace Stetic {
 			AddWidget (widget);
 			
 			string name = widget.Name;
-			if (!modifiedTopLevels.Contains (name))
-				modifiedTopLevels.Add (name);
-			
 			return Component.GetSafeReference (ObjectWrapper.Lookup (widget));
 		}
 		

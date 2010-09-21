@@ -20,7 +20,6 @@ namespace Stetic
 		bool reloadRequested;
 		List<WidgetInfo> widgets = new List<WidgetInfo> ();
 		List<ActionGroupInfo> groups = new List<ActionGroupInfo> ();
-		bool modified;
 		ImportFileDelegate importFileDelegate;
 		
 		public event WidgetInfoEventHandler WidgetAdded;
