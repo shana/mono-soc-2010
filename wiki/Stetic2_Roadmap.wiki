@@ -1,0 +1,12 @@
+= GTK# Visual Designer (GSOC 2010) Roadmap =
+
+=== 2.4.0.5 (?) ===
+
+=== 2.4.0.4 (21.09.2010)===
+
+  * Fixes saving changes in the desig
+
+=== 2.4.0.3 (17.09.2010)===
+
+
+=== 2.4.0.2 (30.08.2010)===
