@@ -1,3 +1,7 @@
+2010-09-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* wrapper/Bin.cs: Set RootWrapperName
+
 2010-08-15  Krzysztof Marecki  <freefirma@gmail.com>
 
 	* DND.cs:

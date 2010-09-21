@@ -1,3 +1,8 @@
+2010-09-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Project.cs: Code cleanup
+	* ProjectBackend.cs: 
+
 2010-09-20  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* ProjectBackend.cs: 
