@@ -466,9 +466,16 @@ namespace Stetic {
 			return false;
 		}
 		
+		public void ReloadComponent (string componentName)
+		{
+			ReloadTopLevel (componentName);
+			//TODO: Make reloading works for action groups
+		}
+			               
+		
 		public void ReloadActionGroup (string groupName)
 		{
-			
+			//TODO : Implement method ReloadActionGroup
 		}
 		
 		XmlElement ReadDesignerFile (string componentName, string elementName)

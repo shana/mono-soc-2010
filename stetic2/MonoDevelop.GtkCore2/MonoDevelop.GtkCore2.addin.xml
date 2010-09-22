@@ -6,7 +6,7 @@
        url       = ""
        description = "Experimental GTK# visual designer developed during GSOC 2010 as a fork of stetic"
 	   category    = "IDE extensions"
-       version   = "2.4.0.4">
+       version   = "2.4.0.5">
 
 	<Runtime>
 		<Import assembly="libstetic2.dll"/>
@@ -95,7 +95,10 @@
 				_label = "GTK# support settings..." 
 				 icon = "md-gtkcore-gtk-logo"/>
 		<Command id = "MonoDevelop.GtkCore.GtkCommands.GenerateCode"
-				_label = "Generate code..."/>
+				_label = "Generate designer code..."
+				icon="md-gtkcore-gtkx"/>
+		<Command id = "MonoDevelop.GtkCore.GtkCommands.ReloadDesigner"
+				_label = "Reload designer..."/>
 		</Category>
 	</Extension>
 	
@@ -118,6 +121,7 @@
 		</Condition>
 		<Condition id="ItemType" value="ProjectFile">
 			<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.GenerateCode" insertafter="BuildSectionEnd"/>
+			<CommandItem id = "MonoDevelop.GtkCore.GtkCommands.ReloadDesigner"/>
 		</Condition>
 	</Extension>
 	

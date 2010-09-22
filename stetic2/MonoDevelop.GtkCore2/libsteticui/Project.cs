@@ -206,6 +206,12 @@ namespace Stetic
 			}
 		}
 		
+		public void ReloadComponent (string componentName)
+		{
+			if (backend != null)
+				backend.ReloadComponent (componentName);
+		}
+		
 		void ReadWidget (XmlTextReader reader)
 		{
 			WidgetInfo w = new WidgetInfo (this, reader.GetAttribute ("id"), reader.GetAttribute ("class"));

@@ -95,20 +95,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			if (gproject != null && gproject.Project == project)
 				return;
 			
-			if (designer != null)
-				designerStatus = designer.SaveStatus ();
-			
-			CloseDesigner ();
-			CloseProject ();
-			if (project != null) {
-				GuiBuilderWindow w = GuiBuilderDisplayBinding.GetWindow (this.ContentName);
-				if (w != null) {
-					AttachWindow (w);
-					if (designerStatus != null)
-						designer.LoadStatus (designerStatus);
-					designerStatus = null;
-				}
-			}
+			ReloadDesigner (project);
 		}
 		
 		void LoadDesigner ()
@@ -166,6 +153,24 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			
 			designer.ShowAll ();
 			GuiBuilderService.SteticApp.ActiveDesigner = designer;
+		}
+		
+		public void ReloadDesigner (Project project) 
+		{
+			if (designer != null)
+				designerStatus = designer.SaveStatus ();
+			
+			CloseDesigner ();
+			CloseProject ();
+			if (project != null) {
+				GuiBuilderWindow w = GuiBuilderDisplayBinding.GetWindow (this.ContentName);
+				if (w != null) {
+					AttachWindow (w);
+					if (designerStatus != null)
+						designer.LoadStatus (designerStatus);
+					designerStatus = null;
+				}
+			}
 		}
 		
 		public override Stetic.Designer Designer {

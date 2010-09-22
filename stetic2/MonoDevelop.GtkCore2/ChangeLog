@@ -1,3 +1,16 @@
+2010-09-22  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+	Implements ReloadDesigner commands.
+	* Makefile.am: 
+	* MonoDevelop.GtkCore2.csproj:
+	* MonoDevelop.GtkCore2.addin.xml:
+	* MonoDevelop.GtkCore.Commands/GtkCommands.cs:
+	* MonoDevelop.GtkCore.Commands/GladeCommands.cs:
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderView.cs:
+	* MonoDevelop.GtkCore.GuiBuilder/GuiBuilderProject.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFileNodeBuilderExtension.cs:
+	* MonoDevelop.GtkCore.NodeBuilders/ProjectFolderNodeBuilderExtension.cs:
+
+
 2010-09-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* MonoDevelop.GtkCore2.csproj: 

@@ -43,8 +43,6 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 		public override bool CanBuildNode (Type dataType)
 		{
 			return typeof(ProjectFolder).IsAssignableFrom (dataType) && !(dataType is GuiProjectFolder);
-//			       typeof(DotNetProject).IsAssignableFrom (dataType);
-			return false;
 		}
 		
 		public override Type CommandHandlerType {

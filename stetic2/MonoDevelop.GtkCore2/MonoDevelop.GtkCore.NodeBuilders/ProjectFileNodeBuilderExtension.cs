@@ -6,6 +6,7 @@ using MonoDevelop.Ide;
 using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.Ide.Gui.Components;
+using MonoDevelop.Ide.Gui.Content;
 using MonoDevelop.Ide.Gui.Pads.ProjectPad;
 using MonoDevelop.Projects;
 using MonoDevelop.Projects.Dom;
@@ -118,7 +119,25 @@ namespace MonoDevelop.GtkCore.NodeBuilders
 			gproject.GenerateCode (pf.FilePath);
 		}
 		
+		[CommandHandler (GtkCommands.ReloadDesigner)]
+		protected void OnReloadDesigner ()
+		{
+			ProjectFile pf = CurrentNode.DataItem as ProjectFile;
+			Project project = CurrentNode.GetParentDataItem (typeof(Project), true) as Project;
+			GtkDesignInfo info = GtkDesignInfo.FromProject (project);
+			GuiBuilderProject gproject = info.GuiBuilderProject;
+			
+			Document doc = IdeApp.Workbench.GetDocument (pf.FilePath);
+			if (doc != null) {
+				gproject.ReloadFile(pf.FilePath);
+				GuiBuilderView view = doc.ActiveView as GuiBuilderView;
+				if (view != null) 
+					view.ReloadDesigner (project);
+			}
+		}
+		
 		[CommandUpdateHandler (GtkCommands.GenerateCode)]
+		[CommandUpdateHandler (GtkCommands.ReloadDesigner)]
 		protected void UpdateGenerateCode (CommandInfo cinfo)
 		{
 			ProjectFile pf = CurrentNode.DataItem as ProjectFile;
