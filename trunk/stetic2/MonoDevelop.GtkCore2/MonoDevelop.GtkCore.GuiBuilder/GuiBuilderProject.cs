@@ -222,6 +222,17 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			NotifyChanged ();
 		}
 		
+		public void ReloadFile (string fileName)
+		{
+			GuiBuilderWindow window = GetWindowForFile (fileName);
+			if (window != null) {
+				var root = window.RootWidget;
+				UnregisterWindow (window);
+				gproject.ReloadComponent (window.Name);
+				RegisterWindow (root, false);
+			}
+		}
+		
 		public bool HasError {
 			get { return hasError; }
 		}
@@ -306,7 +317,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 		}
 	
-		void RegisterWindow (Stetic.WidgetInfo widget, bool notify)
+		public void RegisterWindow (Stetic.WidgetInfo widget, bool notify)
 		{
 			if (formInfos != null) {
 				foreach (GuiBuilderWindow w in formInfos)
@@ -334,7 +345,7 @@ namespace MonoDevelop.GtkCore.GuiBuilder
 			}
 		}
 	
-		void UnregisterWindow (GuiBuilderWindow win)
+		public void UnregisterWindow (GuiBuilderWindow win)
 		{
 			if (!formInfos.Contains (win))
 				return;

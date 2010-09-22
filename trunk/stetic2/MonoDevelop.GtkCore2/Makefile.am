@@ -28,7 +28,7 @@ FILES =  \
 	gtk-gui/generated.cs \
 	gtk-gui/MonoDevelop.GtkCore.Dialogs.GtkDesignerOptionsPanelWidget.cs \
 	gtk-gui/MonoDevelop.GtkCore.Dialogs.ProjectConversionDialog.cs \
-	MonoDevelop.GtkCore.Commands/GladeCommands.cs \
+	MonoDevelop.GtkCore.Commands/GtkCommands.cs \
 	MonoDevelop.GtkCore.Dialogs/BindDesignDialog.cs \
 	MonoDevelop.GtkCore.Dialogs/ConfirmWindowDeleteDialog.cs \
 	MonoDevelop.GtkCore.Dialogs/GtkDesignerOptionsPanelWidget.cs \

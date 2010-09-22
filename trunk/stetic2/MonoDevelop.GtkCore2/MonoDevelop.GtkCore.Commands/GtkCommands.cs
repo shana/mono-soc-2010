@@ -3,8 +3,10 @@
 //
 // Author:
 //   Lluis Sanchez Gual
+//   Krzysztof Marecki
 //
 // Copyright (C) 2006 Novell, Inc (http://www.novell.com)
+// Copyright (C) 2010 Krzysztof Marecki
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -37,6 +39,7 @@ namespace MonoDevelop.GtkCore
 		ImportGladeFile,
 		EditIcons,
 		GtkSettings,
-		GenerateCode
+		GenerateCode,
+		ReloadDesigner
 	}
 }

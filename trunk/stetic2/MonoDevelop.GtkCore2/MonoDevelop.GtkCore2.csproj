@@ -160,7 +160,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MonoDevelop.GtkCore.Commands\GladeCommands.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\ClassUtils.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\GuiBuilderDisplayBinding.cs" />
     <Compile Include="MonoDevelop.GtkCore.GuiBuilder\GuiBuilderProject.cs" />
@@ -202,6 +201,7 @@
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\GuiProjectFolder.cs" />
     <Compile Include="MonoDevelop.GtkCore.NodeBuilders\GuiProjectFolderNodeBuilder.cs" />
     <Compile Include="gtk-gui\MonoDevelop.GtkCore.Dialogs.ProjectConversionDialog.cs" />
+    <Compile Include="MonoDevelop.GtkCore.Commands\GtkCommands.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Mono.Addins.targets" />
