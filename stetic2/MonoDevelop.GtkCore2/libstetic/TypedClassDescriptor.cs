@@ -14,6 +14,7 @@ namespace Stetic
 		MethodInfo ctorMethodInfo;
 		MethodInfo ctorMethodInfoWithClass;
 		ConstructorInfo cinfo;
+		ConstructorInfo cinfoNoParams;
 		bool useGTypeCtor;
 		Gdk.Pixbuf icon;
 		bool defaultValuesLoaded;
@@ -27,6 +28,16 @@ namespace Stetic
 			bool inheritedWrapper = false;
 			
 			wrapped = Registry.GetType (elem.GetAttribute ("type"), true);
+			if (wrapped != null) {
+				ConstructorInfo[] cInfos = wrapped.GetConstructors();
+				foreach (ConstructorInfo ci in cInfos) {
+					if (ci.GetParameters().Length == 0) {
+						cinfoNoParams = ci;
+						break;
+					}
+				}
+			}
+			
 			if (elem.HasAttribute ("wrapper"))
 			    wrapper = Registry.GetType (elem.GetAttribute ("wrapper"), true);
 			else {
@@ -128,6 +139,11 @@ namespace Stetic
 		public override object CreateInstance (IProject proj)
 		{
 			object inst;
+			
+			if (cinfoNoParams != null) {
+				inst = cinfoNoParams.Invoke (null, null);
+				if (inst != null) return inst;
+			}
 
 			if (ctorMethodInfoWithClass != null) {
 				inst = ctorMethodInfoWithClass.Invoke (null, new object[] { this });

@@ -12,6 +12,7 @@ namespace Stetic {
 		
 		static XslTransform gladeImport, gladeExport;
 		static WidgetLibrary coreLib;
+		static WidgetLibrary coreLib2;
 		
 		public static event EventHandler RegistryChanging;
 		public static event EventHandler RegistryChanged;
@@ -19,14 +20,20 @@ namespace Stetic {
 		static int changing;
 		static bool changed;
 
-		public static void Initialize (WidgetLibrary coreLibrary)
+		public static void Initialize (WidgetLibrary coreLibrary, WidgetLibrary coreLibrary2)
 		{
 			RegisterWidgetLibrary (coreLibrary);
+			RegisterWidgetLibrary (coreLibrary2);
 			coreLib = coreLibrary;
+			coreLib2 = coreLibrary2;
 		}
 		
 		public static WidgetLibrary CoreWidgetLibrary {
 			get { return coreLib; }
+		}
+		
+		public static WidgetLibrary CoreWidgetLibrary2 {
+			get { return coreLib2; }
 		}
 		
 		public static void BeginChangeSet ()

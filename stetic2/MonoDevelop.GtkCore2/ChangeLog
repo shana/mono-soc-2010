@@ -1,3 +1,7 @@
+2010-09-30  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* gtk-gui/gui.stetic: 
+
 2010-09-22  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 	Implements ReloadDesigner commands.
 	* Makefile.am: 

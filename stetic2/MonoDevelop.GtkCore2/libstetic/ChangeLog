@@ -1,3 +1,8 @@
+2010-09-30  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* Registry.cs:
+	* TypedClassDescriptor.cs: 
+
 2010-09-21  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* wrapper/Bin.cs: Set RootWrapperName
