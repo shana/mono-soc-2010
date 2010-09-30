@@ -1,7 +1,8 @@
-= GTK# Visual Designer (GSOC 2010) Roadmap =
+= GTK# Visual Designer (GSOC 2010) Changelog =
 
-=== 2.4.0.5 (?) ===
+=== 2.4.0.5 (0?.10.2010) ===
 
+  * In the designer use real custom widgets instead of a placeholders for referenced assemblies.<br> MonoDevelop restart is required if widgets have been changed (no separate process for running a backend, yet :))
 
 === 2.4.0.4 (21.09.2010)===
 
