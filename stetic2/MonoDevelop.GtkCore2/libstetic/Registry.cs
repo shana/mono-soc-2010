@@ -20,12 +20,12 @@ namespace Stetic {
 		static int changing;
 		static bool changed;
 
-		public static void Initialize (WidgetLibrary coreLibrary, WidgetLibrary coreLibrary2)
+		public static void Initialize (WidgetLibrary coreLibrary)
 		{
 			RegisterWidgetLibrary (coreLibrary);
-			RegisterWidgetLibrary (coreLibrary2);
+			
 			coreLib = coreLibrary;
-			coreLib2 = coreLibrary2;
+			
 		}
 		
 		public static WidgetLibrary CoreWidgetLibrary {
