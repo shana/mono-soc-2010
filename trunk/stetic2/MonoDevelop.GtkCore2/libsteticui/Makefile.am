@@ -81,6 +81,7 @@ REFS =  \
 	$(GLIB_SHARP_LIBS) \
 	$(GTK_SHARP_LIBS) \
 	-pkg:monodevelop \
+	-r:../../../../../../../src/GtkForms/Gtk.Forms/bin/Debug/GtkForms.dll \
 	-r:Mono.Posix \
 	-r:System \
 	-r:System.Core \
