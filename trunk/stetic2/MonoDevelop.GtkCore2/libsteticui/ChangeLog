@@ -1,5 +1,9 @@
 2010-09-30  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
+	* ApplicationBackend.cs: 
+
+2010-09-30  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
 	* Makefile.am:
 	* libsteticui2.csproj:
 	* ApplicationBackend.cs: 

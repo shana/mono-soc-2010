@@ -34,8 +34,7 @@ namespace Stetic
 			appFrontend = app;
 			coreLibrary = Path.GetFullPath (typeof(Registry).Assembly.Location);
 			string coreLibrary2 =  Path.GetFullPath (typeof(GtkForms.FormsDatePicker).Assembly.Location);
-			Registry.Initialize (new AssemblyWidgetLibrary (coreLibrary, typeof(Registry).Assembly),
-			                     new AssemblyWidgetLibrary (coreLibrary2, typeof(GtkForms.FormsDatePicker).Assembly));
+			Registry.Initialize (new AssemblyWidgetLibrary (coreLibrary, typeof(Registry).Assembly));
 			                                                                     
 			WidgetDesignerBackend.DefaultObjectViewer = this;
 		}
@@ -152,7 +151,7 @@ namespace Stetic
 				Registry.BeginChangeSet ();
 				
 				libraries.Add (Registry.CoreWidgetLibrary.Name);
-				libraries.Add (Registry.CoreWidgetLibrary2.Name);
+//				libraries.Add (Registry.CoreWidgetLibrary2.Name);
 				
 				// Notify libraries that need to be unloaded and loaded again
 				foreach (WidgetLibrary lib in Registry.RegisteredWidgetLibraries) {
@@ -266,7 +265,7 @@ namespace Stetic
 		WidgetLibrary CreateLibrary (AssemblyResolver resolver, string name)
 		{
 			try {
-				if (allowInProcLibraries)
+				if ((allowInProcLibraries) || name.Contains("GtkForms"))
 					return new AssemblyWidgetLibrary (resolver, name);
 				else
 					return new CecilWidgetLibrary (resolver, name);
