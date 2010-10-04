@@ -140,10 +140,6 @@ namespace Stetic
 		{
 			object inst;
 			
-			if (cinfoNoParams != null) {
-				inst = cinfoNoParams.Invoke (null, null);
-				if (inst != null) return inst;
-			}
 
 			if (ctorMethodInfoWithClass != null) {
 				inst = ctorMethodInfoWithClass.Invoke (null, new object[] { this });
@@ -153,6 +149,12 @@ namespace Stetic
 				inst = ctorMethodInfo.Invoke (null, new object[0]);
 				if (inst != null) return inst;
 			}
+			
+			if (cinfoNoParams != null) {
+				inst = cinfoNoParams.Invoke (null, null);
+				if (inst != null) return inst;
+			}
+
 			
 			if (cinfo == null)
 				throw new InvalidOperationException ("The class '" + wrapped + "' does not have a default constructor.");

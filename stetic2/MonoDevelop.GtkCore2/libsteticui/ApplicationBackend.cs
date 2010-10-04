@@ -33,7 +33,6 @@ namespace Stetic
 		{
 			appFrontend = app;
 			coreLibrary = Path.GetFullPath (typeof(Registry).Assembly.Location);
-			string coreLibrary2 =  Path.GetFullPath (typeof(GtkForms.FormsDatePicker).Assembly.Location);
 			Registry.Initialize (new AssemblyWidgetLibrary (coreLibrary, typeof(Registry).Assembly));
 			                                                                     
 			WidgetDesignerBackend.DefaultObjectViewer = this;
@@ -265,7 +264,7 @@ namespace Stetic
 		WidgetLibrary CreateLibrary (AssemblyResolver resolver, string name)
 		{
 			try {
-				if ((allowInProcLibraries) || name.Contains("GtkForms"))
+				if ((allowInProcLibraries) || name.Contains("GtkForms") || name.Contains("FreeFirma.Gtk"))
 					return new AssemblyWidgetLibrary (resolver, name);
 				else
 					return new CecilWidgetLibrary (resolver, name);
