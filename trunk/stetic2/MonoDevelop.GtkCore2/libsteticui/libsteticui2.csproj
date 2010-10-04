@@ -75,12 +75,8 @@
     <Reference Include="Mono.TextEditor, Version=1.0.0.0, Culture=neutral">
       <Package>monodevelop</Package>
     </Reference>
-    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=cea54449d721aaec">
+    <Reference Include="Mono.Debugging, Version=0.0.0.0, Culture=neutral, PublicKeyToken=9307d64546e0580d">
       <Package>monodevelop</Package>
-    </Reference>
-    <Reference Include="GtkForms, Version=1.0.3924.21860, Culture=neutral, PublicKeyToken=null">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\src\GtkForms\Gtk.Forms\bin\Debug\GtkForms.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

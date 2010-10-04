@@ -1,3 +1,7 @@
+2010-10-04  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* MonoDevelop.GtkCore2.csproj: 
+
 2010-09-30  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* gtk-gui/gui.stetic: 
