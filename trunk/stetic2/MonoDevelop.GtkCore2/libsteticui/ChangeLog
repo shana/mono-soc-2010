@@ -1,3 +1,7 @@
+2010-10-28  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
+
+	* ApplicationBackend.cs: 
+
 2010-10-04  Krzysztof Marecki  <marecki.krzysztof@gmail.com>
 
 	* Makefile.am:

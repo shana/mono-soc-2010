@@ -3,6 +3,7 @@
 //
 // Author:
 //   Lluis Sanchez Gual
+//   Krzysztof Marecki
 //
 // Copyright (C) 2006 Novell, Inc (http://www.novell.com)
 //

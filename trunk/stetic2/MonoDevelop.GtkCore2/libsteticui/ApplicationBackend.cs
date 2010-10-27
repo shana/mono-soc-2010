@@ -264,7 +264,7 @@ namespace Stetic
 		WidgetLibrary CreateLibrary (AssemblyResolver resolver, string name)
 		{
 			try {
-				if ((allowInProcLibraries) || name.Contains("GtkForms") || name.Contains("FreeFirma.Gtk"))
+				if (allowInProcLibraries)
 					return new AssemblyWidgetLibrary (resolver, name);
 				else
 					return new CecilWidgetLibrary (resolver, name);
